@@ -27,9 +27,12 @@ model Property {
   id          String   @id @default(cuid())
   title       String
   description String?
-  price       Float
-  location    String
+  price       Int
+  propertyType String
+  landSize    Int
+  address     String
   city        String
+  area        String
   bedrooms   Int
   bathrooms   Int
   imageUrl    String?
