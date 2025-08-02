@@ -1,59 +1,42 @@
-import Layout from "../Dashboard/Layout";
-import { FiMapPin, FiDollarSign, FiHome } from "react-icons/fi";
+// Example of how to use the button in a property list page
+import Layout from '../Dashboard/Layout';
+import { PrismaClient } from '../generated/prisma';
+import Link from 'next/link';
+import { Edit } from 'lucide-react';
+import { DeletePropertyButton } from './DeletePropertyButton'; // Adjust the import path as necessary
 
-const mockProperties = [
-  {
-    id: 1,
-    name: "Sunset Villa",
-    location: "Freetown",
-    price: 120000,
-    type: "House",
-  },
-  {
-    id: 2,
-    name: "City Apartment",
-    location: "Bo",
-    price: 75000,
-    type: "Apartment",
-  },
-  {
-    id: 3,
-    name: "Ocean View Studio",
-    location: "Lungi",
-    price: 45000,
-    type: "Studio",
-  },
-];
+const prisma = new PrismaClient();
 
-export default function Properties() {
+async function getProperties() {
+  return await prisma.property.findMany({
+    orderBy: { postedAt: 'desc' },
+  });
+}
+
+export default async function PropertiesListPage() {
+  const properties = await getProperties();
+
   return (
     <Layout>
-      <div className="mb-6">
-        <h2 className="text-2xl font-semibold">My Properties</h2>
-        <p className="text-gray-600 text-sm">
-          Manage all your active listings here.
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {mockProperties.map((property) => (
-          <div key={property.id} className="bg-white shadow rounded p-4 space-y-2">
-            <div className="text-lg font-semibold">{property.name}</div>
-            <div className="text-sm text-gray-600 flex items-center gap-2">
-              <FiMapPin /> {property.location}
+    <div>
+      <h1>Manage Properties</h1>
+      <div className="space-y-4">
+        {properties.map((prop) => (
+          <div key={prop.id} className="flex justify-between items-center p-4 border rounded-lg">
+            <div>
+              <h3 className="font-bold">{prop.title}</h3>
+              <p className="text-sm text-gray-500">{prop.address}</p>
             </div>
-            <div className="text-sm text-gray-600 flex items-center gap-2">
-              <FiDollarSign /> ${property.price.toLocaleString()}
+            <div className="flex items-center gap-4">
+              <Link href={`/Dashboard/properties/${prop.id}/edit`} className="text-blue-600 hover:text-blue-800" title="Edit Property">
+                <Edit size={20} />
+              </Link>
+              <DeletePropertyButton propertyId={prop.id} />
             </div>
-            <div className="text-sm text-gray-600 flex items-center gap-2">
-              <FiHome /> {property.type}
-            </div>
-            <button className="mt-3 bg-teal-600 text-white px-3 py-1 rounded hover:bg-teal-700 text-sm">
-              View Details
-            </button>
           </div>
         ))}
       </div>
+    </div>
     </Layout>
   );
 }

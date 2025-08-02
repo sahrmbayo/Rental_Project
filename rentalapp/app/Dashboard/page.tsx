@@ -8,8 +8,14 @@ import { Link } from "lucide-react";
 
 export default function Home() {
   const router = useRouter();
-  const handleClick = () => {
-    router.push("/Dashboard/add-property");
+  const handleClick = (check) => {
+    if (check==1) {
+      router.push("/Dashboard/add-property");
+    }
+    if (check==2){
+      router.push("/Dashboard/properties");
+    }
+    
   };
   
   return (
@@ -20,11 +26,11 @@ export default function Home() {
       </p>
 
       <div  className="flex gap-4 mb-6 flex-wrap justify-center">
-        <button onClick={()=>handleClick()} className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+        <button onClick={()=>handleClick(1)} className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
           + Add New Property
         </button>
-        
-        <button className="bg-white border px-4 py-2 rounded hover:bg-gray-100" >
+
+        <button onClick={()=>handleClick(2)} className="bg-white border px-4 py-2 rounded hover:bg-gray-100" >
           View Properties
         </button>
       
