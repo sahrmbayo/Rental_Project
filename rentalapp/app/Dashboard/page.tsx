@@ -57,8 +57,7 @@ export default function DashboardPage() {
     };
 
     fetchDashboardStats();
-  }, []); // The empty array [] ensures this runs only once
-
+  }, []); 
   return (
     <DashboardLayout
       currentPage="dashboard"

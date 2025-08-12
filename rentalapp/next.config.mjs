@@ -4,14 +4,18 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'res.cloudinary.com',
+        hostname: 'res.cloudinary.com', // For your property images
       },
       {
         protocol: 'https',
-        hostname: 'placehold.co',
+        hostname: 'placehold.co', // For property placeholders
+      },
+      {
+        protocol: 'https',
+        hostname: 'i.pravatar.cc', // For agent photo placeholders
       },
     ],
   },
 };
 
-export default nextConfig; // Use this syntax for .mjs files
+export default nextConfig;

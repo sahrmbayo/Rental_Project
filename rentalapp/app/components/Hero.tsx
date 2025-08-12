@@ -1,28 +1,65 @@
 'use client';
 
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { MapPin, Home, DollarSign, Search } from 'lucide-react';
+import { PrismaClient } from '../generated/prisma';
+
+const prisma = new PrismaClient();
 
 export default function Hero() {
-    const sierraLeoneCities = [
-    "Freetown", 
-    "Bo", 
-    "Kenema"
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  
+
+  // State to hold the user's selections
+  const [selectedCity, setSelectedCity] = useState('');
+  const [selectedType, setSelectedType] = useState('');
+  const [priceRange, setPriceRange] = useState('');
+
+  const sierraLeoneCities = [
+    "Freetown",
+    "Bo",
+    "Kenema",
+    "Makeni",
+    "Koidu",
   ];
 
   const propertyTypes = [
-    "House", 
-    "Compound", 
-    "Apartment", 
-    "Room", 
-    "Office Space", 
-    "Shop"
+    "House",
+    "Compound",
+    "Apartment",
+    "Room",
+    "Office Space",
+    "Shop",
   ];
+
+  // Function to handle the search button click
+  const handleSearch = () => {
+    // Use URLSearchParams to easily build the query string
+    const params = new URLSearchParams();
+
+    if (selectedCity) {
+      params.set('city', selectedCity);
+    }
+    if (selectedType) {
+      params.set('type', selectedType);
+    }
+    if (priceRange) {
+      params.set('price', priceRange);
+    }
+
+    // Navigate to the properties page with the search parameters
+    // e.g., /properties?city=Freetown&type=House
+    router.push(`/properties?${params.toString()}`);
+  };
+
   return (
-    <section className="bg-gradient-to-b from-blue-500 to-white pt-16 pb-20 text-white text-center">
+    <section className="bg-gradient-to-b from-blue-500 to-white pt-16 pb-20 text-center">
       {/* Heading */}
-      <div className="max-w-2xl mx-auto px-4">
-        <h1 className="text-4xl md:text-5xl font-bold mb-4">Home In Sierra Leone</h1>
-        <p className="text-base md:text-lg text-white/90">
+      <div className="mx-auto max-w-2xl px-4">
+        <h1 className="text-4xl font-bold text-white md:text-5xl mb-4">Home In Sierra Leone</h1>
+        <p className="text-base text-white/90 md:text-lg">
           Browse thousands of rental properties across Sierra Leone.
           <br />
           From houses to compounds, find your perfect space with verified agents.
@@ -30,36 +67,63 @@ export default function Hero() {
       </div>
 
       {/* Search Box */}
-      <div className="bg-white mt-10 mx-4 md:mx-auto max-w-5xl p-4 md:p-6 rounded-2xl shadow-md">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+      <div className="mx-4 mt-10 max-w-5xl rounded-2xl bg-white p-4 shadow-lg md:mx-auto md:p-6">
+        <div className="grid grid-cols-1 items-center gap-4 md:grid-cols-3 lg:grid-cols-4">
           {/* Select City */}
-          <div className="flex items-center border border-gray-300 rounded-lg px-4 py-2 text-gray-600">
-            <MapPin className="w-4 h-4 mr-2 text-gray-500" />
-            <span>Select City</span>
+          <div className="relative">
+            <MapPin className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+            <select
+              value={selectedCity}
+              onChange={(e) => setSelectedCity(e.target.value)}
+              className="w-full appearance-none rounded-lg border border-gray-300 bg-transparent py-3 pl-11 pr-4 text-gray-600 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            >
+              <option value="" disabled>Select City</option>
+              {sierraLeoneCities.map((city) => (
+                <option key={city} value={city}>{city}</option>
+              ))}
+            </select>
           </div>
 
           {/* Property Type */}
-          <div className="flex items-center border border-gray-300 rounded-lg px-4 py-2 text-gray-600">
-            <Home className="w-4 h-4 mr-2 text-gray-500" />
-            <span>Property Type</span>
+          <div className="relative">
+            <Home className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+            <select
+              value={selectedType}
+              onChange={(e) => setSelectedType(e.target.value)}
+              className="w-full appearance-none rounded-lg border border-gray-300 bg-transparent py-3 pl-11 pr-4 text-gray-600 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            >
+              <option value="" disabled>Property Type</option>
+              {propertyTypes.map((type) => (
+                <option key={type} value={type}>{type}</option>
+              ))}
+            </select>
           </div>
 
           {/* Price Range */}
-          <div className="flex items-center border border-gray-300 rounded-lg px-4 py-2 text-gray-600">
-            <DollarSign className="w-4 h-4 mr-2 text-gray-500" />
-            <span>Price Range (Le)</span>
+          <div className="relative">
+             <DollarSign className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+             <input
+                type="number"
+                placeholder="Max Price (Le)"
+                value={priceRange}
+                onChange={(e) => setPriceRange(e.target.value)}
+                className="w-full rounded-lg border border-gray-300 bg-transparent py-3 pl-11 pr-4 text-gray-600 placeholder-gray-600 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+             />
           </div>
 
           {/* Search Button */}
-          <button className="flex items-center justify-center gap-2 text-white text-sm md:text-base font-medium py-2 px-4 rounded-full bg-gradient-to-r from-blue-600 to-pink-500 hover:opacity-90 transition-all shadow-md">
-            <Search className="w-4 h-4" />
+          <button
+            onClick={handleSearch}
+            className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-blue-600 to-pink-500 py-3 px-4 font-medium text-white shadow-md transition-all hover:opacity-90"
+          >
+            <Search className="h-5 w-5" />
             Search Properties
           </button>
         </div>
       </div>
 
       {/* Stats */}
-      <div className="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-8 max-w-4xl mx-auto px-4 text-gray-800 text-center">
+      <div className="mx-auto mt-12 grid max-w-4xl grid-cols-1 gap-8 px-4 text-center text-gray-800 sm:grid-cols-3">
         <div>
           <h3 className="text-2xl font-bold">1,200+</h3>
           <p className="text-sm text-gray-600">Properties Listed</p>
@@ -68,7 +132,7 @@ export default function Hero() {
           <h3 className="text-2xl font-bold">10</h3>
           <p className="text-sm text-gray-600">Cities Covered</p>
         </div>
-        <div>
+        <div className='hidden sm:block'>
           <h3 className="text-2xl font-bold">500+</h3>
           <p className="text-sm text-gray-600">Verified Agents</p>
         </div>

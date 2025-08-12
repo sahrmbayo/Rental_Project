@@ -1,106 +1,118 @@
 'use client';
 
 import { useState } from 'react';
-import { Building2, Heart, User, Plus, Menu, X } from 'lucide-react';
+import { Building2, Heart, User, Menu, X } from 'lucide-react';
 import Link from 'next/link';
-import {  SignInButton,
+import {
+  SignInButton,
   SignUpButton,
   SignedIn,
   SignedOut,
-  UserButton } from "@clerk/nextjs";
+  UserButton
+} from "@clerk/nextjs";
 
 export default function Header() {
-
-  // State to manage whether the mobile menu is open or closed
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  
-
   return (
-    <header className="relative bg-white shadow-sm">
-      <div className="flex items-center justify-between px-6 py-3">
+    // Use z-index to ensure the header is above other page content
+    <header className="sticky top-0 bg-white/85 backdrop-blur-xs shadow-sm z-50">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3">
         {/* Logo */}
         <Link href="/" className="flex items-center space-x-2">
           <Building2 className="h-6 w-6 text-blue-600" />
           <span className="text-lg font-semibold text-gray-800">SL Rentals</span>
         </Link>
 
-        {/* Desktop Navigation & Actions */}
-        <div className="hidden items-center space-x-8 md:flex m-auto">
-          {/* Navigation Links */}
-          <nav className="flex items-center justify-center space-x-6 text-sm text-gray-700">
-            <Link href="#" className="hover:text-blue-600">Browse Properties</Link>
-            <Link href="#" className="hover:text-blue-600">For Agents</Link>
-            <Link href="#" className="hover:text-blue-600">Cities</Link>
-            <Link href="#" className="hover:text-blue-600">Contact</Link>
-            <Link href="#" className="flex items-center space-x-1 hover:text-blue-600">
-              <Heart className="h-4 w-4" />
-              <span>Saved</span>
-            </Link>
-          </nav>
+        {/* Desktop Navigation */}
+        <nav className="hidden items-center justify-center space-x-6 text-sm text-gray-700 md:flex">
+          <Link href="/properties" className="hover:text-blue-600">Browse Properties</Link>
+          <Link href="#" className="hover:text-blue-600">For Agents</Link>
+          <Link href="#" className="hover:text-blue-600">Cities</Link>
+          <Link href="#" className="hover:text-blue-600">Contact</Link>
+          <Link href="#" className="flex items-center space-x-1 hover:text-blue-600">
+            <Heart className="h-4 w-4" />
+            <span>Saved</span>
+          </Link>
+        </nav>
 
-          {/* Action Buttons */}
-          
-        </div>
-        <div className=" hidden md:flex items-center space-x-4">
+        {/* Desktop Actions & Auth */}
+        <div className="hidden items-center space-x-4 md:flex">
           <SignedOut>
-              <SignInButton />
-              <SignUpButton>
-            <button  className="flex items-center rounded-full bg-gradient-to-r from-blue-500 to-pink-500 px-4 py-1.5 text-sm text-white hover:opacity-90">
-              <User className="mr-2 h-4 w-4" />
-              Sign In
-            </button>
+            <SignInButton mode="modal">
+              <button className="rounded-full px-4 py-2 text-sm font-medium text-white hover:bg-gray-100 bg-gradient-to-r from-blue-600 to-pink-500 hover:opacity-90 transition-all shadow-md">
+                Sign In
+              </button>
+            </SignInButton>
+            <SignUpButton mode="modal">
+              <button className="flex items-center rounded-full bg-gradient-to-r from-pink-600 to-blue-600 px-4 py-2 text-sm font-medium text-white hover:opacity-90 transition-all shadow-md">
+                Sign Up
+              </button>
             </SignUpButton>
-            </SignedOut>
-            <SignedIn>
-              <UserButton />
-            </SignedIn>
-          </div>
+          </SignedOut>
+          <SignedIn>
+            {/* This renders Clerk's default user button */}
+            <UserButton afterSignOutUrl="/" />
+          </SignedIn>
+        </div>
 
         {/* Mobile Menu Button */}
         <div className="md:hidden">
-          <button onClick={() => setIsMenuOpen(!isMenuOpen)}>
+          <button onClick={() => setIsMenuOpen(!isMenuOpen)} aria-label="Toggle menu">
             {isMenuOpen ? (
-              <X className="h-6 w-6" /> // Close icon
+              <X className="h-7 w-7" /> // Close icon
             ) : (
-              <Menu className="h-6 w-6" /> // Hamburger icon
+              <Menu className="h-7 w-7" /> // Hamburger icon
             )}
           </button>
         </div>
       </div>
 
-      {/* Mobile Menu (Dropdown) */}
-      {isMenuOpen && (
-        <div className="absolute w-full flex-col space-y-4 bg-white p-6 md:hidden">
+      {/* --- Mobile Menu Overlay with Animation --- */}
+      <div
+        className={`absolute w-full bg-white shadow-lg transition-all duration-300 ease-in-out md:hidden ${
+          isMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'
+        }`}
+      >
+        <div className="flex flex-col space-y-4 p-6">
           {/* Navigation Links */}
-          <nav className="flex flex-col space-y-4 text-gray-700">
-            <Link href="#">Browse Properties</Link>
-            <Link href="#">For Agents</Link>
-            <Link href="#">Cities</Link>
-            <Link href="#">Contact</Link>
-            <Link href="#" className="flex items-center space-x-1">
-              <Heart className="h-4 w-4" />
+          <nav className="flex flex-col space-y-4 text-lg text-gray-700">
+            <Link href="/properties" onClick={() => setIsMenuOpen(false)}>Browse Properties</Link>
+            <Link href="#" onClick={() => setIsMenuOpen(false)}>For Agents</Link>
+            <Link href="#" onClick={() => setIsMenuOpen(false)}>Cities</Link>
+            <Link href="#" onClick={() => setIsMenuOpen(false)}>Contact</Link>
+            <Link href="#" className="flex items-center space-x-2" onClick={() => setIsMenuOpen(false)}>
+              <Heart className="h-5 w-5" />
               <span>Saved</span>
             </Link>
           </nav>
 
+          {/* Divider */}
+          <div className="border-t border-gray-200 pt-6"></div>
+
           {/* Action Buttons */}
           <div className="flex flex-col space-y-4">
             <SignedOut>
-              <SignInButton />
-              <SignUpButton>
-            <button className="flex items-center justify-center rounded-full bg-gradient-to-r from-blue-500 to-pink-500 px-4 py-1.5 text-sm text-white hover:opacity-90">
-              <User className="mr-2 h-4 w-4" />
-              Sign In
-            </button>
-            </SignUpButton>
+              <SignInButton mode="modal">
+                <button className="w-80 rounded-lg bg-gradient-to-r from-blue-600 to-pink-500 py-2 text-center font-medium text-white hover:opacity-90 transition-all shadow-md">
+                  Sign In
+                </button>
+              </SignInButton>
+              <SignUpButton mode="modal">
+                <button className="w-full rounded-lg bg-gradient-to-r from-blue-600 to-pink-500 py-2 text-center font-medium text-white hover:opacity-90 transition-all shadow-md">
+                  Sign Up
+                </button>
+              </SignUpButton>
             </SignedOut>
             <SignedIn>
-              <UserButton />
+              <div className="flex items-center justify-between">
+                <span className="font-medium text-gray-700">My Account</span>
+                <UserButton afterSignOutUrl="/" />
+              </div>
             </SignedIn>
           </div>
         </div>
-      )}
+      </div>
     </header>
   );
 }
