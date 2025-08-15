@@ -3,13 +3,13 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { MapPin, Home, DollarSign, Search } from 'lucide-react';
-import { PrismaClient } from '../generated/prisma';
+import Spinner from './Spinner';
 
-const prisma = new PrismaClient();
+
 
 export default function Hero() {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
   
 
   // State to hold the user's selections
@@ -36,6 +36,7 @@ export default function Hero() {
 
   // Function to handle the search button click
   const handleSearch = () => {
+    setIsSearching(true);
     // Use URLSearchParams to easily build the query string
     const params = new URLSearchParams();
 
@@ -114,10 +115,20 @@ export default function Hero() {
           {/* Search Button */}
           <button
             onClick={handleSearch}
-            className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-blue-600 to-pink-500 py-3 px-4 font-medium text-white shadow-md transition-all hover:opacity-90"
+            disabled={isSearching}
+            className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-blue-600 to-pink-500 py-3 px-4 font-medium text-white shadow-md transition-all hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-70"
           >
-            <Search className="h-5 w-5" />
-            Search Properties
+            {isSearching ? (
+              <>
+                <Spinner />
+                <span>Searching...</span>
+              </>
+            ) : (
+              <>
+                <Search className="h-5 w-5" />
+                <span>Search Properties</span>
+              </>
+            )}
           </button>
         </div>
       </div>

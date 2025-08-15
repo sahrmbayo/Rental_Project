@@ -37,6 +37,8 @@ model Property {
   bathrooms   Int
   imageUrl    String?
   imageUr2    String?
+  paymentProvider   String?
+  paymentReference  String?
   postedAt   DateTime @default(now())
   agentId     String
   agent       Agent    @relation(fields: [agentId], references: [id])

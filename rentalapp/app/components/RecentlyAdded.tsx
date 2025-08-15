@@ -3,6 +3,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { MapPin, Bed, Bath, ArrowRight } from 'lucide-react';
 
+
 // --- Data Fetching (Server-Side) ---
 const prisma = new PrismaClient();
 

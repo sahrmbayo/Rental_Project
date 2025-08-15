@@ -57,7 +57,7 @@ export default async function PropertiesListPage({
     >
       <div className="mb-6 flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
         <SearchInput placeholder="Search by title or address..." />
-        <Link href="/dashboard/add-property" className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-blue-700">
+        <Link href="/Dashboard/add-property" className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-blue-700">
           <PlusCircle size={18} />
           Add Property
         </Link>
