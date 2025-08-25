@@ -4,7 +4,7 @@ import { clerkClient } from '@clerk/clerk-sdk-node';
 import { NextResponse } from 'next/server';
 
 // Define which routes are public and which are for the Dashboard
-const isPublicRoute = createRouteMatcher(['/', '/sign-in(.*)', '/sign‑up(.*)','/api']);
+const isPublicRoute = createRouteMatcher(['/', '/sign-in(.*)', '/sign‑up(.*)','/api','/checkout/cancelled(.*)','/checkout']);
 const isDashboardRoute = createRouteMatcher(['/Dashboard(.*)']);
 
 export default clerkMiddleware(async (auth, req) => {

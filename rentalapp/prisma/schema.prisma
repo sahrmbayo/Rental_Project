@@ -14,6 +14,14 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Order {
+  id               String   @id @default(cuid())
+  checkoutSessionId String?  // Stripe Checkout Session ID
+  status String?
+  paidAt String?
+  createdAt        DateTime @default(now())
+}
+
 model Agent {
   id        String   @id @default(cuid())
   name      String

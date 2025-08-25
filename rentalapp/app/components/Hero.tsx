@@ -7,6 +7,7 @@ import Spinner from './Spinner';
 
 
 
+
 export default function Hero() {
   const router = useRouter();
   const [isSearching, setIsSearching] = useState(false);
@@ -127,6 +128,7 @@ export default function Hero() {
               <>
                 <Search className="h-5 w-5" />
                 <span>Search Properties</span>
+                
               </>
             )}
           </button>

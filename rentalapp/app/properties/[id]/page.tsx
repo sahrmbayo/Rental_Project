@@ -1,26 +1,28 @@
-import { PrismaClient } from '../../generated/prisma';
+// app/properties/[id]/page.tsx
+import { PrismaClient } from '../../generated/prisma'; // adjust path if needed
 import { notFound } from 'next/navigation';
-import Header from '../../components/header'; // Adjust path if needed
-import PropertyDetailsView from '../../components/PropertyDetailsView'; // Import the client component
+import Header from '../../components/header';
+import PropertyDetailsView from '../../components/PropertyDetailsView';
 
-// --- Data Fetching (Server-Side) ---
 const prisma = new PrismaClient();
 
 async function getPropertyDetails(id: string) {
   const property = await prisma.property.findUnique({
     where: { id },
-    include: {
-      agent: true, // Include the related agent's details
-    },
+    include: { agent: true },
   });
   return property;
 }
 
-// --- Main Page Component (Server Component) ---
-export default async function PropertyDetailsPage({ params }: { params: { id: string } }) {
-  const property = await getPropertyDetails(params.id);
+export default async function PropertyDetailsPage({
+  params,
+}: {
+  params: Promise<{ id: string }>; // <- params is a Promise
+}) {
+  const { id } = await params; // <- await it
 
-  // If no property is found, show a 404 page
+  const property = await getPropertyDetails(id);
+
   if (!property) {
     notFound();
   }
@@ -28,10 +30,6 @@ export default async function PropertyDetailsPage({ params }: { params: { id: st
   return (
     <>
       <Header />
-      {/* This page now only does two things:
-        1. Fetches the data on the server.
-        2. Renders the PropertyDetailsView Client Component, passing the data as a prop.
-      */}
       <PropertyDetailsView property={property} />
     </>
   );

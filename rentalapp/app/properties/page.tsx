@@ -7,12 +7,12 @@ import PropertyList from '../components/PropertyList'; // Use a standard path al
 export default async function PropertiesPage({
   searchParams,
 }: {
-  searchParams?: { city?: string; type?: string; price?: string };
+  searchParams?: Promise<{ city?: string; type?: string; price?: string }>; // <- searchParams is a Promise
 }) {
   // Fetch the initial 6 properties on the server
   const initialProperties = await fetchProperties({ page: 1, ...searchParams });
 
-  const hasSearchParams = searchParams?.city || searchParams?.type || searchParams?.price;
+  const hasSearchParams = (await searchParams)?.city || (await searchParams)?.type || (await searchParams)?.price;
 
   return (
     <>

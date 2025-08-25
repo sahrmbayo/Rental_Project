@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { MapPin, Bed, Bath, Home, Building, ChevronLeft, ChevronRight, User } from 'lucide-react';
-import ContactAgentForm from '../components/ContactAgentForm'; // Adjust path if needed
+import CheckoutButton from './CheckoutButton';
+
 
 export default function PropertyDetailsView({ property }) {
   // Array of images for the slider, filtering out any that are missing
@@ -111,7 +112,8 @@ export default function PropertyDetailsView({ property }) {
                   <p className="text-sm text-gray-500">Listing Agent</p>
                 </div>
               </div>
-              <ContactAgentForm agentName={property.agent?.name} agentId={property.agentId} />
+             <CheckoutButton />
+
             </div>
           </div>
         </div>
