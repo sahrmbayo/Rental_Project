@@ -16,10 +16,18 @@ datasource db {
 
 model Order {
   id               String   @id @default(cuid())
-  checkoutSessionId String?  // Stripe Checkout Session ID
+  checkoutSessionId String?  // Monime Checkout Session ID
   status String?
-  paidAt String?
+  paidAt   DateTime @default(now())
   createdAt        DateTime @default(now())
+  //people who made the order
+  userId           String
+  email            String
+  name             String
+  phone            String
+
+
+  @@map("orders")
 }
 
 model Agent {
@@ -45,11 +53,11 @@ model Property {
   bathrooms   Int
   imageUrl    String?
   imageUr2    String?
-  paymentProvider   String?
-  paymentReference  String?
+  isAvailable Boolean @default(true)
   postedAt   DateTime @default(now())
   agentId     String
   agent       Agent    @relation(fields: [agentId], references: [id])
+  
 
   @@map("properties")
 }

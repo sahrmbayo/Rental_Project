@@ -1,14 +1,33 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { MapPin, Home, DollarSign, Search } from 'lucide-react';
 import Spinner from './Spinner';
 
 
-
-
 export default function Hero() {
+  const [heroStats, setHeroStats] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch('/api/total-props');
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        setHeroStats(data);
+      } catch (error) {
+        console.error('Error fetching hero stats:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
+  
+
+
   const router = useRouter();
   const [isSearching, setIsSearching] = useState(false);
   
@@ -22,15 +41,13 @@ export default function Hero() {
     "Freetown",
     "Bo",
     "Kenema",
-    "Makeni",
-    "Koidu",
   ];
 
   const propertyTypes = [
     "House",
     "Compound",
     "Apartment",
-    "Room",
+    "Single Room",
     "Office Space",
     "Shop",
   ];
@@ -138,15 +155,15 @@ export default function Hero() {
       {/* Stats */}
       <div className="mx-auto mt-12 grid max-w-4xl grid-cols-1 gap-8 px-4 text-center text-gray-800 sm:grid-cols-3">
         <div>
-          <h3 className="text-2xl font-bold">1,200+</h3>
+          <h3 className="text-2xl font-bold">{heroStats?.totalProperties}</h3>
           <p className="text-sm text-gray-600">Properties Listed</p>
         </div>
         <div>
-          <h3 className="text-2xl font-bold">10</h3>
+          <h3 className="text-2xl font-bold">3</h3>
           <p className="text-sm text-gray-600">Cities Covered</p>
         </div>
         <div className='hidden sm:block'>
-          <h3 className="text-2xl font-bold">500+</h3>
+          <h3 className="text-2xl font-bold">{heroStats?.totalAgents}</h3>
           <p className="text-sm text-gray-600">Verified Agents</p>
         </div>
       </div>

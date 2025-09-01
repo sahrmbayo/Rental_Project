@@ -30,7 +30,7 @@ export default async function PropertyDetailsPage({
   return (
     <>
       <Header />
-      <PropertyDetailsView property={property} />
+      <PropertyDetailsView property={property}/>
     </>
   );
 }

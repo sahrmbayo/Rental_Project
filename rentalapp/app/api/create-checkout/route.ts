@@ -1,17 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient } from '../../generated/prisma'
 import { randomUUID } from 'crypto'
+import { clerkClient} from '@clerk/clerk-sdk-node'
+import { auth } from '@clerk/nextjs/server'
+
 
 const prisma = new PrismaClient()
 
 export async function POST(req: NextRequest) {
+  const { userId } = await auth();
+  if (!userId) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+  const user = await clerkClient.users.getUser(userId);
+  const UOid = user.id;
+  const UOemail = user.emailAddresses[0].emailAddress;
+  const UOname = user.firstName + ' ' + user.lastName;
+  const UOphone = user.phoneNumbers[0]?.phoneNumber || '';
+
   try {
     // 1. Parse the body the UI sent
     const { name, orderId, lineItems, metadata, callbackState } = await req.json()
 
     // 2. Build safe, absolute redirect URLs
     const appUrl = process.env.NEXT_PUBLIC_APP_URL!
-    const successUrl = `${appUrl}/checkout/success?orderId=${encodeURIComponent(orderId)}`
+    const successUrl = `${appUrl}/checkout?orderId=${encodeURIComponent(orderId)}`
     const cancelUrl  = `${appUrl}/checkout/cancelled?orderId=${encodeURIComponent(orderId)}`
 
     // 3. Create Monime Checkout Session
@@ -46,7 +59,7 @@ export async function POST(req: NextRequest) {
     await prisma.order.upsert({
       where: { id: orderId },
       update: { checkoutSessionId },
-      create: { id: orderId, checkoutSessionId },
+      create: { id: orderId, checkoutSessionId, status: 'pending', userId: UOid, email: UOemail, name: UOname, phone: UOphone },
     })
 
     // 5. Send redirect URL to UI
