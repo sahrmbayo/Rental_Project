@@ -30,7 +30,7 @@ export default function Header() {
           <Link href="#" className="hover:text-blue-600">For Agents</Link>
           <Link href="#" className="hover:text-blue-600">Cities</Link>
           <Link href="#" className="hover:text-blue-600">Contact</Link>
-          <Link href="#" className="flex items-center space-x-1 hover:text-blue-600">
+          <Link href="/saved" className="flex items-center space-x-1 hover:text-blue-600">
             <Heart className="h-4 w-4" />
             <span>Saved</span>
           </Link>

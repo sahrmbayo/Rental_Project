@@ -1,30 +1,31 @@
 // app/properties/[id]/edit/page.tsx
-
 import { PrismaClient } from '../../../../generated/prisma';
 import { notFound } from 'next/navigation';
-import PropertyForm from '../../../../components/AddProperty'; // Adjust the import path as necessary
+import PropertyForm from '../../../../components/AddProperty';
 
-const prisma = new PrismaClient();
-
-// Fetches the specific property data on the server
+/* ------------------------------------------------------------------ */
+/* 1.  RUN PRISMA ONLY ON THE SERVER  (and disconnect when done)      */
+/* ------------------------------------------------------------------ */
 async function getProperty(id: string) {
-  const property = await prisma.property.findUnique({
-    where: { id },
-  });
-  console.log(`Fetching property for ID: ${id}`, property);
-  return property;
+  const prisma = new PrismaClient();
+  try {
+    const property = await prisma.property.findUnique({ where: { id } });
+    return property; // null if not found
+  } finally {
+    await prisma.$disconnect();
+  }
 }
 
-export default async function EditPropertyPage({ params }: { params: { id: string } }) {
-  const property = await getProperty(params.id);
+/* ------------------------------------------------------------------ */
+/* 2.  PAGE COMPONENT – await params (Next.js 15 requirement)        */
+/* ------------------------------------------------------------------ */
+type Props = { params: Promise<{ id: string }> };
 
-  // If the property doesn't exist for that ID, show a 404 page
-  if (!property) {
-    notFound();
-  }
+export default async function EditPropertyPage({ params }: Props) {
+  const { id } = await params; // ← await the promise
+  const property = await getProperty(id);
 
-  return (
-    // Your form will be rendered inside its own Layout component
-    <PropertyForm initialData={property} />
-  );
+  if (!property) notFound();
+
+  return <PropertyForm initialData={property} />;
 }

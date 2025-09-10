@@ -3,8 +3,9 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { MapPin, Bed, Bath, Home, Building, ChevronLeft, ChevronRight } from 'lucide-react';
+import FavButton from './FavButton';
 
-export default function PropertyDetailsView({ property }) {
+export default function PropertyDetailsView({ property, initialFav }: { property: any, initialFav: boolean }) {
   /* ---------------- image slider helpers ---------------- */
   const images = [property.imageUrl, property.imageUr2].filter(Boolean);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -106,6 +107,7 @@ export default function PropertyDetailsView({ property }) {
               <div>
                 <h1 className="text-3xl font-bold text-gray-900 sm:text-4xl">
                   {property.title}
+                  <FavButton propertyId={property.id} initial={initialFav} />
                 </h1>
                 <p className="mt-2 flex items-center gap-2 text-lg text-gray-500">
                   <MapPin size={20} />

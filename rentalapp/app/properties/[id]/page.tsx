@@ -3,6 +3,7 @@ import { PrismaClient } from '../../generated/prisma'; // adjust path if needed
 import { notFound } from 'next/navigation';
 import Header from '../../components/header';
 import PropertyDetailsView from '../../components/PropertyDetailsView';
+import { getFavoriteStatus } from '../../action/favourite';
 
 const prisma = new PrismaClient();
 
@@ -20,8 +21,9 @@ export default async function PropertyDetailsPage({
   params: Promise<{ id: string }>; // <- params is a Promise
 }) {
   const { id } = await params; // <- await it
-
+  
   const property = await getPropertyDetails(id);
+  const initialFav = await getFavoriteStatus(property.id);
 
   if (!property) {
     notFound();
@@ -30,7 +32,7 @@ export default async function PropertyDetailsPage({
   return (
     <>
       <Header />
-      <PropertyDetailsView property={property}/>
+      <PropertyDetailsView property={property} initialFav={initialFav} />
     </>
   );
 }

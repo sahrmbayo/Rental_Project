@@ -2,8 +2,6 @@ import { PrismaClient, Prisma } from '../generated/prisma'; // 1. Import the 'Pr
 import Link from 'next/link';
 import Image from 'next/image';
 import { Edit, PlusCircle } from 'lucide-react';
-
-// --- IMPORTANT: Adjust these import paths to match YOUR project structure ---
 import { DeletePropertyButton } from '../components/DeletePropertyButton';
 import DashboardLayout from '../Dashboard/DashboardLayout';
 import { SearchInput } from '../components/SearchInput';
@@ -33,10 +31,11 @@ async function getProperties(searchTerm?: string) {
     : {};
 
   return await prisma.property.findMany({
-    where: whereClause, // The error is now fixed
+    where: whereClause, 
     orderBy: { postedAt: 'desc' },
   });
-}
+ 
+} await prisma.$disconnect();
 
 // --- Main Page Component (Server Component) ---
 export default async function PropertiesListPage({
@@ -105,7 +104,7 @@ export default async function PropertiesListPage({
                         <td className="hidden whitespace-nowrap px-3 py-4 text-sm text-gray-500 sm:table-cell">${Number(prop.price).toLocaleString()}</td>
                         <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
                           <div className="flex items-center justify-end gap-4">
-                            <Link href={`/dashboard/properties/${prop.id}/edit`} className="text-blue-600 hover:text-blue-800" title="Edit Property">
+                            <Link href={`/Dashboard/properties/${prop.id}/edit`} className="text-blue-600 hover:text-blue-800" title="Edit Property">
                               <Edit size={18} />
                             </Link>
                             <DeletePropertyButton propertyId={prop.id} />

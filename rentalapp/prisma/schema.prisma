@@ -38,6 +38,7 @@ model Agent {
   properties Property[]
 
   @@map("agents")
+  
 }
 model Property {
   id          String   @id @default(cuid())
@@ -57,7 +58,18 @@ model Property {
   postedAt   DateTime @default(now())
   agentId     String
   agent       Agent    @relation(fields: [agentId], references: [id])
-  
+  favourite   Favourite[]
 
   @@map("properties")
+}
+
+model Favourite {
+  id         String   @id @default(cuid())
+  userId     String   // Clerk user id
+  propertyId String
+  createdAt  DateTime @default(now())
+
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, propertyId])   // one fav per user/property
 }
