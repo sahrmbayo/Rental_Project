@@ -104,11 +104,13 @@ export default function PropertyDetailsView({ property, initialFav }: { property
           {/* Left: details */}
           <div className="lg:col-span-2">
             <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between">
-              <div>
+              <div >
+                <div className='flex items-center justify-between  gap-4 md:gap-30'>
                 <h1 className="text-3xl font-bold text-gray-900 sm:text-4xl">
                   {property.title}
-                  <FavButton propertyId={property.id} initial={initialFav} />
                 </h1>
+                <FavButton propertyId={property.id} initial={initialFav} />
+                </div>
                 <p className="mt-2 flex items-center gap-2 text-lg text-gray-500">
                   <MapPin size={20} />
                   {property.city}

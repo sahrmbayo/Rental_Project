@@ -2,6 +2,7 @@
 
 import { NextResponse } from 'next/server';
 import { PrismaClient, Property } from '../../../generated/prisma';
+import { promises } from 'dns';
 
 const prisma = new PrismaClient();
 
@@ -9,9 +10,9 @@ const prisma = new PrismaClient();
 // Handles requests like: DELETE /api/properties/some-property-id
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = params;
+  const { id } = await params;
 
   if (!id) {
     return NextResponse.json(
