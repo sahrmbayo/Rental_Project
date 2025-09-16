@@ -2,10 +2,25 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { MapPin, Bed, Bath, Home, Building, ChevronLeft, ChevronRight } from 'lucide-react';
+import {
+  MapPin,
+  Bed,
+  Bath,
+  Home,
+  Building,
+  ChevronLeft,
+  ChevronRight,
+} from 'lucide-react';
 import FavButton from './FavButton';
+import ReadHere from './ReadHere';
 
-export default function PropertyDetailsView({ property, initialFav }: { property: any, initialFav: boolean }) {
+export default function PropertyDetailsView({
+  property,
+  initialFav,
+}: {
+  property: any;
+  initialFav: boolean;
+}) {
   /* ---------------- image slider helpers ---------------- */
   const images = [property.imageUrl, property.imageUr2].filter(Boolean);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -16,8 +31,10 @@ export default function PropertyDetailsView({ property, initialFav }: { property
 
   /* ---------------- checkout helpers ---------------- */
   const [checkingOut, setCheckingOut] = useState(false);
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
 
   const startCheckout = async () => {
+    if (!agreedToTerms) return;          // extra safety
     setCheckingOut(true);
     const payload = {
       name: property.title,
@@ -84,7 +101,9 @@ export default function PropertyDetailsView({ property, initialFav }: { property
                     key={idx}
                     onClick={() => setCurrentIndex(idx)}
                     className={`h-2 w-2 cursor-pointer rounded-full transition-all ${
-                      idx === currentIndex ? 'bg-white scale-125' : 'bg-white/50'
+                      idx === currentIndex
+                        ? 'bg-white scale-125'
+                        : 'bg-white/50'
                     }`}
                   />
                 ))}
@@ -92,7 +111,7 @@ export default function PropertyDetailsView({ property, initialFav }: { property
             </>
           ) : (
             <Image
-              src="https://placehold.co/800x600/E0E7FF/4F46E5?text=PropPulse"
+              src="https://placehold.co/800x600/E0E7FF/4F46E5?text=PropPulse "
               alt="Placeholder"
               fill
               className="object-cover"
@@ -104,12 +123,12 @@ export default function PropertyDetailsView({ property, initialFav }: { property
           {/* Left: details */}
           <div className="lg:col-span-2">
             <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between">
-              <div >
-                <div className='flex items-center justify-between  gap-4 md:gap-30'>
-                <h1 className="text-3xl font-bold text-gray-900 sm:text-4xl">
-                  {property.title}
-                </h1>
-                <FavButton propertyId={property.id} initial={initialFav} />
+              <div>
+                <div className="flex items-center justify-between gap-4 md:gap-30">
+                  <h1 className="text-3xl font-bold text-gray-900 sm:text-4xl">
+                    {property.title}
+                  </h1>
+                  <FavButton propertyId={property.id} initial={initialFav} />
                 </div>
                 <p className="mt-2 flex items-center gap-2 text-lg text-gray-500">
                   <MapPin size={20} />
@@ -117,7 +136,7 @@ export default function PropertyDetailsView({ property, initialFav }: { property
                 </p>
               </div>
               <p className="mt-4 text-3xl font-bold text-blue-600 sm:mt-0">
-                ${Number(property.price).toLocaleString()}
+                Nle{Number(property.price).toLocaleString()}
                 <span className="text-base font-normal text-gray-500">/Yr</span>
               </p>
             </div>
@@ -153,12 +172,31 @@ export default function PropertyDetailsView({ property, initialFav }: { property
               </div>
             </div>
 
+            {/* Terms checkbox */}
+            <div className="mt-8 border-t pt-8">
+              <label className="flex items-center gap-3 text-sm text-gray-700">
+                <input
+                  type="checkbox"
+                  className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  checked={agreedToTerms}
+                  onChange={(e) => setAgreedToTerms(e.target.checked)}
+                />
+                I agree to the terms and conditions
+              </label>
+
+              {agreedToTerms && (
+                <p className="mt-2 text-sm text-green-600">
+                  You have agreed to the terms and conditions.
+                </p>
+              )}
+            </div>
+
             {/* Payment button or paused message */}
-            <div className="mt-8 border-t pt-8 lg:col-span-2">
+            <div className="mt-6">
               {property.isAvailable ? (
                 <button
                   onClick={startCheckout}
-                  disabled={checkingOut}
+                  disabled={checkingOut || !agreedToTerms}
                   className="flex w-full items-center justify-center gap-2 rounded-md bg-blue-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {checkingOut ? 'Processing…' : 'Reserve this property'}
@@ -172,27 +210,11 @@ export default function PropertyDetailsView({ property, initialFav }: { property
             </div>
           </div>
 
-          {/* Right: agent card */}
+          {/* Right: Reading card */}
           <div className="lg:col-span-1">
             <div className="sticky top-28 rounded-xl border bg-gray-50 p-6 shadow-sm">
               <div className="flex items-center gap-4">
-                <div className="relative h-16 w-16 flex-shrink-0">
-                  <Image
-                    src={
-                      property.agent?.imageUrl ||
-                      `https://i.pravatar.cc/150?u=${property.agentId}`
-                    }
-                    alt={`Photo of ${property.agent?.name}`}
-                    fill
-                    className="rounded-full object-cover"
-                  />
-                </div>
-                <div>
-                  <p className="text-lg font-semibold text-gray-900">
-                    {property.agent?.name || 'Agent Name'}
-                  </p>
-                  <p className="text-sm text-gray-500">Listing Agent</p>
-                </div>
+                <ReadHere />
               </div>
             </div>
           </div>

@@ -21,11 +21,11 @@ const PropertyCard = ({ property }) => (
         />
       </div>
       <div className="p-4">
-        <p className="text-lg font-bold text-gray-900">${Number(property.price).toLocaleString()}<span className="text-sm font-normal text-gray-500">/mo</span></p>
+        <p className="text-lg font-bold text-gray-900">Nle{Number(property.price).toLocaleString()}<span className="text-sm font-normal text-gray-500">/Yr</span></p>
         <h3 className="mt-1 truncate text-xl font-semibold text-gray-800 group-hover:text-blue-600">{property.title}</h3>
         <p className="mt-1 flex items-center gap-1 text-sm text-gray-500">
           <MapPin size={14} />
-          {property.address}, {property.city}
+           {property.city}
         </p>
         <div className="mt-4 flex items-center space-x-4 border-t pt-4 text-sm text-gray-600">
           <div className="flex items-center gap-1.5"><Bed size={16} /><span>{property.bedrooms} Beds</span></div>

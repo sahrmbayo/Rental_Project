@@ -54,6 +54,9 @@ model Property {
   bathrooms   Int
   imageUrl    String?
   imageUr2    String?
+  imageUr3    String?
+  imageUr4    String?
+  imageUr5    String?
   isAvailable Boolean @default(true)
   postedAt   DateTime @default(now())
   agentId     String

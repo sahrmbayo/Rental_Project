@@ -1,18 +1,19 @@
 import Link from 'next/link';
-import Header from '../components/header'; // Use a standard path alias
-import { fetchProperties } from '../action/fetchProperties'; // Use a standard path alias
-import PropertyList from '../components/PropertyList'; // Use a standard path alias
+import Header from '../components/header';
+import { fetchProperties } from '../action/fetchProperties';
+import PropertyList from '../components/PropertyList';
 
-// --- Main Page Component (Server Component) ---
-export default async function PropertiesPage({
-  searchParams,
-}: {
-  searchParams?: Promise<{ city?: string; type?: string; price?: string }>; // <- searchParams is a Promise
-}) {
-  // Fetch the initial 6 properties on the server
-  const initialProperties = await fetchProperties({ page: 1, ...searchParams });
+type Props = {
+  searchParams?: Promise<{ city?: string; type?: string; price?: string }>;
+};
 
-  const hasSearchParams = (await searchParams)?.city || (await searchParams)?.type || (await searchParams)?.price;
+export default async function PropertiesPage({ searchParams }: Props) {
+  /* ── single await ───────────────────────────────────────── */
+  const params = await searchParams; // now a plain object (or undefined)
+
+  const initialProperties = await fetchProperties({ page: 1, ...params });
+
+  const hasSearchParams = params?.city || params?.type || params?.price;
 
   return (
     <>
@@ -30,18 +31,21 @@ export default async function PropertiesPage({
             </p>
           </div>
 
-          {/* Render the client component with the initial data.
-            The PropertyList component will handle all subsequent "load more" actions.
-          */}
           {initialProperties.length > 0 ? (
-            <PropertyList initialProperties={initialProperties} searchParams={searchParams} />
+            <PropertyList
+              initialProperties={initialProperties}
+              searchParams={params} // pass the already-resolved object
+            />
           ) : (
             <div className="mt-12 text-center">
               <p className="text-xl font-semibold text-gray-800">No Properties Found</p>
               <p className="mt-2 text-gray-500">
                 We couldn't find any properties matching your search.
               </p>
-              <Link href="/properties" className="mt-6 inline-block rounded-md bg-blue-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-blue-700">
+              <Link
+                href="/properties"
+                className="mt-6 inline-block rounded-md bg-blue-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-blue-700"
+              >
                 View All Properties
               </Link>
             </div>

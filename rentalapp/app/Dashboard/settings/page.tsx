@@ -9,7 +9,7 @@ export default function Settings(){
         headerSubtitle="update your account"
         >
         <div className="">
-            <UserProfile/>
+            <UserProfile routing="hash"/>
         </div>
         </DashboardLayout>
     )

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import DashboardLayout from './DashboardLayout'; // Your layout component
-import { Database, TrendingUp, Users, PlusCircle } from 'lucide-react';
+import { Database, TrendingUp, Users, PlusCircle, House  } from 'lucide-react';
 import Link from 'next/link';
 
 // --- Reusable Stat Card Component ---
@@ -85,9 +85,9 @@ export default function DashboardPage() {
           isLoading={isLoading}
         />
         <StatCard
-          title="New Inquiries"
-          value={stats?.newInquiries ?? '...'}
-          icon={Users}
+          title="Reserved Properties"
+          value={stats?.reservedProperties ?? '...'}
+          icon={House}
           subtitle="This week"
           isLoading={isLoading}
         />

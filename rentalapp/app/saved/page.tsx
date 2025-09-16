@@ -19,11 +19,11 @@ export default async function SavedPage() {
       <header className="border-b border-neutral-200 bg-white/80 backdrop-blur">
         <div className="mx-auto max-w-6xl px-6 py-5">
           <Link
-            href="/"
-            className="inline-flex items-center gap-2 text-sm text-neutral-500 transition hover:text-indigo-600"
+            href="/properties"
+            className="inline-flex items-center gap-2 text-sm text-neutral-500 transition hover:text-indigo-600 font-medium"
           >
             <ArrowLeft size={14} />
-            Back to listings
+            Back to properties
           </Link>
           <h1 className="mt-3 text-2xl font-semibold tracking-tight text-neutral-900">
             Saved properties
@@ -37,7 +37,7 @@ export default async function SavedPage() {
       </header>
 
       {/* ---- content ---- */}
-      <section className="mx-auto max-w-6xl px-6 py-10">
+      <section className="mx-auto max-w-6xl px-6 py-10 min-h-screen">
         {favorites.length === 0 ? (
           <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-neutral-300 bg-white py-24">
             <Heart size={40} className="text-neutral-300" />
@@ -50,8 +50,13 @@ export default async function SavedPage() {
                 key={property.id}
                 className="group rounded-2xl bg-white p-1.5 shadow-sm transition hover:shadow-md"
               >
-                {/* image */}
+                {/* image - clickable */}
                 <div className="relative aspect-[4/3] overflow-hidden rounded-xl">
+                  <Link
+                    href={`/properties/${property.id}`}
+                    aria-label={`View ${property.title}`}
+                    className="absolute inset-0 z-10"
+                  />
                   <Image
                     src={property.imageUrl || 'https://placehold.co/800x600'}
                     alt={property.title}
@@ -84,7 +89,7 @@ export default async function SavedPage() {
                   <div className="flex items-end justify-between pt-2">
                     <div>
                       <span className="text-xl font-semibold text-neutral-900">
-                        ${Number(property.price).toLocaleString()}
+                        Nle{Number(property.price).toLocaleString()}
                       </span>
                       <span className="ml-1 text-xs text-neutral-400">/ yr</span>
                     </div>

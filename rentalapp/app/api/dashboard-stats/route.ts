@@ -7,6 +7,7 @@ import { PrismaClient } from '../../generated/prisma';
 
 const prisma = new PrismaClient();
 
+export const revalidate = 60; // Revalidate every 60 seconds
 export async function GET() {
   try {
     
@@ -27,12 +28,18 @@ export async function GET() {
     });
 
     // You can add more queries here for other stats
-    const newInquiries = 0; // Placeholder
+    
+    const reservedProperties = await prisma.property.count({
+      where: {
+        agentId: userId,
+        isAvailable: false,
+      },
+    });
     const totalRevenue = 0; // Placeholder
 
     const stats = {
       totalProperties,
-      newInquiries,
+      reservedProperties,
       totalRevenue,
       agentName,
     };

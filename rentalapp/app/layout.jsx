@@ -8,7 +8,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 
 
 export const metadata = {
-  title: "Rental App",
+  title: "SL Rental",
   description: "Find your next rental property with ease",
 };
 

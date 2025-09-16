@@ -6,16 +6,8 @@ import { useRouter } from 'next/navigation';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import type { ObjectSchema } from 'yup';
-import Link from 'next/link';
+
 import {
-  LayoutDashboard,
-  Building,
-  PlusCircle,
-  Settings,
-  Bell,
-  User,
-  Menu,
-  X,
   HousePlus,
   MapPin,
   Camera,
@@ -29,7 +21,7 @@ type PropertyFormData = {
   title: string;
   description?: string;
   price: number;
-  propertyType: 'apartment' | 'house' | 'condo' | 'townhouse';
+  propertyType: 'apartment' | 'house' | 'single' | 'office'|'shop'|'compound';
   landSize?: number;
   address: string;
   area: string;
@@ -43,7 +35,7 @@ const propertySchema: ObjectSchema<PropertyFormData> = yup.object({
   title: yup.string().required('Title is required'),
   description: yup.string().optional(),
   price: yup.number().transform(v => (isNaN(v) ? 0 : v)).positive('Price must be a positive number').required('Price is required'),
-  propertyType: yup.string().oneOf(['apartment', 'house', 'condo', 'townhouse']).required('Property type is required'),
+  propertyType: yup.string().oneOf(['apartment', 'house', 'single', 'office', 'shop', 'compound']).required('Property type is required'),
   landSize: yup.number().transform(v => (isNaN(v) ? 0 : v)).min(0, 'Land size cannot be negative').optional(),
   address: yup.string().required('Address is required'),
   area: yup.string().required('Area is required'),
@@ -60,9 +52,12 @@ type PropertyFormProps = {
 export default function PropertyFormPage({ initialData }: PropertyFormProps) {
   const router = useRouter();
   const isEditMode = !!initialData;
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+ 
   const [imageUrl, setImageUrl] = useState(initialData?.imageUrl || '');
   const [imageUr2, setImageUr2] = useState(initialData?.imageUr2 || '');
+  const [imageUr3, setImageUr3] = useState(initialData?.imageUr3 || '');
+  const [imageUr4, setImageUr4] = useState(initialData?.imageUr4 || '');
+  const [imageUr5, setImageUr5] = useState(initialData?.imageUr5 || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
@@ -75,13 +70,13 @@ export default function PropertyFormPage({ initialData }: PropertyFormProps) {
         ...initialData,
         price: Number(initialData.price),
         landSize: initialData.landSize ? Number(initialData.landSize) : undefined,
-        propertyType: initialData.propertyType as 'apartment' | 'house' | 'condo' | 'townhouse',
+        propertyType: initialData.propertyType as 'apartment' | 'house' | 'single' | 'office'|'shop'|'compound',
     } : {
         propertyType: 'apartment',
     },
   });
 
-  // --- FIXED: Restored your image upload function ---
+  
   const uploadToCloudinary = async (file: File, setUrl: (url: string) => void) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
@@ -101,17 +96,17 @@ export default function PropertyFormPage({ initialData }: PropertyFormProps) {
     };
   };
 
-  // --- FIXED: Restored your form submission function ---
+ 
   const onSubmit = async (data: PropertyFormData) => {
     setIsSubmitting(true);
 
-    if (!isEditMode && (!imageUrl || !imageUr2)) {
-      alert('Please upload both images for a new property.');
+    if (!isEditMode && (!imageUrl || !imageUr2 || !imageUr3 || !imageUr4 || !imageUr5)) {
+      alert('Please upload all images for a new property.');
       setIsSubmitting(false);
       return;
     }
 
-    const finalData = { ...data, imageUrl, imageUr2 };
+    const finalData = { ...data, imageUrl, imageUr2, imageUr3, imageUr4, imageUr5 };
 
     try {
       const endpoint = isEditMode
@@ -134,6 +129,7 @@ export default function PropertyFormPage({ initialData }: PropertyFormProps) {
       alert(`Property ${isEditMode ? 'updated' : 'created'} successfully ✅`);
       router.push('/Dashboard/properties');
       router.refresh();
+    
 
     } catch (error) {
       console.error('Error submitting property:', error);
@@ -144,42 +140,7 @@ export default function PropertyFormPage({ initialData }: PropertyFormProps) {
     }
   };
 
-  
-  // const SidebarContent = () => (
-  //   <div className="flex h-full flex-col">
-  //     <div className="mb-10 flex items-center justify-between space-x-2">
-  //       <div className='flex items-center space-x-2'>
-  //         <Building className="h-8 w-8 text-blue-600" />
-  //       <span className="text-xl font-bold text-gray-800">Sl Rental</span>
-  //       </div>
-  //       <div>
-  //         <UserButton />
-  //       </div>
-  //     </div>
-
-  //     <nav className="flex-grow space-y-2">
-  //       <Link href="/dashboard" className="flex items-center space-x-3 rounded-lg px-4 py-2.5 text-gray-600 hover:bg-gray-100">
-  //         <LayoutDashboard className="h-5 w-5" />
-  //         <span className="font-medium">Dashboard</span>
-  //       </Link>
-  //       <Link href="/dashboard/properties" className="flex items-center space-x-3 rounded-lg px-4 py-2.5 text-gray-600 hover:bg-gray-100">
-  //         <Building className="h-5 w-5" />
-  //         <span className="font-medium">My Properties</span>
-  //       </Link>
-  //       <Link href="/dashboard/add-property" className="flex items-center space-x-3 rounded-lg bg-blue-100 px-4 py-2.5 text-blue-700">
-  //         <PlusCircle className="h-5 w-5" />
-  //         <span className="font-medium">Add Property</span>
-  //       </Link>
-  //     </nav>
-  //     <div>
-  //       <Link href="#" className="flex items-center space-x-3 rounded-lg px-4 py-2.5 text-gray-600 hover:bg-gray-100">
-  //         <Settings className="h-5 w-5" />
-  //         <span className="font-medium">Settings</span>
-  //       </Link>
-  //     </div>
-  //   </div>
-  // );
-
+ 
   return (
     <DashboardLayout
       headerTitle={isEditMode ? 'Edit Property' : 'Add New Property'}
@@ -205,25 +166,27 @@ export default function PropertyFormPage({ initialData }: PropertyFormProps) {
               <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2">
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700">Property Title *</label>
-                  <input {...register('title')} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+                  <input {...register('title')} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-700" />
                   {errors.title && <p className="mt-1 text-sm text-red-600">{errors.title.message}</p>}
                 </div>
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700">Description</label>
-                  <textarea {...register('description')} rows={4} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+                  <textarea {...register('description')} rows={4} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-700" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Price *</label>
-                  <input type="number" step="0.01" {...register('price')} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+                  <input type="number" step="0.01" {...register('price')} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-700" />
                   {errors.price && <p className="mt-1 text-sm text-red-600">{errors.price.message}</p>}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Property Type *</label>
-                  <select {...register('propertyType')} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                  <select {...register('propertyType')} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-700">
                     <option value="apartment">Apartment</option>
                     <option value="house">House</option>
-                    <option value="condo">Condo</option>
-                    <option value="townhouse">Townhouse</option>
+                    <option value="single">Single Room</option>
+                    <option value="office">Office Space</option>
+                    <option value="shop">Shop</option>
+                    <option value="compound">Compound</option>
                   </select>
                 </div>
               </div>
@@ -239,17 +202,17 @@ export default function PropertyFormPage({ initialData }: PropertyFormProps) {
               <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-3">
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Bedrooms *</label>
-                  <input type="number" {...register('bedrooms')} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+                  <input type="number" {...register('bedrooms')} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-700" />
                   {errors.bedrooms && <p className="mt-1 text-sm text-red-600">{errors.bedrooms.message}</p>}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Bathrooms *</label>
-                  <input type="number" {...register('bathrooms')} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+                  <input type="number" {...register('bathrooms')} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-700" />
                   {errors.bathrooms && <p className="mt-1 text-sm text-red-600">{errors.bathrooms.message}</p>}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Land Size (sq ft)</label>
-                  <input type="number" {...register('landSize')} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+                  <input type="number" {...register('landSize')} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-700" />
                   {errors.landSize && <p className="mt-1 text-sm text-red-600">{errors.landSize.message}</p>}
                 </div>
               </div>
@@ -265,17 +228,22 @@ export default function PropertyFormPage({ initialData }: PropertyFormProps) {
                 <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2">
                     <div className="md:col-span-2">
                         <label className="block text-sm font-medium text-gray-700">Street Address *</label>
-                        <input {...register('address')} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+                        <input {...register('address')} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-700" />
                         {errors.address && <p className="mt-1 text-sm text-red-600">{errors.address.message}</p>}
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-gray-700">City *</label>
-                        <input {...register('city')} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+                        <select {...register('city')} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-700">
+                            <option value="">Select a city</option>
+                            <option value="freetown">Freetown</option>
+                            <option value="bo">Bo</option>
+                            <option value="kenema">Kenema</option>
+                        </select>
                         {errors.city && <p className="mt-1 text-sm text-red-600">{errors.city.message}</p>}
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Area *</label>
-                        <input {...register('area')} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+                        <input {...register('area')} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-700" />
                         {errors.area && <p className="mt-1 text-sm text-red-600">{errors.area.message}</p>}
                     </div>
                 </div>
@@ -287,17 +255,32 @@ export default function PropertyFormPage({ initialData }: PropertyFormProps) {
                     <Camera className="h-6 w-6 text-blue-600" />
                     <h2 className="text-lg font-semibold text-gray-800">Images</h2>
                 </div>
-                <p className="mt-1 text-sm text-gray-500">Upload two images of your property.</p>
+                <p className="mt-1 text-sm text-gray-500">Upload all images of your property.</p>
                 <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2">
                     <div>
-                        <label className="block text-sm font-medium text-gray-700">Image 1</label>
+                        <label className="block text-sm font-medium text-gray-700">Front View</label>
                         <input type='file' accept='image/*' onChange={(e) => e.target.files?.[0] && uploadToCloudinary(e.target.files[0], setImageUrl)} className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:rounded-full file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-blue-700 hover:file:bg-blue-100"/>
                         {imageUrl && <img src={imageUrl} alt="Preview 1" className="mt-4 h-32 w-full rounded-md object-cover" />}
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700">Image 2</label>
+                        <label className="block text-sm font-medium text-gray-700">Master Bedroom</label>
                         <input type='file' accept='image/*' onChange={(e) => e.target.files?.[0] && uploadToCloudinary(e.target.files[0], setImageUr2)} className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:rounded-full file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-blue-700 hover:file:bg-blue-100"/>
                         {imageUr2 && <img src={imageUr2} alt="Preview 2" className="mt-4 h-32 w-full rounded-md object-cover" />}
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700">Kitchen</label>
+                        <input type='file' accept='image/*' onChange={(e) => e.target.files?.[0] && uploadToCloudinary(e.target.files[0], setImageUr3)} className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:rounded-full file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-blue-700 hover:file:bg-blue-100"/>
+                        {imageUr3 && <img src={imageUr3} alt="Preview 3" className="mt-4 h-32 w-full rounded-md object-cover" />}
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700">Master Bathroom</label>
+                        <input type='file' accept='image/*' onChange={(e) => e.target.files?.[0] && uploadToCloudinary(e.target.files[0], setImageUr4)} className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:rounded-full file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-blue-700 hover:file:bg-blue-100"/>
+                        {imageUr4 && <img src={imageUr4} alt="Preview 4" className="mt-4 h-32 w-full rounded-md object-cover" />}
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700">Living Room</label>
+                        <input type='file' accept='image/*' onChange={(e) => e.target.files?.[0] && uploadToCloudinary(e.target.files[0], setImageUr5)} className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:rounded-full file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-blue-700 hover:file:bg-blue-100"/>
+                        {imageUr5 && <img src={imageUr5} alt="Preview 2" className="mt-4 h-32 w-full rounded-md object-cover" />}
                     </div>
                 </div>
             </div>

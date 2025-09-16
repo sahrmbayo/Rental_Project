@@ -8,7 +8,7 @@ import {
   PlusCircle,
   Settings,
   Bell,
-  User,
+  Home,
   Menu,
   X,
 } from 'lucide-react';
@@ -70,12 +70,12 @@ const SidebarContent = ({ currentPage }: { currentPage: 'dashboard' | 'propertie
             : 'text-gray-600 hover:bg-gray-100'
         }`}
       >
-        <PlusCircle className="h-5 w-5" />
+        <Home className="h-5 w-5" />
         <span className="font-medium">Reserved Properties</span>
       </Link>
     </nav>
     <div>
-      <Link href="Dashboard/settings" className="flex items-center space-x-3 rounded-lg px-4 py-2.5 text-gray-600 hover:bg-gray-100">
+      <Link href="/Dashboard/settings" className="flex items-center space-x-3 rounded-lg px-4 py-2.5 text-gray-600 hover:bg-gray-100">
         <Settings className="h-5 w-5" />
         <span className="font-medium">Settings</span>
         
