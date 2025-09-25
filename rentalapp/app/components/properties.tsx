@@ -1,17 +1,15 @@
-import { PrismaClient, Prisma } from '../generated/prisma'; // 1. Import the 'Prisma' type
+import { PrismaClient, Prisma } from '../generated/prisma';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Edit, PlusCircle } from 'lucide-react';
 import { DeletePropertyButton } from '../components/DeletePropertyButton';
 import DashboardLayout from '../Dashboard/DashboardLayout';
 import { SearchInput } from '../components/SearchInput';
-import { promises } from 'dns';
 
 // --- Data Fetching (Server-Side) ---
 const prisma = new PrismaClient();
 
 async function getProperties(searchTerm?: string) {
-  // 2. Explicitly type the whereClause variable
   const whereClause: Prisma.PropertyWhereInput = searchTerm
     ? {
         OR: [
@@ -32,20 +30,18 @@ async function getProperties(searchTerm?: string) {
     : {};
 
   return await prisma.property.findMany({
-    where: whereClause, 
+    where: whereClause,
     orderBy: { postedAt: 'desc' },
   });
- 
 }
 
 // --- Main Page Component (Server Component) ---
 export default async function PropertiesListPage({
   searchParams,
 }: {
-  searchParams: Promise<{ search?: string }> | undefined
+  searchParams?: { search?: string };
 }) {
-  const { search } = await searchParams ?? {};   // await the promise first
-  const searchTerm = search ?? '';
+  const searchTerm = searchParams?.search ?? '';
   const properties = await getProperties(searchTerm);
 
   return (

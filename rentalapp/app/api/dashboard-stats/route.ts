@@ -8,6 +8,7 @@ import { PrismaClient } from '../../generated/prisma';
 const prisma = new PrismaClient();
 
 export const revalidate = 60; // Revalidate every 60 seconds
+export const dynamic = 'force-dynamic'; 
 export async function GET() {
   try {
     
