@@ -30,26 +30,34 @@ export async function POST(req: Request) {
     });
 
     const property = await prisma.property.create({
-      data: {
-        title: body.title,
-        description: body.description || '',
-        price: Number(body.price),
-        propertyType: body.propertyType,
-        landSize: Number(body.landSize),
-        address: body.address,
-        city: body.city,
-        area: body.area,
-        bedrooms: Number(body.bedrooms),
-        bathrooms: Number(body.bathrooms),
-        imageUrl: body.imageUrl || '',
-        imageUr2: body.imageUr2 || '',
-        agent: {
-          connect: {
-            id: agentId,
-          },
-        },
-      },
-    });
+  data: {
+    title: body.title,
+    description: body.description || '',
+    price: Number(body.price),
+    propertyType: body.propertyType,
+    landSize: Number(body.landSize || 0),
+    address: body.address,
+    city: body.city,
+    area: body.area,
+    bedrooms: Number(body.bedrooms),
+    bathrooms: Number(body.bathrooms),
+    electricity: Boolean(body.electricity), // NEW
+    virtualTours: body.virtualTours || [], // NEW
+    imageUrl: body.imageUrl || '',
+    imageUr2: body.imageUr2 || '',
+    imageUr3: body.imageUr3 || '',
+    imageUr4: body.imageUr4 || '',
+    imageUr5: body.imageUr5 || '',
+    agentId,
+    amenities: {
+  connectOrCreate: (body.amenities as string[]).map((name) => ({
+    where: { name },
+    create: { name },
+  })),
+},
+  },
+  include: { amenities: true }, // NEW (optional)
+});
 
     return NextResponse.json({ property });
   } catch (error: any) {

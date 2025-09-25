@@ -5,6 +5,7 @@ import DashboardLayout from './DashboardLayout'; // Your layout component
 import { Database, TrendingUp, Users, PlusCircle, House  } from 'lucide-react';
 import Link from 'next/link';
 
+
 // --- Reusable Stat Card Component ---
 const StatCard = ({ icon: Icon, title, value, subtitle, isLoading }) => {
   if (isLoading) {
@@ -36,6 +37,7 @@ const StatCard = ({ icon: Icon, title, value, subtitle, isLoading }) => {
 export default function DashboardPage() {
   const [stats, setStats] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  
 
   useEffect(() => {
     // This function will run once when the component loads

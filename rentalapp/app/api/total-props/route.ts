@@ -1,23 +1,22 @@
-import { PrismaClient } from "../../generated/prisma";
-import { NextResponse } from "next/server";
+import { NextResponse } from 'next/server';
+import { PrismaClient } from '../../generated/prisma';
 
 const prisma = new PrismaClient();
 
-export const revalidate = 60;
+
+export const dynamic = 'force-static';
+
+
+export const revalidate = false;
+
 export async function GET() {
-    try {
+  try {
     const totalProperties = await prisma.property.count();
+    const totalAgents     = await prisma.agent.count();
 
-    const totalAgents = await prisma.agent.count();
-
-    const HeroStats = { totalProperties, totalAgents };
-
-    
-  return NextResponse.json(HeroStats);
-    } catch (error) {
-        console.error('[HERO_STATS_GET]', error);
+    return NextResponse.json({ totalProperties, totalAgents });
+  } catch (err) {
+    console.error('[HERO_STATS_GET]', err);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
-    }
-
-  
+  }
 }

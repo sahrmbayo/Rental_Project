@@ -26,3 +26,25 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Dark-mode overrides */
+.dark {
+  color-scheme: dark;
+}
+
+.dark body {
+  @apply bg-gray-900 text-gray-100;
+}
+
+.dark header,
+.dark nav {
+  @apply bg-gray-800 border-gray-700;
+}
+
+.dark .card-bg {
+  @apply bg-gray-800 border-gray-700;
+}
+
+.dark .btn-primary {
+  @apply bg-blue-500 hover:bg-blue-600;
+}

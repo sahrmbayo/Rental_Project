@@ -12,38 +12,46 @@ import {
   MapPin,
   Camera,
   Pencil,
+  Minus,
+  Plus,
+  Check,
 } from 'lucide-react';
 import { Property } from '../generated/prisma'; // Make sure this import path is correct for your project
-import { UserButton } from '@clerk/nextjs';
 import DashboardLayout from '../Dashboard/DashboardLayout';
 // --- Type Definition ---
 type PropertyFormData = {
   title: string;
   description?: string;
   price: number;
-  propertyType: 'apartment' | 'house' | 'single' | 'office'|'shop'|'compound';
+  propertyType: 'apartment' | 'house' | 'single' | 'office' | 'shop' | 'compound';
   landSize?: number;
   address: string;
   area: string;
   city: string;
   bedrooms: number;
   bathrooms: number;
+  electricity: boolean; // NEW
+  virtualTours: { type: '2D' | '3D' | 'video'; url: string; caption?: string }[]; // NEW
+  amenities: string[]; // NEW
 };
 
 // --- Validation Schema ---
 const propertySchema: ObjectSchema<PropertyFormData> = yup.object({
   title: yup.string().required('Title is required'),
   description: yup.string().optional(),
-  price: yup.number().transform(v => (isNaN(v) ? 0 : v)).positive('Price must be a positive number').required('Price is required'),
-  propertyType: yup.string().oneOf(['apartment', 'house', 'single', 'office', 'shop', 'compound']).required('Property type is required'),
-  landSize: yup.number().transform(v => (isNaN(v) ? 0 : v)).min(0, 'Land size cannot be negative').optional(),
-  address: yup.string().required('Address is required'),
-  area: yup.string().required('Area is required'),
-  city: yup.string().required('City is required'),
-  bedrooms: yup.number().transform(v => (isNaN(v) ? 0 : v)).integer('Bedrooms must be an integer').min(0).required('Bedrooms are required'),
-  bathrooms: yup.number().transform(v => (isNaN(v) ? 0 : v)).integer('Bathrooms must be an integer').min(0).required('Bathrooms are required'),
+  price: yup.number().transform(v => (isNaN(v) ? 0 : v)).positive('Price must be positive').required('Price required'),
+  propertyType: yup.string().oneOf(['apartment', 'house', 'single', 'office', 'shop', 'compound']).required('Type required'),
+  landSize: yup.number().transform(v => (isNaN(v) ? 0 : v)).min(0).optional(),
+  address: yup.string().required('Address required'),
+  area: yup.string().required('Area required'),
+  city: yup.string().required('City required'),
+  bedrooms: yup.number().integer().min(0).required('Bedrooms required'),
+  bathrooms: yup.number().integer().min(0).required('Bathrooms required'),
+  // NEW fields — no Yup rules for now
+  electricity: yup.boolean(),
+  virtualTours: yup.array().optional(),
+  amenities: yup.array().of(yup.string()).optional(),
 });
-
 // --- Main Component ---
 type PropertyFormProps = {
   initialData?: Property | null;
@@ -64,15 +72,27 @@ export default function PropertyFormPage({ initialData }: PropertyFormProps) {
     register,
     handleSubmit,
     formState: { errors },
+    setValue,
+    watch,
   } = useForm<PropertyFormData>({
     resolver: yupResolver(propertySchema),
-    defaultValues: isEditMode && initialData ? {
-        ...initialData,
-        price: Number(initialData.price),
-        landSize: initialData.landSize ? Number(initialData.landSize) : undefined,
-        propertyType: initialData.propertyType as 'apartment' | 'house' | 'single' | 'office'|'shop'|'compound',
-    } : {
-        propertyType: 'apartment',
+   defaultValues: isEditMode && initialData
+  ? {
+      ...initialData,
+      price: Number(initialData.price),
+      landSize: initialData.landSize ? Number(initialData.landSize) : undefined,
+      propertyType: initialData.propertyType as 'apartment' | 'house' | 'single' | 'office' | 'shop' | 'compound',
+      electricity: initialData.electricity ?? false,
+      virtualTours: (initialData.virtualTours as PropertyFormData['virtualTours']) ?? [],
+      amenities: (initialData as any)?.amenities?.map((a: any) => a.name) ?? [],
+    }
+  : {
+      propertyType: 'apartment',
+      electricity: false,
+      virtualTours: [],
+      amenities: [],
+      bedrooms: 0,
+      bathrooms: 0,
     },
   });
 
@@ -106,7 +126,17 @@ export default function PropertyFormPage({ initialData }: PropertyFormProps) {
       return;
     }
 
-    const finalData = { ...data, imageUrl, imageUr2, imageUr3, imageUr4, imageUr5 };
+    const finalData = {
+  ...data,
+  imageUrl,
+  imageUr2,
+  imageUr3,
+  imageUr4,
+  imageUr5,
+  electricity: data.electricity, // NEW
+  virtualTours: watch('virtualTours'), // NEW
+  amenities: watch('amenities'), // NEW
+};
 
     try {
       const endpoint = isEditMode
@@ -181,42 +211,77 @@ export default function PropertyFormPage({ initialData }: PropertyFormProps) {
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Property Type *</label>
                   <select {...register('propertyType')} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-700">
-                    <option value="apartment">Apartment</option>
-                    <option value="house">House</option>
-                    <option value="single">Single Room</option>
-                    <option value="office">Office Space</option>
-                    <option value="shop">Shop</option>
-                    <option value="compound">Compound</option>
+                    <option value="Apartment">Apartment</option>
+                    <option value="House">House</option>
+                    <option value="Single Room">Single Room</option>
+                    <option value="Office Space">Office Space</option>
+                    <option value="Shop">Shop</option>
+                    <option value="Compound">Compound</option>
                   </select>
                 </div>
+                {/* Electricity toggle */}
+<div className="flex items-center gap-3 mt-4">
+  <input
+    id="electricity"
+    type="checkbox"
+    {...register('electricity')}
+    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+  />
+  <label htmlFor="electricity" className="text-sm font-medium text-gray-700">
+    Electricity available
+  </label>
+</div>
               </div>
             </div>
 
             {/* Section 2: Specifications */}
-            <div className="rounded-xl border bg-white p-6 shadow-sm">
-              <div className="flex items-center gap-3">
-                <Pencil className="h-6 w-6 text-blue-600" />
-                <h2 className="text-lg font-semibold text-gray-800">Specifications</h2>
-              </div>
-               <p className="mt-1 text-sm text-gray-500">Details about the property features.</p>
-              <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-3">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Bedrooms *</label>
-                  <input type="number" {...register('bedrooms')} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-700" />
-                  {errors.bedrooms && <p className="mt-1 text-sm text-red-600">{errors.bedrooms.message}</p>}
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Bathrooms *</label>
-                  <input type="number" {...register('bathrooms')} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-700" />
-                  {errors.bathrooms && <p className="mt-1 text-sm text-red-600">{errors.bathrooms.message}</p>}
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Land Size (sq ft)</label>
-                  <input type="number" {...register('landSize')} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-700" />
-                  {errors.landSize && <p className="mt-1 text-sm text-red-600">{errors.landSize.message}</p>}
-                </div>
-              </div>
-            </div>
+            {/* Section 2: Specifications */}
+<div className="rounded-xl border bg-white p-6 shadow-sm">
+  <div className="flex items-center gap-3">
+    <Pencil className="h-6 w-6 text-blue-600" />
+    <h2 className="text-lg font-semibold text-gray-800">Specifications</h2>
+  </div>
+  <p className="mt-1 text-sm text-gray-500">Details about the property features.</p>
+
+  <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-3">
+    {/* Bedrooms counter */}
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-2">Bedrooms *</label>
+      <div className="inline-flex items-center gap-3">
+        <button
+          type="button"
+          onClick={() => setValue('bedrooms', Math.max(0, Number(watch('bedrooms')) - 1))}
+          className="rounded-full bg-gray-200 p-2 hover:bg-gray-300"
+        >
+          <Minus className="h-4 w-4" />
+        </button>
+        <span className="w-12 text-center font-semibold text-lg">{watch('bedrooms')}</span>
+        <button
+          type="button"
+          onClick={() => setValue('bedrooms', Number(watch('bedrooms')) + 1)}
+          className="rounded-full bg-gray-200 p-2 hover:bg-gray-300"
+        >
+          <Plus className="h-4 w-4" />
+        </button>
+      </div>
+      {errors.bedrooms && <p className="mt-1 text-sm text-red-600">{errors.bedrooms.message}</p>}
+    </div>
+
+    {/* Bathrooms */}
+    <div>
+      <label className="block text-sm font-medium text-gray-700">Bathrooms *</label>
+      <input type="number" {...register('bathrooms')} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-700" />
+      {errors.bathrooms && <p className="mt-1 text-sm text-red-600">{errors.bathrooms.message}</p>}
+    </div>
+
+    {/* Land Size */}
+    <div>
+      <label className="block text-sm font-medium text-gray-700">Land Size (sq ft)</label>
+      <input type="number" {...register('landSize')} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-700" />
+      {errors.landSize && <p className="mt-1 text-sm text-red-600">{errors.landSize.message}</p>}
+    </div>
+  </div>
+</div>
 
             {/* Section 3: Location */}
             <div className="rounded-xl border bg-white p-6 shadow-sm">
@@ -235,9 +300,10 @@ export default function PropertyFormPage({ initialData }: PropertyFormProps) {
                         <label className="block text-sm font-medium text-gray-700">City *</label>
                         <select {...register('city')} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-700">
                             <option value="">Select a city</option>
-                            <option value="freetown">Freetown</option>
-                            <option value="bo">Bo</option>
-                            <option value="kenema">Kenema</option>
+                            <option value="Freetown">Freetown</option>
+                            <option value="Bo">Bo</option>
+                            <option value="Kenema">Kenema</option>
+                            <option value="Makeni">Makeni</option>
                         </select>
                         {errors.city && <p className="mt-1 text-sm text-red-600">{errors.city.message}</p>}
                     </div>
@@ -284,6 +350,105 @@ export default function PropertyFormPage({ initialData }: PropertyFormProps) {
                     </div>
                 </div>
             </div>
+            {/* Section 6: Amenities */}
+<div className="rounded-xl border bg-white p-6 shadow-sm">
+  <div className="flex items-center gap-3 mb-4">
+    <Pencil className="h-6 w-6 text-blue-600" />
+    <h2 className="text-lg font-semibold text-gray-800">Amenities</h2>
+  </div>
+  <p className="text-sm text-gray-500 mb-3">Select amenities available in the property.</p>
+
+  <div className="flex flex-wrap gap-2">
+    {['WiFi', 'Parking', 'Air-conditioning', 'Pet-friendly', 'Pool', 'Gym', 'Security', 'Water-supply', 'Electricity'].map((a) => {
+      const active = watch('amenities')?.includes(a);
+      return (
+        <button
+          key={a}
+          type="button"
+          onClick={() =>
+            setValue(
+              'amenities',
+              active
+                ? watch('amenities').filter((x) => x !== a)
+                : [...(watch('amenities') || []), a]
+            )
+          }
+          className={`flex items-center gap-1 rounded-full px-3 py-1.5 text-sm border transition-colors ${
+            active
+              ? 'border-blue-600 bg-blue-50 text-blue-700'
+              : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+          }`}
+        >
+          {active && <Check className="h-4 w-4" />}
+          {a}
+        </button>
+      );
+    })}
+  </div>
+</div>
+            {/* Section 5: Virtual Tours */}
+<div className="rounded-xl border bg-white p-6 shadow-sm">
+  <div className="flex items-center gap-3 mb-4">
+    <Camera className="h-6 w-6 text-blue-600" />
+    <h2 className="text-lg font-semibold text-gray-800">Virtual Tours</h2>
+  </div>
+  <p className="text-sm text-gray-500 mb-4">Upload 2D, 3D or video walkthroughs.</p>
+
+  <label className="inline-flex items-center gap-2 cursor-pointer rounded-lg border px-4 py-2 hover:bg-gray-50">
+    <input
+      type="file"
+      accept="image/*,video/*,.glb,.gltf"
+      className="hidden"
+      onChange={async (e) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+
+  // decide type from MIME or extension
+  const isVideo = file.type.startsWith('video/');
+  const is3D   = file.name.endsWith('.glb') || file.name.endsWith('.gltf');
+  const type: '2D' | '3D' | 'video' = isVideo ? 'video' : is3D ? '3D' : '2D';
+
+  const reader = new FileReader();
+  reader.readAsDataURL(file);
+  reader.onloadend = async () => {
+    const res = await fetch('/api/upload-tour', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ file: reader.result, type }),
+    });
+    const data = await res.json();
+    if (data.url) {
+      setValue('virtualTours', [...watch('virtualTours'), { type, url: data.url }]);
+    } else {
+      alert('Upload failed: ' + data.error);
+    }
+  };
+}}
+    />
+    <span className="text-sm text-gray-700">Upload tour</span>
+  </label>
+
+  {watch('virtualTours')?.length > 0 && (
+    <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-4">
+      {watch('virtualTours').map((t, idx) => (
+        <div key={idx} className="relative rounded-lg border p-2">
+          {t.type === 'video' ? (
+            <video src={t.url} controls className="h-32 w-full rounded object-cover" />
+          ) : (
+            <iframe src={t.url} allowFullScreen className="h-32 w-full rounded" />
+          )}
+          <button
+            type="button"
+            onClick={() => setValue('virtualTours', watch('virtualTours').filter((_, i) => i !== idx))}
+            className="absolute top-1 right-1 rounded bg-white/80 px-2 py-0.5 text-xs text-red-600"
+          >
+            Remove
+          </button>
+        </div>
+      ))}
+    </div>
+  )}
+</div>
 
             {/* Submit Button */}
             <div className="flex justify-end">

@@ -5,6 +5,7 @@ import { Edit, PlusCircle } from 'lucide-react';
 import { DeletePropertyButton } from '../components/DeletePropertyButton';
 import DashboardLayout from '../Dashboard/DashboardLayout';
 import { SearchInput } from '../components/SearchInput';
+import { promises } from 'dns';
 
 // --- Data Fetching (Server-Side) ---
 const prisma = new PrismaClient();
@@ -35,17 +36,16 @@ async function getProperties(searchTerm?: string) {
     orderBy: { postedAt: 'desc' },
   });
  
-} await prisma.$disconnect();
+}
 
 // --- Main Page Component (Server Component) ---
 export default async function PropertiesListPage({
   searchParams,
 }: {
-  searchParams?: {
-    search?: string;
-  };
+  searchParams: Promise<{ search?: string }> | undefined
 }) {
-  const searchTerm = searchParams?.search || '';
+  const { search } = await searchParams ?? {};   // await the promise first
+  const searchTerm = search ?? '';
   const properties = await getProperties(searchTerm);
 
   return (

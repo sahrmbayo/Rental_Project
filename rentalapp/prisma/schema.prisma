@@ -1,8 +1,5 @@
 // This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+// learn more about it in the docs: https://pris.ly/d/prisma-schema 
 
 generator client {
   provider = "prisma-client-js"
@@ -15,64 +12,77 @@ datasource db {
 }
 
 model Order {
-  id               String   @id @default(cuid())
-  checkoutSessionId String?  // Monime Checkout Session ID
-  status String?
-  paidAt   DateTime @default(now())
-  createdAt        DateTime @default(now())
-  //people who made the order
-  userId           String
-  email            String
-  name             String
-  phone            String
-
+  id                String   @id @default(cuid())
+  checkoutSessionId String?
+  status            String?
+  paidAt            DateTime @default(now())
+  createdAt         DateTime @default(now())
+  userId            String
+  email             String
+  name              String
+  phone             String
+  propertyId       String
+  Property         Property @relation(fields: [id], references: [id], onDelete: Cascade)
 
   @@map("orders")
 }
 
 model Agent {
-  id        String   @id @default(cuid())
-  name      String
-  email     String   @unique
-  phone     String?
+  id         String     @id @default(cuid())
+  name       String
+  email      String     @unique
+  phone      String?
+  isSuspended Boolean @default(false)
   properties Property[]
 
   @@map("agents")
-  
 }
+
 model Property {
-  id          String   @id @default(cuid())
-  title       String
-  description String?
-  price       Int
+  id           String     @id @default(cuid())
+  title        String
+  description  String?
+  price        Int
   propertyType String
-  landSize    Int
-  address     String
-  city        String
-  area        String
-  bedrooms   Int
-  bathrooms   Int
-  imageUrl    String?
-  imageUr2    String?
-  imageUr3    String?
-  imageUr4    String?
-  imageUr5    String?
-  isAvailable Boolean @default(true)
-  postedAt   DateTime @default(now())
-  agentId     String
-  agent       Agent    @relation(fields: [agentId], references: [id])
-  favourite   Favourite[]
+  landSize     Int
+  address      String
+  city         String
+  area         String
+  bedrooms     Int
+  bathrooms    Int
+  electricity  Boolean    @default(false) // NEW
+  virtualTours Json? // NEW
+  imageUrl     String?
+  imageUr2     String?
+  imageUr3     String?
+  imageUr4     String?
+  imageUr5     String?
+  isAvailable  Boolean    @default(true)
+  postedAt     DateTime   @default(now())
+  order       Order[]
+  agentId      String
+  agent        Agent      @relation(fields: [agentId], references: [id])
+  favourite    Favourite[]
+  amenities    Amenity[] // NEW many-to-many
 
   @@map("properties")
 }
 
+model Amenity {
+  id         Int        @id @default(autoincrement())
+  name       String     @unique
+  properties Property[]
+
+  @@map("amenities")
+}
+
 model Favourite {
   id         String   @id @default(cuid())
-  userId     String   // Clerk user id
+  userId     String // Clerk user id
   propertyId String
   createdAt  DateTime @default(now())
 
-  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, propertyId])   // one fav per user/property
+  @@unique([userId, propertyId])
 }
