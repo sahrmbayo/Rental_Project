@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
     await prisma.order.upsert({
       where: { id: orderId },
       update: { checkoutSessionId },
-      create: { id: orderId, checkoutSessionId, status: 'pending', userId: UOid, email: UOemail, name: UOname, phone: UOphone },
+      create: { checkoutSessionId, status: 'pending', userId: UOid, email: UOemail, name: UOname, phone: UOphone },
     })
 
     // 5. Send redirect URL to UI

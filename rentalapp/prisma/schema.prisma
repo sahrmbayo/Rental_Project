@@ -21,25 +21,23 @@ model Order {
   email             String
   name              String
   phone             String
-  propertyId       String
-  Property         Property @relation(fields: [id], references: [id], onDelete: Cascade)
 
   @@map("orders")
 }
 
 model Agent {
-  id         String     @id @default(cuid())
-  name       String
-  email      String     @unique
-  phone      String?
-  isSuspended Boolean @default(false)
-  properties Property[]
+  id          String     @id @default(cuid())
+  name        String
+  email       String     @unique
+  phone       String?
+  isSuspended Boolean    @default(false)
+  properties  Property[]
 
   @@map("agents")
 }
 
 model Property {
-  id           String     @id @default(cuid())
+  id           String      @id @default(cuid())
   title        String
   description  String?
   price        Int
@@ -50,18 +48,17 @@ model Property {
   area         String
   bedrooms     Int
   bathrooms    Int
-  electricity  Boolean    @default(false) // NEW
+  electricity  Boolean     @default(false) // NEW
   virtualTours Json? // NEW
   imageUrl     String?
   imageUr2     String?
   imageUr3     String?
   imageUr4     String?
   imageUr5     String?
-  isAvailable  Boolean    @default(true)
-  postedAt     DateTime   @default(now())
-  order       Order[]
+  isAvailable  Boolean     @default(true)
+  postedAt     DateTime    @default(now())
   agentId      String
-  agent        Agent      @relation(fields: [agentId], references: [id])
+  agent        Agent       @relation(fields: [agentId], references: [id])
   favourite    Favourite[]
   amenities    Amenity[] // NEW many-to-many
 

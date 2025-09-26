@@ -129,8 +129,7 @@ exports.Prisma.OrderScalarFieldEnum = {
   userId: 'userId',
   email: 'email',
   name: 'name',
-  phone: 'phone',
-  propertyId: 'propertyId'
+  phone: 'phone'
 };
 
 exports.Prisma.AgentScalarFieldEnum = {

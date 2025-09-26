@@ -1264,13 +1264,11 @@ export namespace Prisma {
    */
 
   export type PropertyCountOutputType = {
-    order: number
     favourite: number
     amenities: number
   }
 
   export type PropertyCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    order?: boolean | PropertyCountOutputTypeCountOrderArgs
     favourite?: boolean | PropertyCountOutputTypeCountFavouriteArgs
     amenities?: boolean | PropertyCountOutputTypeCountAmenitiesArgs
   }
@@ -1284,13 +1282,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the PropertyCountOutputType
      */
     select?: PropertyCountOutputTypeSelect<ExtArgs> | null
-  }
-
-  /**
-   * PropertyCountOutputType without action
-   */
-  export type PropertyCountOutputTypeCountOrderArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: OrderWhereInput
   }
 
   /**
@@ -1363,7 +1354,6 @@ export namespace Prisma {
     email: string | null
     name: string | null
     phone: string | null
-    propertyId: string | null
   }
 
   export type OrderMaxAggregateOutputType = {
@@ -1376,7 +1366,6 @@ export namespace Prisma {
     email: string | null
     name: string | null
     phone: string | null
-    propertyId: string | null
   }
 
   export type OrderCountAggregateOutputType = {
@@ -1389,7 +1378,6 @@ export namespace Prisma {
     email: number
     name: number
     phone: number
-    propertyId: number
     _all: number
   }
 
@@ -1404,7 +1392,6 @@ export namespace Prisma {
     email?: true
     name?: true
     phone?: true
-    propertyId?: true
   }
 
   export type OrderMaxAggregateInputType = {
@@ -1417,7 +1404,6 @@ export namespace Prisma {
     email?: true
     name?: true
     phone?: true
-    propertyId?: true
   }
 
   export type OrderCountAggregateInputType = {
@@ -1430,7 +1416,6 @@ export namespace Prisma {
     email?: true
     name?: true
     phone?: true
-    propertyId?: true
     _all?: true
   }
 
@@ -1516,7 +1501,6 @@ export namespace Prisma {
     email: string
     name: string
     phone: string
-    propertyId: string
     _count: OrderCountAggregateOutputType | null
     _min: OrderMinAggregateOutputType | null
     _max: OrderMaxAggregateOutputType | null
@@ -1546,8 +1530,6 @@ export namespace Prisma {
     email?: boolean
     name?: boolean
     phone?: boolean
-    propertyId?: boolean
-    Property?: boolean | PropertyDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["order"]>
 
   export type OrderSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -1560,8 +1542,6 @@ export namespace Prisma {
     email?: boolean
     name?: boolean
     phone?: boolean
-    propertyId?: boolean
-    Property?: boolean | PropertyDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["order"]>
 
   export type OrderSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -1574,8 +1554,6 @@ export namespace Prisma {
     email?: boolean
     name?: boolean
     phone?: boolean
-    propertyId?: boolean
-    Property?: boolean | PropertyDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["order"]>
 
   export type OrderSelectScalar = {
@@ -1588,25 +1566,13 @@ export namespace Prisma {
     email?: boolean
     name?: boolean
     phone?: boolean
-    propertyId?: boolean
   }
 
-  export type OrderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "checkoutSessionId" | "status" | "paidAt" | "createdAt" | "userId" | "email" | "name" | "phone" | "propertyId", ExtArgs["result"]["order"]>
-  export type OrderInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    Property?: boolean | PropertyDefaultArgs<ExtArgs>
-  }
-  export type OrderIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    Property?: boolean | PropertyDefaultArgs<ExtArgs>
-  }
-  export type OrderIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    Property?: boolean | PropertyDefaultArgs<ExtArgs>
-  }
+  export type OrderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "checkoutSessionId" | "status" | "paidAt" | "createdAt" | "userId" | "email" | "name" | "phone", ExtArgs["result"]["order"]>
 
   export type $OrderPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Order"
-    objects: {
-      Property: Prisma.$PropertyPayload<ExtArgs>
-    }
+    objects: {}
     scalars: $Extensions.GetPayloadResult<{
       id: string
       checkoutSessionId: string | null
@@ -1617,7 +1583,6 @@ export namespace Prisma {
       email: string
       name: string
       phone: string
-      propertyId: string
     }, ExtArgs["result"]["order"]>
     composites: {}
   }
@@ -2012,7 +1977,6 @@ export namespace Prisma {
    */
   export interface Prisma__OrderClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    Property<T extends PropertyDefaultArgs<ExtArgs> = {}>(args?: Subset<T, PropertyDefaultArgs<ExtArgs>>): Prisma__PropertyClient<$Result.GetResult<Prisma.$PropertyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2051,7 +2015,6 @@ export namespace Prisma {
     readonly email: FieldRef<"Order", 'String'>
     readonly name: FieldRef<"Order", 'String'>
     readonly phone: FieldRef<"Order", 'String'>
-    readonly propertyId: FieldRef<"Order", 'String'>
   }
     
 
@@ -2068,10 +2031,6 @@ export namespace Prisma {
      * Omit specific fields from the Order
      */
     omit?: OrderOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: OrderInclude<ExtArgs> | null
     /**
      * Filter, which Order to fetch.
      */
@@ -2091,10 +2050,6 @@ export namespace Prisma {
      */
     omit?: OrderOmit<ExtArgs> | null
     /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: OrderInclude<ExtArgs> | null
-    /**
      * Filter, which Order to fetch.
      */
     where: OrderWhereUniqueInput
@@ -2112,10 +2067,6 @@ export namespace Prisma {
      * Omit specific fields from the Order
      */
     omit?: OrderOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: OrderInclude<ExtArgs> | null
     /**
      * Filter, which Order to fetch.
      */
@@ -2165,10 +2116,6 @@ export namespace Prisma {
      */
     omit?: OrderOmit<ExtArgs> | null
     /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: OrderInclude<ExtArgs> | null
-    /**
      * Filter, which Order to fetch.
      */
     where?: OrderWhereInput
@@ -2217,10 +2164,6 @@ export namespace Prisma {
      */
     omit?: OrderOmit<ExtArgs> | null
     /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: OrderInclude<ExtArgs> | null
-    /**
      * Filter, which Orders to fetch.
      */
     where?: OrderWhereInput
@@ -2264,10 +2207,6 @@ export namespace Prisma {
      */
     omit?: OrderOmit<ExtArgs> | null
     /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: OrderInclude<ExtArgs> | null
-    /**
      * The data needed to create a Order.
      */
     data: XOR<OrderCreateInput, OrderUncheckedCreateInput>
@@ -2301,10 +2240,6 @@ export namespace Prisma {
      */
     data: OrderCreateManyInput | OrderCreateManyInput[]
     skipDuplicates?: boolean
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: OrderIncludeCreateManyAndReturn<ExtArgs> | null
   }
 
   /**
@@ -2319,10 +2254,6 @@ export namespace Prisma {
      * Omit specific fields from the Order
      */
     omit?: OrderOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: OrderInclude<ExtArgs> | null
     /**
      * The data needed to update a Order.
      */
@@ -2375,10 +2306,6 @@ export namespace Prisma {
      * Limit how many Orders to update.
      */
     limit?: number
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: OrderIncludeUpdateManyAndReturn<ExtArgs> | null
   }
 
   /**
@@ -2393,10 +2320,6 @@ export namespace Prisma {
      * Omit specific fields from the Order
      */
     omit?: OrderOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: OrderInclude<ExtArgs> | null
     /**
      * The filter to search for the Order to update in case it exists.
      */
@@ -2423,10 +2346,6 @@ export namespace Prisma {
      * Omit specific fields from the Order
      */
     omit?: OrderOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: OrderInclude<ExtArgs> | null
     /**
      * Filter which Order to delete.
      */
@@ -2459,10 +2378,6 @@ export namespace Prisma {
      * Omit specific fields from the Order
      */
     omit?: OrderOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: OrderInclude<ExtArgs> | null
   }
 
 
@@ -3870,7 +3785,6 @@ export namespace Prisma {
     isAvailable?: boolean
     postedAt?: boolean
     agentId?: boolean
-    order?: boolean | Property$orderArgs<ExtArgs>
     agent?: boolean | AgentDefaultArgs<ExtArgs>
     favourite?: boolean | Property$favouriteArgs<ExtArgs>
     amenities?: boolean | Property$amenitiesArgs<ExtArgs>
@@ -3953,7 +3867,6 @@ export namespace Prisma {
 
   export type PropertyOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "description" | "price" | "propertyType" | "landSize" | "address" | "city" | "area" | "bedrooms" | "bathrooms" | "electricity" | "virtualTours" | "imageUrl" | "imageUr2" | "imageUr3" | "imageUr4" | "imageUr5" | "isAvailable" | "postedAt" | "agentId", ExtArgs["result"]["property"]>
   export type PropertyInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    order?: boolean | Property$orderArgs<ExtArgs>
     agent?: boolean | AgentDefaultArgs<ExtArgs>
     favourite?: boolean | Property$favouriteArgs<ExtArgs>
     amenities?: boolean | Property$amenitiesArgs<ExtArgs>
@@ -3969,7 +3882,6 @@ export namespace Prisma {
   export type $PropertyPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Property"
     objects: {
-      order: Prisma.$OrderPayload<ExtArgs>[]
       agent: Prisma.$AgentPayload<ExtArgs>
       favourite: Prisma.$FavouritePayload<ExtArgs>[]
       amenities: Prisma.$AmenityPayload<ExtArgs>[]
@@ -4390,7 +4302,6 @@ export namespace Prisma {
    */
   export interface Prisma__PropertyClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    order<T extends Property$orderArgs<ExtArgs> = {}>(args?: Subset<T, Property$orderArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     agent<T extends AgentDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AgentDefaultArgs<ExtArgs>>): Prisma__AgentClient<$Result.GetResult<Prisma.$AgentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     favourite<T extends Property$favouriteArgs<ExtArgs> = {}>(args?: Subset<T, Property$favouriteArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FavouritePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     amenities<T extends Property$amenitiesArgs<ExtArgs> = {}>(args?: Subset<T, Property$amenitiesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AmenityPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -4837,30 +4748,6 @@ export namespace Prisma {
      * Limit how many Properties to delete.
      */
     limit?: number
-  }
-
-  /**
-   * Property.order
-   */
-  export type Property$orderArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Order
-     */
-    select?: OrderSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Order
-     */
-    omit?: OrderOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: OrderInclude<ExtArgs> | null
-    where?: OrderWhereInput
-    orderBy?: OrderOrderByWithRelationInput | OrderOrderByWithRelationInput[]
-    cursor?: OrderWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: OrderScalarFieldEnum | OrderScalarFieldEnum[]
   }
 
   /**
@@ -7063,8 +6950,7 @@ export namespace Prisma {
     userId: 'userId',
     email: 'email',
     name: 'name',
-    phone: 'phone',
-    propertyId: 'propertyId'
+    phone: 'phone'
   };
 
   export type OrderScalarFieldEnum = (typeof OrderScalarFieldEnum)[keyof typeof OrderScalarFieldEnum]
@@ -7265,8 +7151,6 @@ export namespace Prisma {
     email?: StringFilter<"Order"> | string
     name?: StringFilter<"Order"> | string
     phone?: StringFilter<"Order"> | string
-    propertyId?: StringFilter<"Order"> | string
-    Property?: XOR<PropertyScalarRelationFilter, PropertyWhereInput>
   }
 
   export type OrderOrderByWithRelationInput = {
@@ -7279,8 +7163,6 @@ export namespace Prisma {
     email?: SortOrder
     name?: SortOrder
     phone?: SortOrder
-    propertyId?: SortOrder
-    Property?: PropertyOrderByWithRelationInput
   }
 
   export type OrderWhereUniqueInput = Prisma.AtLeast<{
@@ -7296,8 +7178,6 @@ export namespace Prisma {
     email?: StringFilter<"Order"> | string
     name?: StringFilter<"Order"> | string
     phone?: StringFilter<"Order"> | string
-    propertyId?: StringFilter<"Order"> | string
-    Property?: XOR<PropertyScalarRelationFilter, PropertyWhereInput>
   }, "id">
 
   export type OrderOrderByWithAggregationInput = {
@@ -7310,7 +7190,6 @@ export namespace Prisma {
     email?: SortOrder
     name?: SortOrder
     phone?: SortOrder
-    propertyId?: SortOrder
     _count?: OrderCountOrderByAggregateInput
     _max?: OrderMaxOrderByAggregateInput
     _min?: OrderMinOrderByAggregateInput
@@ -7329,7 +7208,6 @@ export namespace Prisma {
     email?: StringWithAggregatesFilter<"Order"> | string
     name?: StringWithAggregatesFilter<"Order"> | string
     phone?: StringWithAggregatesFilter<"Order"> | string
-    propertyId?: StringWithAggregatesFilter<"Order"> | string
   }
 
   export type AgentWhereInput = {
@@ -7412,7 +7290,6 @@ export namespace Prisma {
     isAvailable?: BoolFilter<"Property"> | boolean
     postedAt?: DateTimeFilter<"Property"> | Date | string
     agentId?: StringFilter<"Property"> | string
-    order?: OrderListRelationFilter
     agent?: XOR<AgentScalarRelationFilter, AgentWhereInput>
     favourite?: FavouriteListRelationFilter
     amenities?: AmenityListRelationFilter
@@ -7440,7 +7317,6 @@ export namespace Prisma {
     isAvailable?: SortOrder
     postedAt?: SortOrder
     agentId?: SortOrder
-    order?: OrderOrderByRelationAggregateInput
     agent?: AgentOrderByWithRelationInput
     favourite?: FavouriteOrderByRelationAggregateInput
     amenities?: AmenityOrderByRelationAggregateInput
@@ -7471,7 +7347,6 @@ export namespace Prisma {
     isAvailable?: BoolFilter<"Property"> | boolean
     postedAt?: DateTimeFilter<"Property"> | Date | string
     agentId?: StringFilter<"Property"> | string
-    order?: OrderListRelationFilter
     agent?: XOR<AgentScalarRelationFilter, AgentWhereInput>
     favourite?: FavouriteListRelationFilter
     amenities?: AmenityListRelationFilter
@@ -7627,6 +7502,7 @@ export namespace Prisma {
   }
 
   export type OrderCreateInput = {
+    id?: string
     checkoutSessionId?: string | null
     status?: string | null
     paidAt?: Date | string
@@ -7635,8 +7511,6 @@ export namespace Prisma {
     email: string
     name: string
     phone: string
-    propertyId: string
-    Property?: PropertyCreateNestedOneWithoutOrderInput
   }
 
   export type OrderUncheckedCreateInput = {
@@ -7649,10 +7523,10 @@ export namespace Prisma {
     email: string
     name: string
     phone: string
-    propertyId: string
   }
 
   export type OrderUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
     checkoutSessionId?: NullableStringFieldUpdateOperationsInput | string | null
     status?: NullableStringFieldUpdateOperationsInput | string | null
     paidAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -7661,8 +7535,6 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     phone?: StringFieldUpdateOperationsInput | string
-    propertyId?: StringFieldUpdateOperationsInput | string
-    Property?: PropertyUpdateOneRequiredWithoutOrderNestedInput
   }
 
   export type OrderUncheckedUpdateInput = {
@@ -7675,7 +7547,6 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     phone?: StringFieldUpdateOperationsInput | string
-    propertyId?: StringFieldUpdateOperationsInput | string
   }
 
   export type OrderCreateManyInput = {
@@ -7688,10 +7559,10 @@ export namespace Prisma {
     email: string
     name: string
     phone: string
-    propertyId: string
   }
 
   export type OrderUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
     checkoutSessionId?: NullableStringFieldUpdateOperationsInput | string | null
     status?: NullableStringFieldUpdateOperationsInput | string | null
     paidAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -7700,7 +7571,6 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     phone?: StringFieldUpdateOperationsInput | string
-    propertyId?: StringFieldUpdateOperationsInput | string
   }
 
   export type OrderUncheckedUpdateManyInput = {
@@ -7713,7 +7583,6 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     phone?: StringFieldUpdateOperationsInput | string
-    propertyId?: StringFieldUpdateOperationsInput | string
   }
 
   export type AgentCreateInput = {
@@ -7797,7 +7666,6 @@ export namespace Prisma {
     imageUr5?: string | null
     isAvailable?: boolean
     postedAt?: Date | string
-    order?: OrderCreateNestedManyWithoutPropertyInput
     agent: AgentCreateNestedOneWithoutPropertiesInput
     favourite?: FavouriteCreateNestedManyWithoutPropertyInput
     amenities?: AmenityCreateNestedManyWithoutPropertiesInput
@@ -7825,7 +7693,6 @@ export namespace Prisma {
     isAvailable?: boolean
     postedAt?: Date | string
     agentId: string
-    order?: OrderUncheckedCreateNestedManyWithoutPropertyInput
     favourite?: FavouriteUncheckedCreateNestedManyWithoutPropertyInput
     amenities?: AmenityUncheckedCreateNestedManyWithoutPropertiesInput
   }
@@ -7851,7 +7718,6 @@ export namespace Prisma {
     imageUr5?: NullableStringFieldUpdateOperationsInput | string | null
     isAvailable?: BoolFieldUpdateOperationsInput | boolean
     postedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    order?: OrderUpdateManyWithoutPropertyNestedInput
     agent?: AgentUpdateOneRequiredWithoutPropertiesNestedInput
     favourite?: FavouriteUpdateManyWithoutPropertyNestedInput
     amenities?: AmenityUpdateManyWithoutPropertiesNestedInput
@@ -7879,7 +7745,6 @@ export namespace Prisma {
     isAvailable?: BoolFieldUpdateOperationsInput | boolean
     postedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     agentId?: StringFieldUpdateOperationsInput | string
-    order?: OrderUncheckedUpdateManyWithoutPropertyNestedInput
     favourite?: FavouriteUncheckedUpdateManyWithoutPropertyNestedInput
     amenities?: AmenityUncheckedUpdateManyWithoutPropertiesNestedInput
   }
@@ -8080,11 +7945,6 @@ export namespace Prisma {
     not?: NestedDateTimeFilter<$PrismaModel> | Date | string
   }
 
-  export type PropertyScalarRelationFilter = {
-    is?: PropertyWhereInput
-    isNot?: PropertyWhereInput
-  }
-
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -8100,7 +7960,6 @@ export namespace Prisma {
     email?: SortOrder
     name?: SortOrder
     phone?: SortOrder
-    propertyId?: SortOrder
   }
 
   export type OrderMaxOrderByAggregateInput = {
@@ -8113,7 +7972,6 @@ export namespace Prisma {
     email?: SortOrder
     name?: SortOrder
     phone?: SortOrder
-    propertyId?: SortOrder
   }
 
   export type OrderMinOrderByAggregateInput = {
@@ -8126,7 +7984,6 @@ export namespace Prisma {
     email?: SortOrder
     name?: SortOrder
     phone?: SortOrder
-    propertyId?: SortOrder
   }
 
   export type StringWithAggregatesFilter<$PrismaModel = never> = {
@@ -8260,12 +8117,6 @@ export namespace Prisma {
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
-  export type OrderListRelationFilter = {
-    every?: OrderWhereInput
-    some?: OrderWhereInput
-    none?: OrderWhereInput
-  }
-
   export type AgentScalarRelationFilter = {
     is?: AgentWhereInput
     isNot?: AgentWhereInput
@@ -8281,10 +8132,6 @@ export namespace Prisma {
     every?: AmenityWhereInput
     some?: AmenityWhereInput
     none?: AmenityWhereInput
-  }
-
-  export type OrderOrderByRelationAggregateInput = {
-    _count?: SortOrder
   }
 
   export type FavouriteOrderByRelationAggregateInput = {
@@ -8444,6 +8291,11 @@ export namespace Prisma {
     id?: SortOrder
   }
 
+  export type PropertyScalarRelationFilter = {
+    is?: PropertyWhereInput
+    isNot?: PropertyWhereInput
+  }
+
   export type FavouriteUserIdPropertyIdCompoundUniqueInput = {
     userId: string
     propertyId: string
@@ -8470,10 +8322,8 @@ export namespace Prisma {
     createdAt?: SortOrder
   }
 
-  export type PropertyCreateNestedOneWithoutOrderInput = {
-    create?: XOR<PropertyCreateWithoutOrderInput, PropertyUncheckedCreateWithoutOrderInput>
-    connectOrCreate?: PropertyCreateOrConnectWithoutOrderInput
-    connect?: PropertyWhereUniqueInput
+  export type StringFieldUpdateOperationsInput = {
+    set?: string
   }
 
   export type NullableStringFieldUpdateOperationsInput = {
@@ -8482,18 +8332,6 @@ export namespace Prisma {
 
   export type DateTimeFieldUpdateOperationsInput = {
     set?: Date | string
-  }
-
-  export type StringFieldUpdateOperationsInput = {
-    set?: string
-  }
-
-  export type PropertyUpdateOneRequiredWithoutOrderNestedInput = {
-    create?: XOR<PropertyCreateWithoutOrderInput, PropertyUncheckedCreateWithoutOrderInput>
-    connectOrCreate?: PropertyCreateOrConnectWithoutOrderInput
-    upsert?: PropertyUpsertWithoutOrderInput
-    connect?: PropertyWhereUniqueInput
-    update?: XOR<XOR<PropertyUpdateToOneWithWhereWithoutOrderInput, PropertyUpdateWithoutOrderInput>, PropertyUncheckedUpdateWithoutOrderInput>
   }
 
   export type PropertyCreateNestedManyWithoutAgentInput = {
@@ -8542,13 +8380,6 @@ export namespace Prisma {
     deleteMany?: PropertyScalarWhereInput | PropertyScalarWhereInput[]
   }
 
-  export type OrderCreateNestedManyWithoutPropertyInput = {
-    create?: XOR<OrderCreateWithoutPropertyInput, OrderUncheckedCreateWithoutPropertyInput> | OrderCreateWithoutPropertyInput[] | OrderUncheckedCreateWithoutPropertyInput[]
-    connectOrCreate?: OrderCreateOrConnectWithoutPropertyInput | OrderCreateOrConnectWithoutPropertyInput[]
-    createMany?: OrderCreateManyPropertyInputEnvelope
-    connect?: OrderWhereUniqueInput | OrderWhereUniqueInput[]
-  }
-
   export type AgentCreateNestedOneWithoutPropertiesInput = {
     create?: XOR<AgentCreateWithoutPropertiesInput, AgentUncheckedCreateWithoutPropertiesInput>
     connectOrCreate?: AgentCreateOrConnectWithoutPropertiesInput
@@ -8566,13 +8397,6 @@ export namespace Prisma {
     create?: XOR<AmenityCreateWithoutPropertiesInput, AmenityUncheckedCreateWithoutPropertiesInput> | AmenityCreateWithoutPropertiesInput[] | AmenityUncheckedCreateWithoutPropertiesInput[]
     connectOrCreate?: AmenityCreateOrConnectWithoutPropertiesInput | AmenityCreateOrConnectWithoutPropertiesInput[]
     connect?: AmenityWhereUniqueInput | AmenityWhereUniqueInput[]
-  }
-
-  export type OrderUncheckedCreateNestedManyWithoutPropertyInput = {
-    create?: XOR<OrderCreateWithoutPropertyInput, OrderUncheckedCreateWithoutPropertyInput> | OrderCreateWithoutPropertyInput[] | OrderUncheckedCreateWithoutPropertyInput[]
-    connectOrCreate?: OrderCreateOrConnectWithoutPropertyInput | OrderCreateOrConnectWithoutPropertyInput[]
-    createMany?: OrderCreateManyPropertyInputEnvelope
-    connect?: OrderWhereUniqueInput | OrderWhereUniqueInput[]
   }
 
   export type FavouriteUncheckedCreateNestedManyWithoutPropertyInput = {
@@ -8594,20 +8418,6 @@ export namespace Prisma {
     decrement?: number
     multiply?: number
     divide?: number
-  }
-
-  export type OrderUpdateManyWithoutPropertyNestedInput = {
-    create?: XOR<OrderCreateWithoutPropertyInput, OrderUncheckedCreateWithoutPropertyInput> | OrderCreateWithoutPropertyInput[] | OrderUncheckedCreateWithoutPropertyInput[]
-    connectOrCreate?: OrderCreateOrConnectWithoutPropertyInput | OrderCreateOrConnectWithoutPropertyInput[]
-    upsert?: OrderUpsertWithWhereUniqueWithoutPropertyInput | OrderUpsertWithWhereUniqueWithoutPropertyInput[]
-    createMany?: OrderCreateManyPropertyInputEnvelope
-    set?: OrderWhereUniqueInput | OrderWhereUniqueInput[]
-    disconnect?: OrderWhereUniqueInput | OrderWhereUniqueInput[]
-    delete?: OrderWhereUniqueInput | OrderWhereUniqueInput[]
-    connect?: OrderWhereUniqueInput | OrderWhereUniqueInput[]
-    update?: OrderUpdateWithWhereUniqueWithoutPropertyInput | OrderUpdateWithWhereUniqueWithoutPropertyInput[]
-    updateMany?: OrderUpdateManyWithWhereWithoutPropertyInput | OrderUpdateManyWithWhereWithoutPropertyInput[]
-    deleteMany?: OrderScalarWhereInput | OrderScalarWhereInput[]
   }
 
   export type AgentUpdateOneRequiredWithoutPropertiesNestedInput = {
@@ -8643,20 +8453,6 @@ export namespace Prisma {
     update?: AmenityUpdateWithWhereUniqueWithoutPropertiesInput | AmenityUpdateWithWhereUniqueWithoutPropertiesInput[]
     updateMany?: AmenityUpdateManyWithWhereWithoutPropertiesInput | AmenityUpdateManyWithWhereWithoutPropertiesInput[]
     deleteMany?: AmenityScalarWhereInput | AmenityScalarWhereInput[]
-  }
-
-  export type OrderUncheckedUpdateManyWithoutPropertyNestedInput = {
-    create?: XOR<OrderCreateWithoutPropertyInput, OrderUncheckedCreateWithoutPropertyInput> | OrderCreateWithoutPropertyInput[] | OrderUncheckedCreateWithoutPropertyInput[]
-    connectOrCreate?: OrderCreateOrConnectWithoutPropertyInput | OrderCreateOrConnectWithoutPropertyInput[]
-    upsert?: OrderUpsertWithWhereUniqueWithoutPropertyInput | OrderUpsertWithWhereUniqueWithoutPropertyInput[]
-    createMany?: OrderCreateManyPropertyInputEnvelope
-    set?: OrderWhereUniqueInput | OrderWhereUniqueInput[]
-    disconnect?: OrderWhereUniqueInput | OrderWhereUniqueInput[]
-    delete?: OrderWhereUniqueInput | OrderWhereUniqueInput[]
-    connect?: OrderWhereUniqueInput | OrderWhereUniqueInput[]
-    update?: OrderUpdateWithWhereUniqueWithoutPropertyInput | OrderUpdateWithWhereUniqueWithoutPropertyInput[]
-    updateMany?: OrderUpdateManyWithWhereWithoutPropertyInput | OrderUpdateManyWithWhereWithoutPropertyInput[]
-    deleteMany?: OrderScalarWhereInput | OrderScalarWhereInput[]
   }
 
   export type FavouriteUncheckedUpdateManyWithoutPropertyNestedInput = {
@@ -8910,126 +8706,6 @@ export namespace Prisma {
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
-  export type PropertyCreateWithoutOrderInput = {
-    id?: string
-    title: string
-    description?: string | null
-    price: number
-    propertyType: string
-    landSize: number
-    address: string
-    city: string
-    area: string
-    bedrooms: number
-    bathrooms: number
-    electricity?: boolean
-    virtualTours?: NullableJsonNullValueInput | InputJsonValue
-    imageUrl?: string | null
-    imageUr2?: string | null
-    imageUr3?: string | null
-    imageUr4?: string | null
-    imageUr5?: string | null
-    isAvailable?: boolean
-    postedAt?: Date | string
-    agent: AgentCreateNestedOneWithoutPropertiesInput
-    favourite?: FavouriteCreateNestedManyWithoutPropertyInput
-    amenities?: AmenityCreateNestedManyWithoutPropertiesInput
-  }
-
-  export type PropertyUncheckedCreateWithoutOrderInput = {
-    id?: string
-    title: string
-    description?: string | null
-    price: number
-    propertyType: string
-    landSize: number
-    address: string
-    city: string
-    area: string
-    bedrooms: number
-    bathrooms: number
-    electricity?: boolean
-    virtualTours?: NullableJsonNullValueInput | InputJsonValue
-    imageUrl?: string | null
-    imageUr2?: string | null
-    imageUr3?: string | null
-    imageUr4?: string | null
-    imageUr5?: string | null
-    isAvailable?: boolean
-    postedAt?: Date | string
-    agentId: string
-    favourite?: FavouriteUncheckedCreateNestedManyWithoutPropertyInput
-    amenities?: AmenityUncheckedCreateNestedManyWithoutPropertiesInput
-  }
-
-  export type PropertyCreateOrConnectWithoutOrderInput = {
-    where: PropertyWhereUniqueInput
-    create: XOR<PropertyCreateWithoutOrderInput, PropertyUncheckedCreateWithoutOrderInput>
-  }
-
-  export type PropertyUpsertWithoutOrderInput = {
-    update: XOR<PropertyUpdateWithoutOrderInput, PropertyUncheckedUpdateWithoutOrderInput>
-    create: XOR<PropertyCreateWithoutOrderInput, PropertyUncheckedCreateWithoutOrderInput>
-    where?: PropertyWhereInput
-  }
-
-  export type PropertyUpdateToOneWithWhereWithoutOrderInput = {
-    where?: PropertyWhereInput
-    data: XOR<PropertyUpdateWithoutOrderInput, PropertyUncheckedUpdateWithoutOrderInput>
-  }
-
-  export type PropertyUpdateWithoutOrderInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    title?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    price?: IntFieldUpdateOperationsInput | number
-    propertyType?: StringFieldUpdateOperationsInput | string
-    landSize?: IntFieldUpdateOperationsInput | number
-    address?: StringFieldUpdateOperationsInput | string
-    city?: StringFieldUpdateOperationsInput | string
-    area?: StringFieldUpdateOperationsInput | string
-    bedrooms?: IntFieldUpdateOperationsInput | number
-    bathrooms?: IntFieldUpdateOperationsInput | number
-    electricity?: BoolFieldUpdateOperationsInput | boolean
-    virtualTours?: NullableJsonNullValueInput | InputJsonValue
-    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    imageUr2?: NullableStringFieldUpdateOperationsInput | string | null
-    imageUr3?: NullableStringFieldUpdateOperationsInput | string | null
-    imageUr4?: NullableStringFieldUpdateOperationsInput | string | null
-    imageUr5?: NullableStringFieldUpdateOperationsInput | string | null
-    isAvailable?: BoolFieldUpdateOperationsInput | boolean
-    postedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    agent?: AgentUpdateOneRequiredWithoutPropertiesNestedInput
-    favourite?: FavouriteUpdateManyWithoutPropertyNestedInput
-    amenities?: AmenityUpdateManyWithoutPropertiesNestedInput
-  }
-
-  export type PropertyUncheckedUpdateWithoutOrderInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    title?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    price?: IntFieldUpdateOperationsInput | number
-    propertyType?: StringFieldUpdateOperationsInput | string
-    landSize?: IntFieldUpdateOperationsInput | number
-    address?: StringFieldUpdateOperationsInput | string
-    city?: StringFieldUpdateOperationsInput | string
-    area?: StringFieldUpdateOperationsInput | string
-    bedrooms?: IntFieldUpdateOperationsInput | number
-    bathrooms?: IntFieldUpdateOperationsInput | number
-    electricity?: BoolFieldUpdateOperationsInput | boolean
-    virtualTours?: NullableJsonNullValueInput | InputJsonValue
-    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    imageUr2?: NullableStringFieldUpdateOperationsInput | string | null
-    imageUr3?: NullableStringFieldUpdateOperationsInput | string | null
-    imageUr4?: NullableStringFieldUpdateOperationsInput | string | null
-    imageUr5?: NullableStringFieldUpdateOperationsInput | string | null
-    isAvailable?: BoolFieldUpdateOperationsInput | boolean
-    postedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    agentId?: StringFieldUpdateOperationsInput | string
-    favourite?: FavouriteUncheckedUpdateManyWithoutPropertyNestedInput
-    amenities?: AmenityUncheckedUpdateManyWithoutPropertiesNestedInput
-  }
-
   export type PropertyCreateWithoutAgentInput = {
     id?: string
     title: string
@@ -9051,7 +8727,6 @@ export namespace Prisma {
     imageUr5?: string | null
     isAvailable?: boolean
     postedAt?: Date | string
-    order?: OrderCreateNestedManyWithoutPropertyInput
     favourite?: FavouriteCreateNestedManyWithoutPropertyInput
     amenities?: AmenityCreateNestedManyWithoutPropertiesInput
   }
@@ -9077,7 +8752,6 @@ export namespace Prisma {
     imageUr5?: string | null
     isAvailable?: boolean
     postedAt?: Date | string
-    order?: OrderUncheckedCreateNestedManyWithoutPropertyInput
     favourite?: FavouriteUncheckedCreateNestedManyWithoutPropertyInput
     amenities?: AmenityUncheckedCreateNestedManyWithoutPropertiesInput
   }
@@ -9135,40 +8809,6 @@ export namespace Prisma {
     agentId?: StringFilter<"Property"> | string
   }
 
-  export type OrderCreateWithoutPropertyInput = {
-    checkoutSessionId?: string | null
-    status?: string | null
-    paidAt?: Date | string
-    createdAt?: Date | string
-    userId: string
-    email: string
-    name: string
-    phone: string
-    propertyId: string
-  }
-
-  export type OrderUncheckedCreateWithoutPropertyInput = {
-    checkoutSessionId?: string | null
-    status?: string | null
-    paidAt?: Date | string
-    createdAt?: Date | string
-    userId: string
-    email: string
-    name: string
-    phone: string
-    propertyId: string
-  }
-
-  export type OrderCreateOrConnectWithoutPropertyInput = {
-    where: OrderWhereUniqueInput
-    create: XOR<OrderCreateWithoutPropertyInput, OrderUncheckedCreateWithoutPropertyInput>
-  }
-
-  export type OrderCreateManyPropertyInputEnvelope = {
-    data: OrderCreateManyPropertyInput | OrderCreateManyPropertyInput[]
-    skipDuplicates?: boolean
-  }
-
   export type AgentCreateWithoutPropertiesInput = {
     id?: string
     name: string
@@ -9224,38 +8864,6 @@ export namespace Prisma {
   export type AmenityCreateOrConnectWithoutPropertiesInput = {
     where: AmenityWhereUniqueInput
     create: XOR<AmenityCreateWithoutPropertiesInput, AmenityUncheckedCreateWithoutPropertiesInput>
-  }
-
-  export type OrderUpsertWithWhereUniqueWithoutPropertyInput = {
-    where: OrderWhereUniqueInput
-    update: XOR<OrderUpdateWithoutPropertyInput, OrderUncheckedUpdateWithoutPropertyInput>
-    create: XOR<OrderCreateWithoutPropertyInput, OrderUncheckedCreateWithoutPropertyInput>
-  }
-
-  export type OrderUpdateWithWhereUniqueWithoutPropertyInput = {
-    where: OrderWhereUniqueInput
-    data: XOR<OrderUpdateWithoutPropertyInput, OrderUncheckedUpdateWithoutPropertyInput>
-  }
-
-  export type OrderUpdateManyWithWhereWithoutPropertyInput = {
-    where: OrderScalarWhereInput
-    data: XOR<OrderUpdateManyMutationInput, OrderUncheckedUpdateManyWithoutPropertyInput>
-  }
-
-  export type OrderScalarWhereInput = {
-    AND?: OrderScalarWhereInput | OrderScalarWhereInput[]
-    OR?: OrderScalarWhereInput[]
-    NOT?: OrderScalarWhereInput | OrderScalarWhereInput[]
-    id?: StringFilter<"Order"> | string
-    checkoutSessionId?: StringNullableFilter<"Order"> | string | null
-    status?: StringNullableFilter<"Order"> | string | null
-    paidAt?: DateTimeFilter<"Order"> | Date | string
-    createdAt?: DateTimeFilter<"Order"> | Date | string
-    userId?: StringFilter<"Order"> | string
-    email?: StringFilter<"Order"> | string
-    name?: StringFilter<"Order"> | string
-    phone?: StringFilter<"Order"> | string
-    propertyId?: StringFilter<"Order"> | string
   }
 
   export type AgentUpsertWithoutPropertiesInput = {
@@ -9356,7 +8964,6 @@ export namespace Prisma {
     imageUr5?: string | null
     isAvailable?: boolean
     postedAt?: Date | string
-    order?: OrderCreateNestedManyWithoutPropertyInput
     agent: AgentCreateNestedOneWithoutPropertiesInput
     favourite?: FavouriteCreateNestedManyWithoutPropertyInput
   }
@@ -9383,7 +8990,6 @@ export namespace Prisma {
     isAvailable?: boolean
     postedAt?: Date | string
     agentId: string
-    order?: OrderUncheckedCreateNestedManyWithoutPropertyInput
     favourite?: FavouriteUncheckedCreateNestedManyWithoutPropertyInput
   }
 
@@ -9429,7 +9035,6 @@ export namespace Prisma {
     imageUr5?: string | null
     isAvailable?: boolean
     postedAt?: Date | string
-    order?: OrderCreateNestedManyWithoutPropertyInput
     agent: AgentCreateNestedOneWithoutPropertiesInput
     amenities?: AmenityCreateNestedManyWithoutPropertiesInput
   }
@@ -9456,7 +9061,6 @@ export namespace Prisma {
     isAvailable?: boolean
     postedAt?: Date | string
     agentId: string
-    order?: OrderUncheckedCreateNestedManyWithoutPropertyInput
     amenities?: AmenityUncheckedCreateNestedManyWithoutPropertiesInput
   }
 
@@ -9497,7 +9101,6 @@ export namespace Prisma {
     imageUr5?: NullableStringFieldUpdateOperationsInput | string | null
     isAvailable?: BoolFieldUpdateOperationsInput | boolean
     postedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    order?: OrderUpdateManyWithoutPropertyNestedInput
     agent?: AgentUpdateOneRequiredWithoutPropertiesNestedInput
     amenities?: AmenityUpdateManyWithoutPropertiesNestedInput
   }
@@ -9524,7 +9127,6 @@ export namespace Prisma {
     isAvailable?: BoolFieldUpdateOperationsInput | boolean
     postedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     agentId?: StringFieldUpdateOperationsInput | string
-    order?: OrderUncheckedUpdateManyWithoutPropertyNestedInput
     amenities?: AmenityUncheckedUpdateManyWithoutPropertiesNestedInput
   }
 
@@ -9572,7 +9174,6 @@ export namespace Prisma {
     imageUr5?: NullableStringFieldUpdateOperationsInput | string | null
     isAvailable?: BoolFieldUpdateOperationsInput | boolean
     postedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    order?: OrderUpdateManyWithoutPropertyNestedInput
     favourite?: FavouriteUpdateManyWithoutPropertyNestedInput
     amenities?: AmenityUpdateManyWithoutPropertiesNestedInput
   }
@@ -9598,7 +9199,6 @@ export namespace Prisma {
     imageUr5?: NullableStringFieldUpdateOperationsInput | string | null
     isAvailable?: BoolFieldUpdateOperationsInput | boolean
     postedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    order?: OrderUncheckedUpdateManyWithoutPropertyNestedInput
     favourite?: FavouriteUncheckedUpdateManyWithoutPropertyNestedInput
     amenities?: AmenityUncheckedUpdateManyWithoutPropertiesNestedInput
   }
@@ -9626,58 +9226,10 @@ export namespace Prisma {
     postedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type OrderCreateManyPropertyInput = {
-    checkoutSessionId?: string | null
-    status?: string | null
-    paidAt?: Date | string
-    createdAt?: Date | string
-    userId: string
-    email: string
-    name: string
-    phone: string
-    propertyId: string
-  }
-
   export type FavouriteCreateManyPropertyInput = {
     id?: string
     userId: string
     createdAt?: Date | string
-  }
-
-  export type OrderUpdateWithoutPropertyInput = {
-    checkoutSessionId?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: NullableStringFieldUpdateOperationsInput | string | null
-    paidAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    userId?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    phone?: StringFieldUpdateOperationsInput | string
-    propertyId?: StringFieldUpdateOperationsInput | string
-  }
-
-  export type OrderUncheckedUpdateWithoutPropertyInput = {
-    checkoutSessionId?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: NullableStringFieldUpdateOperationsInput | string | null
-    paidAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    userId?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    phone?: StringFieldUpdateOperationsInput | string
-    propertyId?: StringFieldUpdateOperationsInput | string
-  }
-
-  export type OrderUncheckedUpdateManyWithoutPropertyInput = {
-    checkoutSessionId?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: NullableStringFieldUpdateOperationsInput | string | null
-    paidAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    userId?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    phone?: StringFieldUpdateOperationsInput | string
-    propertyId?: StringFieldUpdateOperationsInput | string
   }
 
   export type FavouriteUpdateWithoutPropertyInput = {
@@ -9733,7 +9285,6 @@ export namespace Prisma {
     imageUr5?: NullableStringFieldUpdateOperationsInput | string | null
     isAvailable?: BoolFieldUpdateOperationsInput | boolean
     postedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    order?: OrderUpdateManyWithoutPropertyNestedInput
     agent?: AgentUpdateOneRequiredWithoutPropertiesNestedInput
     favourite?: FavouriteUpdateManyWithoutPropertyNestedInput
   }
@@ -9760,7 +9311,6 @@ export namespace Prisma {
     isAvailable?: BoolFieldUpdateOperationsInput | boolean
     postedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     agentId?: StringFieldUpdateOperationsInput | string
-    order?: OrderUncheckedUpdateManyWithoutPropertyNestedInput
     favourite?: FavouriteUncheckedUpdateManyWithoutPropertyNestedInput
   }
 
