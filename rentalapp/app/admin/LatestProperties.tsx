@@ -1,18 +1,39 @@
-// app/admin/LatestProperties.tsx
-import { PrismaClient } from '../generated/prisma';
+"use client";
 
-const prisma = new PrismaClient();
+import { useState } from "react";
 
-async function getLatestProps() {
-  return prisma.property.findMany({
-    orderBy: { postedAt: 'desc' },
-    take: 10,
-    select: { id: true, title: true, city: true, price: true, isAvailable: true },
-  });
-}
+type Property = {
+  id: string;
+  title: string;
+  city: string;
+  price: number;
+  isAvailable: boolean;
+};
 
-export default async function LatestProperties() {
-  const props = await getLatestProps();
+export default function LatestProperties({ initialProps }: { initialProps: Property[] }) {
+  const [props, setProps] = useState<Property[]>(initialProps);
+
+  async function toggleAvailability(id: string) {
+    try {
+      const res = await fetch("/admin/toggle-property", {
+        method: "POST",
+        body: JSON.stringify({ id }),
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (!res.ok) throw new Error("Failed to toggle property");
+
+      const updated = await res.json();
+
+      setProps((prev) =>
+        prev.map((p) =>
+          p.id === id ? { ...p, isAvailable: updated.isAvailable } : p
+        )
+      );
+    } catch (err) {
+      console.error(err);
+    }
+  }
 
   return (
     <ul className="divide-y">
@@ -20,19 +41,20 @@ export default async function LatestProperties() {
         <li key={p.id} className="flex items-center justify-between py-3">
           <div>
             <p className="font-medium text-gray-900">{p.title}</p>
-            <p className="text-sm text-gray-500">{p.city} · NLe{p.price.toLocaleString()}</p>
+            <p className="text-sm text-gray-500">
+              {p.city} · NLe{p.price.toLocaleString()}
+            </p>
           </div>
-          <form action="/admin/toggle-property" method="POST">
-            <input type="hidden" name="id" value={p.id} />
-            <button
-              type="submit"
-              className={`rounded px-3 py-1 text-xs font-medium ${
-                p.isAvailable ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'
-              }`}
-            >
-              {p.isAvailable ? 'Block' : 'Unblock'}
-            </button>
-          </form>
+          <button
+            onClick={() => toggleAvailability(p.id)}
+            className={`rounded px-3 py-1 text-xs font-medium ${
+              p.isAvailable
+                ? "bg-red-100 text-red-700"
+                : "bg-green-100 text-green-700"
+            }`}
+          >
+            {p.isAvailable ? "Block" : "Unblock"}
+          </button>
         </li>
       ))}
     </ul>
