@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Spinner from './Spinner';
+
 import {
   MapPin,
   Home,
@@ -21,7 +23,7 @@ import {
   Droplets,
   Zap,
 } from 'lucide-react';
-import Spinner from './Spinner';
+
 
 // Helper for amenity icons
 const amenityIcons: { [key: string]: React.ReactNode } = {
@@ -65,29 +67,38 @@ export default function Hero() {
     );
 
   /* ---------- Search Handler ---------- */
-  const handleSearch = () => {
-    setIsSearching(true);
-    const params = new URLSearchParams();
-    if (selectedCity) params.set('city', selectedCity);
-    if (selectedType) params.set('type', selectedType);
-    if (maxPrice) params.set('max_price', maxPrice); // Use max_price for clarity
 
-    const payload: string[] = [...selectedAmenities];
-    if (bedrooms > 0) payload.push(`bedrooms:${bedrooms}`);
-    if (payload.length) params.set('amenities', payload.join(','));
-    
-    router.push(`/properties?${params.toString()}`);
-  };
+ const handleSearch = () => {
+  setIsSearching(true);
+  const params = new URLSearchParams();
+
+  if (selectedCity) params.set("city", selectedCity);
+  if (selectedType) params.set("type", selectedType);
+  if (maxPrice) params.set("price", maxPrice);
+
+  if (bedrooms > 0) params.set("bedrooms", bedrooms.toString());
+
+  if (selectedAmenities.length) {
+    params.set("amenities", selectedAmenities.join(","));
+  }
+
+  // Always reset to first page when performing a new search
+  params.set("page", "1");
+
+  router.push(`/properties?${params.toString()}`);
+};
+
+
 
   /* ---------- UI Data ---------- */
-  const sierraLeoneCities = ['Freetown', 'Bo', 'Kenema', 'Makeni'];
+  const sierraLeoneCities = ['freetown', 'Bo', 'Kenema', 'Makeni'];
   const propertyTypes = ['House', 'Compound', 'Apartment', 'Single Room', 'Office Space', 'Shop'];
   const priceRanges = [
-    { label: 'Up to Le 5M', value: '5000000' },
-    { label: 'Up to Le 10M', value: '10000000' },
-    { label: 'Up to Le 25M', value: '25000000' },
-    { label: 'Up to Le 50M', value: '50000000' },
-    { label: 'Le 50M+', value: '' }, // Represents 'any' price
+    { label: 'Up to NLe 5,000', value: '5000' },
+    { label: 'Up to NLe 10,000', value: '10000' },
+    { label: 'Up to NLe 25,000', value: '25000' },
+    { label: 'Up to NLe 50,000', value: '50000' },
+    { label: 'NLe 50,000+', value: '' }, // Represents 'any' price
   ];
 
   return (
@@ -99,6 +110,7 @@ export default function Hero() {
         <p className="text-base text-white/90 md:text-lg">
           Browse rental properties across Sierra Leone. Find your perfect space with verified agents.
         </p>
+       
       </div>
 
       <div className="container mx-auto mt-10 max-w-5xl px-4">
@@ -235,16 +247,16 @@ export default function Hero() {
 
       {/* Stats */}
       <div className="container mx-auto mt-12 grid max-w-4xl grid-cols-2 gap-8 px-4 text-center text-gray-800 sm:grid-cols-3">
-        <div>
-          <h3 className="text-3xl font-bold">{heroStats?.totalProperties ?? <Spinner size="sm" />}</h3>
+        <div className=' flex items-center justify-center flex-col'>
+          <h3 className="text-3xl font-bold">{heroStats?.totalProperties ?? <Spinner  />}<sup className='text-gray-400'>+</sup></h3>
           <p className="text-sm text-gray-600">Properties Listed</p>
         </div>
         <div>
           <h3 className="text-3xl font-bold">{sierraLeoneCities.length}</h3>
           <p className="text-sm text-gray-600">Cities Covered</p>
         </div>
-        <div className="col-span-2 sm:col-span-1">
-          <h3 className="text-3xl font-bold">{heroStats?.totalAgents ?? <Spinner size="sm" />}</h3>
+        <div className="col-span-2 sm:col-span-1 flex items-center justify-center flex-col">
+          <h3 className="text-3xl font-bold">{heroStats?.totalAgents ?? <Spinner  />}</h3>
           <p className="text-sm text-gray-600">Verified Agents</p>
         </div>
       </div>

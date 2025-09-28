@@ -21,11 +21,22 @@ export async function POST(req: NextRequest) {
   try {
     // 1. Parse the body the UI sent
     const { name, orderId, lineItems, metadata, callbackState } = await req.json()
+    const created =prisma.order.create({
+      data: {
+        userId: UOid,
+        email: UOemail,
+        name: UOname,
+        phone: UOphone,
+        status: 'pending',
+      },
+    })
+
+    const createdOrder = (await created).id
 
     // 2. Build safe, absolute redirect URLs
     const appUrl = process.env.NEXT_PUBLIC_APP_URL!
     const successUrl = `${appUrl}/checkout?orderId=${encodeURIComponent(orderId)}`
-    const cancelUrl  = `${appUrl}/checkout/cancelled?orderId=${encodeURIComponent(orderId)}`
+    const cancelUrl  = `${appUrl}/checkout/cancelled?orderId=${encodeURIComponent(orderId)}?co=${createdOrder}`
 
     // 3. Create Monime Checkout Session
     const res = await fetch('https://api.monime.io/v1/checkout-sessions', {
@@ -55,13 +66,13 @@ export async function POST(req: NextRequest) {
     const { result } = await res.json()          // { id, redirectUrl, ... }
     const checkoutSessionId = result.id
 
-    // 4. Persist mapping (prevents 500 if order row is missing)
-    await prisma.order.upsert({
-      where: { id: orderId },
-      update: { checkoutSessionId },
-      create: { checkoutSessionId, status: 'pending', userId: UOid, email: UOemail, name: UOname, phone: UOphone },
-    })
+    
 
+    // 4. Persist mapping (prevents 500 if order row is missing)
+    await prisma.order.update({
+      where:{id:createdOrder},
+      data:{checkoutSessionId}
+    })
     // 5. Send redirect URL to UI
     return NextResponse.json({ redirectUrl: result.redirectUrl })
 

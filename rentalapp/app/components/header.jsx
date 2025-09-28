@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Building2, Heart, User, Menu, X } from 'lucide-react';
+import { Building2, Heart, Menu, X } from 'lucide-react';
 import Link from 'next/link';
 import {
   SignInButton,
@@ -60,9 +60,9 @@ export default function Header() {
         <div className="md:hidden">
           <button onClick={() => setIsMenuOpen(!isMenuOpen)} aria-label="Toggle menu">
             {isMenuOpen ? (
-              <X className="h-7 w-7" /> // Close icon
+              <X className="h-7 w-7 text-blue-600" /> // Close icon
             ) : (
-              <Menu className="h-7 w-7" /> // Hamburger icon
+              <Menu className="h-7 w-7 text-blue-600" /> // Hamburger icon
             )}
           </button>
         </div>
@@ -79,9 +79,8 @@ export default function Header() {
           <nav className="flex flex-col space-y-4 text-lg text-gray-700">
             <Link href="/properties" onClick={() => setIsMenuOpen(false)}>Browse Properties</Link>
             <Link href="#" onClick={() => setIsMenuOpen(false)}>For Agents</Link>
-            <Link href="#" onClick={() => setIsMenuOpen(false)}>Cities</Link>
             <Link href="#" onClick={() => setIsMenuOpen(false)}>Contact</Link>
-            <Link href="#" className="flex items-center space-x-2" onClick={() => setIsMenuOpen(false)}>
+            <Link href="/saved" className="flex items-center space-x-2" onClick={() => setIsMenuOpen(false)}>
               <Heart className="h-5 w-5" />
               <span>Saved</span>
             </Link>

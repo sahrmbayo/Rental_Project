@@ -3,17 +3,22 @@ import { XCircle, ArrowLeft, Home } from 'lucide-react';
 import Header from '../../components/header'; 
 import { PrismaClient } from '../../generated/prisma';
 
+
+
 const prisma = new PrismaClient();
 
 export default async function CancelledPage({
   searchParams,
 }: {
-  searchParams: Promise<{ orderId?: string }>; 
+  searchParams: Promise<{ orderId?: string, co?:string }>; 
 }) {
-  const orderId = (await searchParams).orderId?.toString();
 
-  await prisma.order.delete({
-    where: { id: orderId },
+  const orderId = (await searchParams).orderId?.toString();
+  const co=(await searchParams).co?.toString();
+  if(!orderId) return <p>Order ID is required.<br/> Please make sure you are actually on the right page.</p>
+
+  await prisma.order.deleteMany({
+    where: { id:co}
   })
 
   return (

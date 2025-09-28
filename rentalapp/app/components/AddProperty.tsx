@@ -211,77 +211,78 @@ export default function PropertyFormPage({ initialData }: PropertyFormProps) {
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Property Type *</label>
                   <select {...register('propertyType')} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-700">
-                    <option value="Apartment">Apartment</option>
-                    <option value="House">House</option>
-                    <option value="Single Room">Single Room</option>
-                    <option value="Office Space">Office Space</option>
-                    <option value="Shop">Shop</option>
-                    <option value="Compound">Compound</option>
+                    <option value="apartment">Apartment</option>
+                    <option value="house">House</option>
+                    <option value="single">Single Room</option>
+                    <option value="office">Office Space</option>
+                    <option value="shop">Shop</option>
+                    <option value="compound">Compound</option>
                   </select>
+                  {errors.propertyType && <p className="mt-1 text-sm text-red-600">{errors.propertyType.message}</p>}
                 </div>
                 {/* Electricity toggle */}
-<div className="flex items-center gap-3 mt-4">
-  <input
-    id="electricity"
-    type="checkbox"
-    {...register('electricity')}
-    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-  />
-  <label htmlFor="electricity" className="text-sm font-medium text-gray-700">
-    Electricity available
-  </label>
-</div>
+                <div className="flex items-center gap-3 mt-4">
+                  <input
+                    id="electricity"
+                    type="checkbox"
+                    {...register('electricity')}
+                    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  />
+                  <label htmlFor="electricity" className="text-sm font-medium text-gray-700">
+                    Electricity available
+                  </label>
+                </div>
               </div>
             </div>
 
+            
             {/* Section 2: Specifications */}
-            {/* Section 2: Specifications */}
-<div className="rounded-xl border bg-white p-6 shadow-sm">
-  <div className="flex items-center gap-3">
-    <Pencil className="h-6 w-6 text-blue-600" />
-    <h2 className="text-lg font-semibold text-gray-800">Specifications</h2>
-  </div>
-  <p className="mt-1 text-sm text-gray-500">Details about the property features.</p>
+            <div className="rounded-xl border bg-white p-6 shadow-sm">
+              <div className="flex items-center gap-3">
+                <Pencil className="h-6 w-6 text-blue-600" />
+                <h2 className="text-lg font-semibold text-gray-800">Specifications</h2>
+              </div>
+              <p className="mt-1 text-sm text-gray-500">Details about the property features.</p>
 
-  <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-3">
-    {/* Bedrooms counter */}
-    <div>
-      <label className="block text-sm font-medium text-gray-700 mb-2">Bedrooms *</label>
-      <div className="inline-flex items-center gap-3">
-        <button
-          type="button"
-          onClick={() => setValue('bedrooms', Math.max(0, Number(watch('bedrooms')) - 1))}
-          className="rounded-full bg-gray-200 p-2 hover:bg-gray-300"
-        >
-          <Minus className="h-4 w-4" />
-        </button>
-        <span className="w-12 text-center font-semibold text-lg">{watch('bedrooms')}</span>
-        <button
-          type="button"
-          onClick={() => setValue('bedrooms', Number(watch('bedrooms')) + 1)}
-          className="rounded-full bg-gray-200 p-2 hover:bg-gray-300"
-        >
-          <Plus className="h-4 w-4" />
-        </button>
-      </div>
-      {errors.bedrooms && <p className="mt-1 text-sm text-red-600">{errors.bedrooms.message}</p>}
-    </div>
+              <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-3">
+                {/* Bedrooms counter */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Bedrooms *</label>
+                  <div className="inline-flex items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setValue('bedrooms', Math.max(0, Number(watch('bedrooms')) - 1))}
+                      className="rounded-full bg-gray-200 p-2 hover:bg-gray-300"
+                    >
+                      <Minus className="h-4 w-4" />
+                    </button>
+                    <span className="w-12 text-center font-semibold text-lg">{watch('bedrooms')}</span>
+                    <button
+                      type="button"
+                      onClick={() => setValue('bedrooms', Number(watch('bedrooms')) + 1)}
+                      className="rounded-full bg-gray-200 p-2 hover:bg-gray-300"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </button>
+                  </div>
+                  {errors.bedrooms && <p className="mt-1 text-sm text-red-600">{errors.bedrooms.message}</p>}
+                </div>
 
-    {/* Bathrooms */}
-    <div>
-      <label className="block text-sm font-medium text-gray-700">Bathrooms *</label>
-      <input type="number" {...register('bathrooms')} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-700" />
-      {errors.bathrooms && <p className="mt-1 text-sm text-red-600">{errors.bathrooms.message}</p>}
-    </div>
+                {/* Bathrooms */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Bathrooms *</label>
+                  <input type="number" {...register('bathrooms')} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-700" />
+                  {errors.bathrooms && <p className="mt-1 text-sm text-red-600">{errors.bathrooms.message}</p>}
+                </div>
 
-    {/* Land Size */}
-    <div>
-      <label className="block text-sm font-medium text-gray-700">Land Size (sq ft)</label>
-      <input type="number" {...register('landSize')} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-700" />
-      {errors.landSize && <p className="mt-1 text-sm text-red-600">{errors.landSize.message}</p>}
-    </div>
-  </div>
-</div>
+                {/* Land Size */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Land Size (sq ft)</label>
+                  <input type="number" {...register('landSize')} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-700" />
+                  {errors.landSize && <p className="mt-1 text-sm text-red-600">{errors.landSize.message}</p>}
+                </div>
+              </div>
+            </div>
 
             {/* Section 3: Location */}
             <div className="rounded-xl border bg-white p-6 shadow-sm">
