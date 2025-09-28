@@ -35,8 +35,8 @@ export async function POST(req: NextRequest) {
 
     // 2. Build safe, absolute redirect URLs
     const appUrl = process.env.NEXT_PUBLIC_APP_URL!
-    const successUrl = `${appUrl}/checkout?orderId=${encodeURIComponent(orderId)}`
-    const cancelUrl  = `${appUrl}/checkout/cancelled?orderId=${encodeURIComponent(orderId)}?co=${createdOrder}`
+    const successUrl = `${appUrl}/checkout?orderId=${encodeURIComponent(orderId)}&co=${createdOrder}`
+    const cancelUrl  = `${appUrl}/checkout/cancelled?orderId=${encodeURIComponent(orderId)}&co=${createdOrder}`
 
     // 3. Create Monime Checkout Session
     const res = await fetch('https://api.monime.io/v1/checkout-sessions', {

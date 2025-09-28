@@ -9,19 +9,21 @@ const resend = new Resend(process.env.RESEND_API_KEY!)
 export default async function SuccessPage({
   searchParams,
 }: {
-  searchParams: Promise<{ orderId?: string }>
+  searchParams: Promise<{ orderId?: string, co?: string }>;
 }) {
   const { orderId } = await searchParams
+  const {co} = await searchParams
   if (!orderId) return <p>Missing order ID.</p>
+  if (!co) return <p>Missing checkout order ID.</p>
 
-  /* --- same server-side logic you already have --- */
+  /* --- Update order & property --- */
   const order = await prisma.order.update({
-    where: { id: orderId },
+    where: { id: co },
     data: { status: 'completed', paidAt: new Date() },
   })
 
   await prisma.property.update({
-    where: { id: order.id },
+    where: { id: orderId },
     data: { isAvailable: false },
   })
 
@@ -30,22 +32,42 @@ export default async function SuccessPage({
     include: { agent: true },
   })
 
+  // Build WhatsApp link
+  const whatsappLink = `https://wa.me/${property.agent.phone.replace(/\D/g, '')}?text=Hello%20${encodeURIComponent(
+    property.agent.name
+  )},%20I%20just%20reserved%20the%20property%20"${encodeURIComponent(
+    property.title
+  )}"%20and%20would%20like%20to%20discuss.`
+
+  /* --- Send emails --- */
   await Promise.all([
     resend.emails.send({
       from: 'RentalApp <onboarding@resend.dev>',
       to: order.email,
       subject: `Payment confirmed – ${property.title}`,
-      html: `Hi ${order.name},<br>You just paid to unlock “${property.title}”. Contact the agent now.<br/> Details:<br/>Email: ${property.agent.email}<br/>Phone: ${property.agent.phone}`,
+      html: `
+        <p>Hi ${order.name},</p>
+        <p>You just paid to unlock “${property.title}”. Contact the agent now:</p>
+        <ul>
+          <li><strong>Email:</strong> <a href="mailto:${property.agent.email}">${property.agent.email}</a></li>
+          <li><strong>Phone:</strong> <a href="tel:${property.agent.phone}">${property.agent.phone}</a></li>
+          <li><strong>WhatsApp:</strong> <a href="${whatsappLink}">Chat on WhatsApp</a></li>
+        </ul>
+        <p>Thank you for using RentalApp!</p>
+      `,
     }),
     resend.emails.send({
       from: 'RentalApp <onboarding@resend.dev>',
       to: property.agent.email,
       subject: `New payment – ${property.title}`,
-      html: `Hi ${property.agent.name},<br>Someone paid to view “${property.title}”. The listing is now paused.`,
+      html: `
+        <p>Hi ${property.agent.name},</p>
+        <p>Someone paid to view “${property.title}”. The listing is now paused.</p>
+      `,
     }),
   ])
 
-  /* --- pure UI, cloned from Gemini screenshots --- */
+  /* --- UI --- */
   return (
     <main className="min-h-screen bg-white flex items-center justify-center p-4 font-sans">
       <div className="max-w-md w-full text-center">
@@ -100,32 +122,42 @@ export default async function SuccessPage({
 
           <h3 className="font-semibold mt-3">Next Steps: Contact the Agent</h3>
 
-          <div className="pt-2">
+          <div className="pt-2 space-y-3">
             <div>
-              <span className='font-semibold'>Agent Name:</span>{' '}
+              <span className="font-semibold">Agent Name:</span>{' '}
               {property.agent.name}
             </div>
-            
-            <br />
+
             <div>
-              <span className='font-semibold'>Agent Email:</span>{' '}
+              <span className="font-semibold">Agent Email:</span>{' '}
               <a
-              href={`mailto:${property.agent.email}`}
-              className="text-blue-600 underline"
-            >
-              {property.agent.email}
-            </a>
+                href={`mailto:${property.agent.email}`}
+                className="text-blue-600 underline"
+              >
+                {property.agent.email}
+              </a>
             </div>
-            
-            <br />
+
             <div>
-              <span className='font-semibold'>Agent Phone:</span>{' '}
-            <a
-              href={`tel:${property.agent.phone}`}
-              className="text-blue-600 underline"
-            >
-              {property.agent.phone}
-            </a>
+              <span className="font-semibold">Agent Phone:</span>{' '}
+              <a
+                href={`tel:${property.agent.phone}`}
+                className="text-blue-600 underline"
+              >
+                {property.agent.phone}
+              </a>
+            </div>
+
+            <div>
+              <span className="font-semibold">WhatsApp:</span>{' '}
+              <a
+                href={whatsappLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center px-3 py-1.5 bg-green-600 text-white rounded-md shadow hover:bg-green-700 transition text-sm"
+              >
+                💬 Chat on WhatsApp
+              </a>
             </div>
           </div>
         </div>

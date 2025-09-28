@@ -20,13 +20,20 @@ const PropertyCard = ({ property }) => (
           className="object-cover transition-transform duration-300 group-hover:scale-105"
         />
         {property.electricity && (
-          <span className="absolute top-2 left-2 rounded bg-green-100 px-2 py-1 text-xs font-medium text-green-800">Electricity</span>
+          <span className="absolute top-2 left-2 rounded bg-green-100 px-2 py-1 text-xs font-medium text-green-800">
+            Electricity
+          </span>
         )}
       </div>
 
       <div className="p-4">
-        <p className="text-lg font-bold text-gray-900">Nle{Number(property.price).toLocaleString()}<span className="text-sm font-normal text-gray-500">/Yr</span></p>
-        <h3 className="mt-1 truncate text-xl font-semibold text-gray-800 group-hover:text-blue-600">{property.title}</h3>
+        <p className="text-lg font-bold text-gray-900">
+          Nle{Number(property.price).toLocaleString()}
+          <span className="text-sm font-normal text-gray-500">/Yr</span>
+        </p>
+        <h3 className="mt-1 truncate text-xl font-semibold text-gray-800 group-hover:text-blue-600">
+          {property.title}
+        </h3>
         <p className="mt-1 flex items-center gap-1 text-sm text-gray-500">
           <MapPin size={14} />
           {property.city}
@@ -36,10 +43,17 @@ const PropertyCard = ({ property }) => (
         {property.amenities?.length > 0 && (
           <div className="mt-2 flex flex-wrap items-center gap-2">
             {property.amenities.slice(0, 3).map((a) => (
-              <span key={a.name} className="rounded bg-gray-100 px-2 py-1 text-xs text-gray-700">{a.name}</span>
+              <span
+                key={a.name}
+                className="rounded bg-gray-100 px-2 py-1 text-xs text-gray-700"
+              >
+                {a.name}
+              </span>
             ))}
             {property.amenities.length > 3 && (
-              <span className="text-xs text-gray-500">+{property.amenities.length - 3} more</span>
+              <span className="text-xs text-gray-500">
+                +{property.amenities.length - 3} more
+              </span>
             )}
           </div>
         )}
@@ -49,12 +63,21 @@ const PropertyCard = ({ property }) => (
         <div className="mt-4 flex items-center justify-between border-t border-gray-200 pt-4 text-sm text-gray-800 dark:border-gray-600 dark:text-gray-300">
           {/* Left side: Stats */}
           <div className="flex items-center space-x-4">
-            <div className="flex items-center gap-1.5 text-gray-800"><Bed size={16} /><span>{property.bedrooms} Beds</span></div>
-            <div className="flex items-center gap-1.5 text-gray-800"><Bath size={16} /><span>{property.bathrooms} Baths</span></div>
-            <div className="flex items-center gap-1.5 text-gray-800"><Home size={16} /><span>{property.landSize} sqft</span></div>
+            <div className="flex items-center gap-1.5 text-gray-800">
+              <Bed size={16} />
+              <span>{property.bedrooms} Beds</span>
+            </div>
+            <div className="flex items-center gap-1.5 text-gray-800">
+              <Bath size={16} />
+              <span>{property.bathrooms} Baths</span>
+            </div>
+            <div className="flex items-center gap-1.5 text-gray-800">
+              <Home size={16} />
+              <span>{property.landSize} sqft</span>
+            </div>
           </div>
-          
-          {/* Right side: ADD THE IMPORTED COMPONENT HERE */}
+
+          {/* Right side: WhatsApp */}
           <div>
             <WhatsAppShareButton property={property} />
           </div>
@@ -73,7 +96,11 @@ export default function PropertyList({ initialProperties, searchParams }) {
 
   const loadMoreProperties = async () => {
     setIsLoading(true);
-    const newProperties = await fetchProperties({ page, ...searchParams });
+    const { properties: newProperties } = await fetchProperties({
+      page,
+      ...searchParams,
+    });
+
     if (newProperties.length > 0) {
       setProperties((prev) => [...prev, ...newProperties]);
       setPage((prev) => prev + 1);
