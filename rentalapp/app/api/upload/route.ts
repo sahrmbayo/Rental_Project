@@ -1,3 +1,4 @@
+// app/api/upload/route.ts
 import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
@@ -5,8 +6,8 @@ export async function POST(request: Request) {
 
   const data = new FormData();
   data.append('file', image);
-  data.append('upload_preset', 'Property_Image'); // from Cloudinary
-  data.append('cloud_name', 'dnzhlitms');        // from Cloudinary
+  data.append('upload_preset', 'Property_Image'); 
+  data.append('cloud_name', 'dnzhlitms');        
 
   try {
     const res = await fetch('https://api.cloudinary.com/v1_1/dnzhlitms/image/upload', {
@@ -15,7 +16,10 @@ export async function POST(request: Request) {
     });
 
     const file = await res.json();
-    return NextResponse.json({ url: file.secure_url });
+    return NextResponse.json({ 
+      url: file.secure_url, 
+      publicId: file.public_id   // 👈 store this in DB
+    });
   } catch (err) {
     return NextResponse.json({ error: 'Upload failed' }, { status: 500 });
   }

@@ -222,7 +222,6 @@ const config = {
     "db"
   ],
   "activeProvider": "postgresql",
-  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {
@@ -233,7 +232,7 @@ const config = {
   },
   "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema \n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"../app/generated/prisma\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel Order {\n  id                String   @id @default(cuid())\n  checkoutSessionId String?\n  status            String?\n  paidAt            DateTime @default(now())\n  createdAt         DateTime @default(now())\n  userId            String\n  email             String\n  name              String\n  phone             String\n\n  @@map(\"orders\")\n}\n\nmodel Agent {\n  id          String     @id @default(cuid())\n  name        String\n  email       String     @unique\n  phone       String?\n  isSuspended Boolean    @default(false)\n  properties  Property[]\n\n  @@map(\"agents\")\n}\n\nmodel Property {\n  id           String      @id @default(cuid())\n  title        String\n  description  String?\n  price        Int\n  propertyType String\n  landSize     Int\n  address      String\n  city         String\n  area         String\n  bedrooms     Int\n  bathrooms    Int\n  electricity  Boolean     @default(false) // NEW\n  virtualTours Json? // NEW\n  imageUrl     String?\n  imageUr2     String?\n  imageUr3     String?\n  imageUr4     String?\n  imageUr5     String?\n  isAvailable  Boolean     @default(true)\n  postedAt     DateTime    @default(now())\n  agentId      String\n  agent        Agent       @relation(fields: [agentId], references: [id])\n  favourite    Favourite[]\n  amenities    Amenity[] // NEW many-to-many\n\n  @@map(\"properties\")\n}\n\nmodel Amenity {\n  id         Int        @id @default(autoincrement())\n  name       String     @unique\n  properties Property[]\n\n  @@map(\"amenities\")\n}\n\nmodel Favourite {\n  id         String   @id @default(cuid())\n  userId     String // Clerk user id\n  propertyId String\n  createdAt  DateTime @default(now())\n\n  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)\n\n  @@unique([userId, propertyId])\n}\n",
   "inlineSchemaHash": "636d2f92fcac53358fd93748bdd7ca2de8c61c7967c65fdb96ef3e146bca004a",
-  "copyEngine": true
+  "copyEngine": false
 }
 
 const fs = require('fs')
@@ -270,9 +269,3 @@ const PrismaClient = getPrismaClient(config)
 exports.PrismaClient = PrismaClient
 Object.assign(exports, Prisma)
 
-// file annotations for bundling tools to include these files
-path.join(__dirname, "query_engine-windows.dll.node");
-path.join(process.cwd(), "app/generated/prisma/query_engine-windows.dll.node")
-// file annotations for bundling tools to include these files
-path.join(__dirname, "schema.prisma");
-path.join(process.cwd(), "app/generated/prisma/schema.prisma")

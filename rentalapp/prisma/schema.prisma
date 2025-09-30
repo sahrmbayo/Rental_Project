@@ -61,9 +61,13 @@ model Property {
   agent        Agent       @relation(fields: [agentId], references: [id])
   favourite    Favourite[]
   amenities    Amenity[] // NEW many-to-many
+  
 
   @@map("properties")
 }
+
+
+
 
 model Amenity {
   id         Int        @id @default(autoincrement())

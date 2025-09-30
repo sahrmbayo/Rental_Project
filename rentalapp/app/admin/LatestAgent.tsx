@@ -1,5 +1,5 @@
 // app/admin/LatestAgents.tsx
-import { clerkClient } from '@clerk/clerk-sdk-node';
+import { clerkClient } from '@clerk/nextjs/server';
 import { PrismaClient } from '../generated/prisma';
 
 const prisma = new PrismaClient();
@@ -19,7 +19,7 @@ async function getLatestAgents() {
 
   return Promise.all(
     agents.map(async (a) => {
-      const user = await clerkClient.users.getUser(a.id);
+      const user = await (await clerkClient()).users.getUser(a.id);
       return { ...a, banned: user.banned ?? false };
     })
   );

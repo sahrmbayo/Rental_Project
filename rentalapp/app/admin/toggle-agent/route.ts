@@ -22,6 +22,7 @@ export async function POST(req: Request) {
   try {
     // 3. Get the user to check their current status
     const user = await (await clerkClient()).users.getUser(clerkUserId);
+  
     const currentlyBanned = user.banned;
 
     // 4. Use the correct Clerk API methods to ban or unban

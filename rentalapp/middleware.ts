@@ -7,7 +7,7 @@ import { NextResponse } from 'next/server';
 
 // Define which routes are public and which are for the Dashboard
 const isPublicRoute = createRouteMatcher(['/', '/sign-in(.*)', '/sign‑up(.*)','/api','/checkout(.*)','/suspended']);
-const isDashboardRoute = createRouteMatcher(['/Dashboard(.*)']);
+const isDashboardRoute = createRouteMatcher(['/Dashboard(.*)','/api(.*)']);
 
 export default clerkMiddleware(async (auth, req) => {
   const { userId } = await auth();
@@ -25,20 +25,16 @@ export default clerkMiddleware(async (auth, req) => {
     const role = user.publicMetadata.role as string | undefined;
 
     // Admins → Dashboard
-    // if (role === 'admin' && !isDashboardRoute(req)) {
-    //   return NextResponse.redirect(new URL('/Dashboard', req.url));
-    // }
+    if (role === 'admin' && !isDashboardRoute(req)) {
+      return NextResponse.redirect(new URL('/Dashboard', req.url));
+    }
 
     // Non‑admins → Home from Dashboard
-    // if (role === 'user' && isDashboardRoute(req)) {
-    //   return NextResponse.redirect(new URL('/', req.url));
-    // }
+    if (role === 'user' && isDashboardRoute(req)) {
+      return NextResponse.redirect(new URL('/', req.url));
+    }
   }
-  /* 0️⃣  CLERK BAN GATE  (Edge-safe) */
-if (userId) {
-  const user = await clerkClient.users.getUser(userId);
-  if (user.banned) return NextResponse.redirect(new URL('/suspended', req.url));
-}
+  
 
 
   // 3️⃣ Otherwise, allow the request to proceed
