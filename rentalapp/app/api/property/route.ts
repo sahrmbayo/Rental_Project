@@ -43,11 +43,7 @@ export async function POST(req: Request) {
     bathrooms: Number(body.bathrooms),
     electricity: Boolean(body.electricity), // NEW
     virtualTours: body.virtualTours || [], // NEW
-    imageUrl: body.imageUrl || '',
-    imageUr2: body.imageUr2 || '',
-    imageUr3: body.imageUr3 || '',
-    imageUr4: body.imageUr4 || '',
-    imageUr5: body.imageUr5 || '',
+    images: body.images || [], // NEW
     agentId,
     amenities: {
   connectOrCreate: (body.amenities as string[]).map((name) => ({

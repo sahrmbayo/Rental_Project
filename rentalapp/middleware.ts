@@ -7,7 +7,7 @@ import { NextResponse } from 'next/server';
 
 // Define which routes are public and which are for the Dashboard
 const isPublicRoute = createRouteMatcher(['/', '/sign-in(.*)', '/sign‑up(.*)','/api','/checkout(.*)','/suspended']);
-const isDashboardRoute = createRouteMatcher(['/Dashboard(.*)','/api(.*)']);
+const isDashboardRoute = createRouteMatcher(['/Dashboard(.*)','/api(.*)','/api/property(.*)']);
 
 export default clerkMiddleware(async (auth, req) => {
   const { userId } = await auth();

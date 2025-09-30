@@ -13,7 +13,7 @@ async function getRecentProperties() {
     orderBy: {
       postedAt: 'desc', // Order by newest first
     },
-    take: 4, // Limit the result to 4 properties
+    take: 6, // Limit the result to 6 properties
   });
 }
 
@@ -23,7 +23,7 @@ const PropertyCard = ({ property }) => (
     <Link href={`/properties/${property.id}`}>
       <div className="relative h-56 w-full">
         <Image
-          src={property.imageUrl || 'https://placehold.co/600x400/E0E7FF/4F46E5?text=PropPulse'}
+          src={property.images?.[0]?.url || 'https://placehold.co/600x400/E0E7FF/4F46E5?text=PropPulse'}
           alt={`Image of ${property.title}`}
           fill
           className="object-cover transition-transform duration-300 group-hover:scale-105"

@@ -61,12 +61,12 @@ export default function PropertyFormPage({ initialData }: PropertyFormProps) {
   const router = useRouter();
   const isEditMode = !!initialData;
  
-  const [imageUrl, setImageUrl] = useState(initialData?.imageUrl || '');
-  const [imageUr2, setImageUr2] = useState(initialData?.imageUr2 || '');
-  const [imageUr3, setImageUr3] = useState(initialData?.imageUr3 || '');
-  const [imageUr4, setImageUr4] = useState(initialData?.imageUr4 || '');
-  const [imageUr5, setImageUr5] = useState(initialData?.imageUr5 || '');
+  const [images, setImages] = useState<{ url: string; publicId: string }[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Image to array
+  const addImage = (url: string, publicId: string) =>
+  setImages(prev => [...prev, { url, publicId }]);
 
   const {
     register,
@@ -78,10 +78,16 @@ export default function PropertyFormPage({ initialData }: PropertyFormProps) {
     resolver: yupResolver(propertySchema),
    defaultValues: isEditMode && initialData
   ? {
-      ...initialData,
+      title: initialData.title,
+      description: initialData.description ?? '',
       price: Number(initialData.price),
+      propertyType: initialData.propertyType as PropertyFormData['propertyType'],
       landSize: initialData.landSize ? Number(initialData.landSize) : undefined,
-      propertyType: initialData.propertyType as 'apartment' | 'house' | 'single' | 'office' | 'shop' | 'compound',
+      address: initialData.address,
+      city: initialData.city,
+      area: initialData.area,
+      bedrooms: initialData.bedrooms,
+      bathrooms: initialData.bathrooms,
       electricity: initialData.electricity ?? false,
       virtualTours: (initialData.virtualTours as PropertyFormData['virtualTours']) ?? [],
       amenities: (initialData as any)?.amenities?.map((a: any) => a.name) ?? [],
@@ -97,46 +103,41 @@ export default function PropertyFormPage({ initialData }: PropertyFormProps) {
   });
 
   
-  const uploadToCloudinary = async (file: File, setUrl: (url: string) => void) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onloadend = async () => {
-      try {
-        const res = await fetch('/api/upload', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ image: reader.result }),
-        });
-        const data = await res.json();
-        setUrl(data.url);
-      } catch (error) {
-        console.error('Upload error:', error);
-        alert('Image upload failed.');
-      }
-    };
+  const uploadToCloudinary = async (file: File, onDone: (url: string, publicId: string) => void) => {
+  const reader = new FileReader();
+  reader.readAsDataURL(file);
+  reader.onloadend = async () => {
+    try {
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image: reader.result }),
+      });
+      const data = await res.json();   // data = { url, publicId }
+      onDone(data.url, data.publicId); // ← give both back
+    } catch (error) {
+      console.error('Upload error:', error);
+      alert('Image upload failed.');
+    }
   };
-
+};
  
   const onSubmit = async (data: PropertyFormData) => {
     setIsSubmitting(true);
 
-    if (!isEditMode && (!imageUrl || !imageUr2 || !imageUr3 || !imageUr4 || !imageUr5)) {
+    if (!isEditMode && images.length < 5) {
       alert('Please upload all images for a new property.');
       setIsSubmitting(false);
       return;
     }
 
     const finalData = {
-  ...data,
-  imageUrl,
-  imageUr2,
-  imageUr3,
-  imageUr4,
-  imageUr5,
-  electricity: data.electricity, // NEW
-  virtualTours: watch('virtualTours'), // NEW
-  amenities: watch('amenities'), // NEW
-};
+      ...data,
+      images,
+      electricity: data.electricity, // NEW
+      virtualTours: watch('virtualTours'), // NEW
+      amenities: watch('amenities'), // NEW
+    };
 
     try {
       const endpoint = isEditMode
@@ -326,28 +327,28 @@ export default function PropertyFormPage({ initialData }: PropertyFormProps) {
                 <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2">
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Front View</label>
-                        <input type='file' accept='image/*' onChange={(e) => e.target.files?.[0] && uploadToCloudinary(e.target.files[0], setImageUrl)} className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:rounded-full file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-blue-700 hover:file:bg-blue-100"/>
-                        {imageUrl && <img src={imageUrl} alt="Preview 1" className="mt-4 h-32 w-full rounded-md object-cover" />}
+                        <input type='file' accept='image/*' onChange={(e) => e.target.files?.[0] && uploadToCloudinary(e.target.files[0], addImage)} className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:rounded-full file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-blue-700 hover:file:bg-blue-100"/>
+                        {images[0] && <img src={images[0].url} alt="Preview 1" className="mt-4 h-32 w-full rounded-md object-cover" />}
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Master Bedroom</label>
-                        <input type='file' accept='image/*' onChange={(e) => e.target.files?.[0] && uploadToCloudinary(e.target.files[0], setImageUr2)} className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:rounded-full file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-blue-700 hover:file:bg-blue-100"/>
-                        {imageUr2 && <img src={imageUr2} alt="Preview 2" className="mt-4 h-32 w-full rounded-md object-cover" />}
+                        <input type='file' accept='image/*' onChange={(e) => e.target.files?.[0] && uploadToCloudinary(e.target.files[0], addImage)} className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:rounded-full file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-blue-700 hover:file:bg-blue-100"/>
+                        {images[1] && <img src={images[1].url} alt="Preview 2" className="mt-4 h-32 w-full rounded-md object-cover" />}
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Kitchen</label>
-                        <input type='file' accept='image/*' onChange={(e) => e.target.files?.[0] && uploadToCloudinary(e.target.files[0], setImageUr3)} className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:rounded-full file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-blue-700 hover:file:bg-blue-100"/>
-                        {imageUr3 && <img src={imageUr3} alt="Preview 3" className="mt-4 h-32 w-full rounded-md object-cover" />}
+                        <input type='file' accept='image/*' onChange={(e) => e.target.files?.[0] && uploadToCloudinary(e.target.files[0], addImage)} className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:rounded-full file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-blue-700 hover:file:bg-blue-100"/>
+                        {images[2] && <img src={images[2].url} alt="Preview 3" className="mt-4 h-32 w-full rounded-md object-cover" />}
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Master Bathroom</label>
-                        <input type='file' accept='image/*' onChange={(e) => e.target.files?.[0] && uploadToCloudinary(e.target.files[0], setImageUr4)} className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:rounded-full file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-blue-700 hover:file:bg-blue-100"/>
-                        {imageUr4 && <img src={imageUr4} alt="Preview 4" className="mt-4 h-32 w-full rounded-md object-cover" />}
+                        <input type='file' accept='image/*' onChange={(e) => e.target.files?.[0] && uploadToCloudinary(e.target.files[0], addImage)} className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:rounded-full file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-blue-700 hover:file:bg-blue-100"/>
+                        {images[3] && <img src={images[3].url} alt="Preview 4" className="mt-4 h-32 w-full rounded-md object-cover" />}
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Living Room</label>
-                        <input type='file' accept='image/*' onChange={(e) => e.target.files?.[0] && uploadToCloudinary(e.target.files[0], setImageUr5)} className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:rounded-full file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-blue-700 hover:file:bg-blue-100"/>
-                        {imageUr5 && <img src={imageUr5} alt="Preview 2" className="mt-4 h-32 w-full rounded-md object-cover" />}
+                        <input type='file' accept='image/*' onChange={(e) => e.target.files?.[0] && uploadToCloudinary(e.target.files[0], addImage)} className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:rounded-full file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-blue-700 hover:file:bg-blue-100"/>
+                        {images[4] && <img src={images[4].url} alt="Preview 5" className="mt-4 h-32 w-full rounded-md object-cover" />}
                     </div>
                 </div>
             </div>

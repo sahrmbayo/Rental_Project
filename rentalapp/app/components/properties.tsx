@@ -80,8 +80,8 @@ export default async function PropertiesListPage({
                             <div className="h-10 w-10 flex-shrink-0">
                               <Image
                                 className="h-10 w-10 rounded-md object-cover"
-                                src={prop.imageUrl || 'https://placehold.co/40x40/E0E7FF/4F46E5?text=Img'}
-                                alt="Property Image"
+                                src={prop.images?.[0]?.url || 'https://placehold.co/40x40/E0E7FF/4F46E5?text=Img'}
+                                alt="Image"
                                 width={40}
                                 height={40}
                               />

@@ -3,6 +3,14 @@
 import { NextResponse } from 'next/server';
 import { PrismaClient } from '../../../generated/prisma';
 
+import { v2 as cloudinary } from 'cloudinary';
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
 const prisma = new PrismaClient();
 
 /* -------  GET  ------- */
@@ -32,9 +40,28 @@ export async function DELETE(
 ) {
   const { id } = await params;
   if (!id) return NextResponse.json({ message: 'Property ID required' }, { status: 400 });
+
   try {
+    /* 1. fetch the property to get the public-ids */
+    const property = await prisma.property.findUnique({
+      where: { id },
+      select: { images: true }, // images: Json → {url, publicId}[]
+    });
+
+    if (!property) return NextResponse.json({ message: 'Property not found' }, { status: 404 });
+
+    /* 2. destroy each image in Cloudinary */
+    const ids = (property.images as { publicId: string }[]) ?? [];
+      await Promise.all(
+        ids.map(({ publicId }) =>
+          cloudinary.uploader.destroy(publicId, { resource_type: 'image' })
+        )
+      );
+
+    /* 3. delete the property row */
     await prisma.property.delete({ where: { id } });
-    return NextResponse.json({ message: 'Property deleted' }, { status: 200 });
+
+    return NextResponse.json({ message: 'Property and images deleted' }, { status: 200 });
   } catch (e) {
     console.error('DELETE property error:', e);
     return NextResponse.json({ message: 'Error deleting property' }, { status: 500 });
@@ -66,11 +93,8 @@ export async function PATCH(
         bathrooms: Number(body.bathrooms),
         electricity: Boolean(body.electricity),
         virtualTours: body.virtualTours || [],
-        imageUrl: body.imageUrl || '',
-        imageUr2: body.imageUr2 || '',
-        imageUr3: body.imageUr3 || '',
-        imageUr4: body.imageUr4 || '',
-        imageUr5: body.imageUr5 || '',
+        images: body.images || [],
+        // connectOrCreate amenities
         amenities: {
           connectOrCreate: (body.amenities as string[]).map((name) => ({
             where: { name },

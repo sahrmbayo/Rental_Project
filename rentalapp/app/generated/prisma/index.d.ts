@@ -3490,11 +3490,6 @@ export namespace Prisma {
     bedrooms: number | null
     bathrooms: number | null
     electricity: boolean | null
-    imageUrl: string | null
-    imageUr2: string | null
-    imageUr3: string | null
-    imageUr4: string | null
-    imageUr5: string | null
     isAvailable: boolean | null
     postedAt: Date | null
     agentId: string | null
@@ -3513,11 +3508,6 @@ export namespace Prisma {
     bedrooms: number | null
     bathrooms: number | null
     electricity: boolean | null
-    imageUrl: string | null
-    imageUr2: string | null
-    imageUr3: string | null
-    imageUr4: string | null
-    imageUr5: string | null
     isAvailable: boolean | null
     postedAt: Date | null
     agentId: string | null
@@ -3537,11 +3527,7 @@ export namespace Prisma {
     bathrooms: number
     electricity: number
     virtualTours: number
-    imageUrl: number
-    imageUr2: number
-    imageUr3: number
-    imageUr4: number
-    imageUr5: number
+    images: number
     isAvailable: number
     postedAt: number
     agentId: number
@@ -3576,11 +3562,6 @@ export namespace Prisma {
     bedrooms?: true
     bathrooms?: true
     electricity?: true
-    imageUrl?: true
-    imageUr2?: true
-    imageUr3?: true
-    imageUr4?: true
-    imageUr5?: true
     isAvailable?: true
     postedAt?: true
     agentId?: true
@@ -3599,11 +3580,6 @@ export namespace Prisma {
     bedrooms?: true
     bathrooms?: true
     electricity?: true
-    imageUrl?: true
-    imageUr2?: true
-    imageUr3?: true
-    imageUr4?: true
-    imageUr5?: true
     isAvailable?: true
     postedAt?: true
     agentId?: true
@@ -3623,11 +3599,7 @@ export namespace Prisma {
     bathrooms?: true
     electricity?: true
     virtualTours?: true
-    imageUrl?: true
-    imageUr2?: true
-    imageUr3?: true
-    imageUr4?: true
-    imageUr5?: true
+    images?: true
     isAvailable?: true
     postedAt?: true
     agentId?: true
@@ -3734,11 +3706,7 @@ export namespace Prisma {
     bathrooms: number
     electricity: boolean
     virtualTours: JsonValue | null
-    imageUrl: string | null
-    imageUr2: string | null
-    imageUr3: string | null
-    imageUr4: string | null
-    imageUr5: string | null
+    images: JsonValue | null
     isAvailable: boolean
     postedAt: Date
     agentId: string
@@ -3777,11 +3745,7 @@ export namespace Prisma {
     bathrooms?: boolean
     electricity?: boolean
     virtualTours?: boolean
-    imageUrl?: boolean
-    imageUr2?: boolean
-    imageUr3?: boolean
-    imageUr4?: boolean
-    imageUr5?: boolean
+    images?: boolean
     isAvailable?: boolean
     postedAt?: boolean
     agentId?: boolean
@@ -3805,11 +3769,7 @@ export namespace Prisma {
     bathrooms?: boolean
     electricity?: boolean
     virtualTours?: boolean
-    imageUrl?: boolean
-    imageUr2?: boolean
-    imageUr3?: boolean
-    imageUr4?: boolean
-    imageUr5?: boolean
+    images?: boolean
     isAvailable?: boolean
     postedAt?: boolean
     agentId?: boolean
@@ -3830,11 +3790,7 @@ export namespace Prisma {
     bathrooms?: boolean
     electricity?: boolean
     virtualTours?: boolean
-    imageUrl?: boolean
-    imageUr2?: boolean
-    imageUr3?: boolean
-    imageUr4?: boolean
-    imageUr5?: boolean
+    images?: boolean
     isAvailable?: boolean
     postedAt?: boolean
     agentId?: boolean
@@ -3855,17 +3811,13 @@ export namespace Prisma {
     bathrooms?: boolean
     electricity?: boolean
     virtualTours?: boolean
-    imageUrl?: boolean
-    imageUr2?: boolean
-    imageUr3?: boolean
-    imageUr4?: boolean
-    imageUr5?: boolean
+    images?: boolean
     isAvailable?: boolean
     postedAt?: boolean
     agentId?: boolean
   }
 
-  export type PropertyOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "description" | "price" | "propertyType" | "landSize" | "address" | "city" | "area" | "bedrooms" | "bathrooms" | "electricity" | "virtualTours" | "imageUrl" | "imageUr2" | "imageUr3" | "imageUr4" | "imageUr5" | "isAvailable" | "postedAt" | "agentId", ExtArgs["result"]["property"]>
+  export type PropertyOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "description" | "price" | "propertyType" | "landSize" | "address" | "city" | "area" | "bedrooms" | "bathrooms" | "electricity" | "virtualTours" | "images" | "isAvailable" | "postedAt" | "agentId", ExtArgs["result"]["property"]>
   export type PropertyInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     agent?: boolean | AgentDefaultArgs<ExtArgs>
     favourite?: boolean | Property$favouriteArgs<ExtArgs>
@@ -3900,11 +3852,7 @@ export namespace Prisma {
       bathrooms: number
       electricity: boolean
       virtualTours: Prisma.JsonValue | null
-      imageUrl: string | null
-      imageUr2: string | null
-      imageUr3: string | null
-      imageUr4: string | null
-      imageUr5: string | null
+      images: Prisma.JsonValue | null
       isAvailable: boolean
       postedAt: Date
       agentId: string
@@ -4347,11 +4295,7 @@ export namespace Prisma {
     readonly bathrooms: FieldRef<"Property", 'Int'>
     readonly electricity: FieldRef<"Property", 'Boolean'>
     readonly virtualTours: FieldRef<"Property", 'Json'>
-    readonly imageUrl: FieldRef<"Property", 'String'>
-    readonly imageUr2: FieldRef<"Property", 'String'>
-    readonly imageUr3: FieldRef<"Property", 'String'>
-    readonly imageUr4: FieldRef<"Property", 'String'>
-    readonly imageUr5: FieldRef<"Property", 'String'>
+    readonly images: FieldRef<"Property", 'Json'>
     readonly isAvailable: FieldRef<"Property", 'Boolean'>
     readonly postedAt: FieldRef<"Property", 'DateTime'>
     readonly agentId: FieldRef<"Property", 'String'>
@@ -6981,11 +6925,7 @@ export namespace Prisma {
     bathrooms: 'bathrooms',
     electricity: 'electricity',
     virtualTours: 'virtualTours',
-    imageUrl: 'imageUrl',
-    imageUr2: 'imageUr2',
-    imageUr3: 'imageUr3',
-    imageUr4: 'imageUr4',
-    imageUr5: 'imageUr5',
+    images: 'images',
     isAvailable: 'isAvailable',
     postedAt: 'postedAt',
     agentId: 'agentId'
@@ -7282,11 +7222,7 @@ export namespace Prisma {
     bathrooms?: IntFilter<"Property"> | number
     electricity?: BoolFilter<"Property"> | boolean
     virtualTours?: JsonNullableFilter<"Property">
-    imageUrl?: StringNullableFilter<"Property"> | string | null
-    imageUr2?: StringNullableFilter<"Property"> | string | null
-    imageUr3?: StringNullableFilter<"Property"> | string | null
-    imageUr4?: StringNullableFilter<"Property"> | string | null
-    imageUr5?: StringNullableFilter<"Property"> | string | null
+    images?: JsonNullableFilter<"Property">
     isAvailable?: BoolFilter<"Property"> | boolean
     postedAt?: DateTimeFilter<"Property"> | Date | string
     agentId?: StringFilter<"Property"> | string
@@ -7309,11 +7245,7 @@ export namespace Prisma {
     bathrooms?: SortOrder
     electricity?: SortOrder
     virtualTours?: SortOrderInput | SortOrder
-    imageUrl?: SortOrderInput | SortOrder
-    imageUr2?: SortOrderInput | SortOrder
-    imageUr3?: SortOrderInput | SortOrder
-    imageUr4?: SortOrderInput | SortOrder
-    imageUr5?: SortOrderInput | SortOrder
+    images?: SortOrderInput | SortOrder
     isAvailable?: SortOrder
     postedAt?: SortOrder
     agentId?: SortOrder
@@ -7339,11 +7271,7 @@ export namespace Prisma {
     bathrooms?: IntFilter<"Property"> | number
     electricity?: BoolFilter<"Property"> | boolean
     virtualTours?: JsonNullableFilter<"Property">
-    imageUrl?: StringNullableFilter<"Property"> | string | null
-    imageUr2?: StringNullableFilter<"Property"> | string | null
-    imageUr3?: StringNullableFilter<"Property"> | string | null
-    imageUr4?: StringNullableFilter<"Property"> | string | null
-    imageUr5?: StringNullableFilter<"Property"> | string | null
+    images?: JsonNullableFilter<"Property">
     isAvailable?: BoolFilter<"Property"> | boolean
     postedAt?: DateTimeFilter<"Property"> | Date | string
     agentId?: StringFilter<"Property"> | string
@@ -7366,11 +7294,7 @@ export namespace Prisma {
     bathrooms?: SortOrder
     electricity?: SortOrder
     virtualTours?: SortOrderInput | SortOrder
-    imageUrl?: SortOrderInput | SortOrder
-    imageUr2?: SortOrderInput | SortOrder
-    imageUr3?: SortOrderInput | SortOrder
-    imageUr4?: SortOrderInput | SortOrder
-    imageUr5?: SortOrderInput | SortOrder
+    images?: SortOrderInput | SortOrder
     isAvailable?: SortOrder
     postedAt?: SortOrder
     agentId?: SortOrder
@@ -7398,11 +7322,7 @@ export namespace Prisma {
     bathrooms?: IntWithAggregatesFilter<"Property"> | number
     electricity?: BoolWithAggregatesFilter<"Property"> | boolean
     virtualTours?: JsonNullableWithAggregatesFilter<"Property">
-    imageUrl?: StringNullableWithAggregatesFilter<"Property"> | string | null
-    imageUr2?: StringNullableWithAggregatesFilter<"Property"> | string | null
-    imageUr3?: StringNullableWithAggregatesFilter<"Property"> | string | null
-    imageUr4?: StringNullableWithAggregatesFilter<"Property"> | string | null
-    imageUr5?: StringNullableWithAggregatesFilter<"Property"> | string | null
+    images?: JsonNullableWithAggregatesFilter<"Property">
     isAvailable?: BoolWithAggregatesFilter<"Property"> | boolean
     postedAt?: DateTimeWithAggregatesFilter<"Property"> | Date | string
     agentId?: StringWithAggregatesFilter<"Property"> | string
@@ -7659,11 +7579,7 @@ export namespace Prisma {
     bathrooms: number
     electricity?: boolean
     virtualTours?: NullableJsonNullValueInput | InputJsonValue
-    imageUrl?: string | null
-    imageUr2?: string | null
-    imageUr3?: string | null
-    imageUr4?: string | null
-    imageUr5?: string | null
+    images?: NullableJsonNullValueInput | InputJsonValue
     isAvailable?: boolean
     postedAt?: Date | string
     agent: AgentCreateNestedOneWithoutPropertiesInput
@@ -7685,11 +7601,7 @@ export namespace Prisma {
     bathrooms: number
     electricity?: boolean
     virtualTours?: NullableJsonNullValueInput | InputJsonValue
-    imageUrl?: string | null
-    imageUr2?: string | null
-    imageUr3?: string | null
-    imageUr4?: string | null
-    imageUr5?: string | null
+    images?: NullableJsonNullValueInput | InputJsonValue
     isAvailable?: boolean
     postedAt?: Date | string
     agentId: string
@@ -7711,11 +7623,7 @@ export namespace Prisma {
     bathrooms?: IntFieldUpdateOperationsInput | number
     electricity?: BoolFieldUpdateOperationsInput | boolean
     virtualTours?: NullableJsonNullValueInput | InputJsonValue
-    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    imageUr2?: NullableStringFieldUpdateOperationsInput | string | null
-    imageUr3?: NullableStringFieldUpdateOperationsInput | string | null
-    imageUr4?: NullableStringFieldUpdateOperationsInput | string | null
-    imageUr5?: NullableStringFieldUpdateOperationsInput | string | null
+    images?: NullableJsonNullValueInput | InputJsonValue
     isAvailable?: BoolFieldUpdateOperationsInput | boolean
     postedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     agent?: AgentUpdateOneRequiredWithoutPropertiesNestedInput
@@ -7737,11 +7645,7 @@ export namespace Prisma {
     bathrooms?: IntFieldUpdateOperationsInput | number
     electricity?: BoolFieldUpdateOperationsInput | boolean
     virtualTours?: NullableJsonNullValueInput | InputJsonValue
-    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    imageUr2?: NullableStringFieldUpdateOperationsInput | string | null
-    imageUr3?: NullableStringFieldUpdateOperationsInput | string | null
-    imageUr4?: NullableStringFieldUpdateOperationsInput | string | null
-    imageUr5?: NullableStringFieldUpdateOperationsInput | string | null
+    images?: NullableJsonNullValueInput | InputJsonValue
     isAvailable?: BoolFieldUpdateOperationsInput | boolean
     postedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     agentId?: StringFieldUpdateOperationsInput | string
@@ -7763,11 +7667,7 @@ export namespace Prisma {
     bathrooms: number
     electricity?: boolean
     virtualTours?: NullableJsonNullValueInput | InputJsonValue
-    imageUrl?: string | null
-    imageUr2?: string | null
-    imageUr3?: string | null
-    imageUr4?: string | null
-    imageUr5?: string | null
+    images?: NullableJsonNullValueInput | InputJsonValue
     isAvailable?: boolean
     postedAt?: Date | string
     agentId: string
@@ -7787,11 +7687,7 @@ export namespace Prisma {
     bathrooms?: IntFieldUpdateOperationsInput | number
     electricity?: BoolFieldUpdateOperationsInput | boolean
     virtualTours?: NullableJsonNullValueInput | InputJsonValue
-    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    imageUr2?: NullableStringFieldUpdateOperationsInput | string | null
-    imageUr3?: NullableStringFieldUpdateOperationsInput | string | null
-    imageUr4?: NullableStringFieldUpdateOperationsInput | string | null
-    imageUr5?: NullableStringFieldUpdateOperationsInput | string | null
+    images?: NullableJsonNullValueInput | InputJsonValue
     isAvailable?: BoolFieldUpdateOperationsInput | boolean
     postedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -7810,11 +7706,7 @@ export namespace Prisma {
     bathrooms?: IntFieldUpdateOperationsInput | number
     electricity?: BoolFieldUpdateOperationsInput | boolean
     virtualTours?: NullableJsonNullValueInput | InputJsonValue
-    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    imageUr2?: NullableStringFieldUpdateOperationsInput | string | null
-    imageUr3?: NullableStringFieldUpdateOperationsInput | string | null
-    imageUr4?: NullableStringFieldUpdateOperationsInput | string | null
-    imageUr5?: NullableStringFieldUpdateOperationsInput | string | null
+    images?: NullableJsonNullValueInput | InputJsonValue
     isAvailable?: BoolFieldUpdateOperationsInput | boolean
     postedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     agentId?: StringFieldUpdateOperationsInput | string
@@ -8156,11 +8048,7 @@ export namespace Prisma {
     bathrooms?: SortOrder
     electricity?: SortOrder
     virtualTours?: SortOrder
-    imageUrl?: SortOrder
-    imageUr2?: SortOrder
-    imageUr3?: SortOrder
-    imageUr4?: SortOrder
-    imageUr5?: SortOrder
+    images?: SortOrder
     isAvailable?: SortOrder
     postedAt?: SortOrder
     agentId?: SortOrder
@@ -8186,11 +8074,6 @@ export namespace Prisma {
     bedrooms?: SortOrder
     bathrooms?: SortOrder
     electricity?: SortOrder
-    imageUrl?: SortOrder
-    imageUr2?: SortOrder
-    imageUr3?: SortOrder
-    imageUr4?: SortOrder
-    imageUr5?: SortOrder
     isAvailable?: SortOrder
     postedAt?: SortOrder
     agentId?: SortOrder
@@ -8209,11 +8092,6 @@ export namespace Prisma {
     bedrooms?: SortOrder
     bathrooms?: SortOrder
     electricity?: SortOrder
-    imageUrl?: SortOrder
-    imageUr2?: SortOrder
-    imageUr3?: SortOrder
-    imageUr4?: SortOrder
-    imageUr5?: SortOrder
     isAvailable?: SortOrder
     postedAt?: SortOrder
     agentId?: SortOrder
@@ -8720,11 +8598,7 @@ export namespace Prisma {
     bathrooms: number
     electricity?: boolean
     virtualTours?: NullableJsonNullValueInput | InputJsonValue
-    imageUrl?: string | null
-    imageUr2?: string | null
-    imageUr3?: string | null
-    imageUr4?: string | null
-    imageUr5?: string | null
+    images?: NullableJsonNullValueInput | InputJsonValue
     isAvailable?: boolean
     postedAt?: Date | string
     favourite?: FavouriteCreateNestedManyWithoutPropertyInput
@@ -8745,11 +8619,7 @@ export namespace Prisma {
     bathrooms: number
     electricity?: boolean
     virtualTours?: NullableJsonNullValueInput | InputJsonValue
-    imageUrl?: string | null
-    imageUr2?: string | null
-    imageUr3?: string | null
-    imageUr4?: string | null
-    imageUr5?: string | null
+    images?: NullableJsonNullValueInput | InputJsonValue
     isAvailable?: boolean
     postedAt?: Date | string
     favourite?: FavouriteUncheckedCreateNestedManyWithoutPropertyInput
@@ -8799,11 +8669,7 @@ export namespace Prisma {
     bathrooms?: IntFilter<"Property"> | number
     electricity?: BoolFilter<"Property"> | boolean
     virtualTours?: JsonNullableFilter<"Property">
-    imageUrl?: StringNullableFilter<"Property"> | string | null
-    imageUr2?: StringNullableFilter<"Property"> | string | null
-    imageUr3?: StringNullableFilter<"Property"> | string | null
-    imageUr4?: StringNullableFilter<"Property"> | string | null
-    imageUr5?: StringNullableFilter<"Property"> | string | null
+    images?: JsonNullableFilter<"Property">
     isAvailable?: BoolFilter<"Property"> | boolean
     postedAt?: DateTimeFilter<"Property"> | Date | string
     agentId?: StringFilter<"Property"> | string
@@ -8957,11 +8823,7 @@ export namespace Prisma {
     bathrooms: number
     electricity?: boolean
     virtualTours?: NullableJsonNullValueInput | InputJsonValue
-    imageUrl?: string | null
-    imageUr2?: string | null
-    imageUr3?: string | null
-    imageUr4?: string | null
-    imageUr5?: string | null
+    images?: NullableJsonNullValueInput | InputJsonValue
     isAvailable?: boolean
     postedAt?: Date | string
     agent: AgentCreateNestedOneWithoutPropertiesInput
@@ -8982,11 +8844,7 @@ export namespace Prisma {
     bathrooms: number
     electricity?: boolean
     virtualTours?: NullableJsonNullValueInput | InputJsonValue
-    imageUrl?: string | null
-    imageUr2?: string | null
-    imageUr3?: string | null
-    imageUr4?: string | null
-    imageUr5?: string | null
+    images?: NullableJsonNullValueInput | InputJsonValue
     isAvailable?: boolean
     postedAt?: Date | string
     agentId: string
@@ -9028,11 +8886,7 @@ export namespace Prisma {
     bathrooms: number
     electricity?: boolean
     virtualTours?: NullableJsonNullValueInput | InputJsonValue
-    imageUrl?: string | null
-    imageUr2?: string | null
-    imageUr3?: string | null
-    imageUr4?: string | null
-    imageUr5?: string | null
+    images?: NullableJsonNullValueInput | InputJsonValue
     isAvailable?: boolean
     postedAt?: Date | string
     agent: AgentCreateNestedOneWithoutPropertiesInput
@@ -9053,11 +8907,7 @@ export namespace Prisma {
     bathrooms: number
     electricity?: boolean
     virtualTours?: NullableJsonNullValueInput | InputJsonValue
-    imageUrl?: string | null
-    imageUr2?: string | null
-    imageUr3?: string | null
-    imageUr4?: string | null
-    imageUr5?: string | null
+    images?: NullableJsonNullValueInput | InputJsonValue
     isAvailable?: boolean
     postedAt?: Date | string
     agentId: string
@@ -9094,11 +8944,7 @@ export namespace Prisma {
     bathrooms?: IntFieldUpdateOperationsInput | number
     electricity?: BoolFieldUpdateOperationsInput | boolean
     virtualTours?: NullableJsonNullValueInput | InputJsonValue
-    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    imageUr2?: NullableStringFieldUpdateOperationsInput | string | null
-    imageUr3?: NullableStringFieldUpdateOperationsInput | string | null
-    imageUr4?: NullableStringFieldUpdateOperationsInput | string | null
-    imageUr5?: NullableStringFieldUpdateOperationsInput | string | null
+    images?: NullableJsonNullValueInput | InputJsonValue
     isAvailable?: BoolFieldUpdateOperationsInput | boolean
     postedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     agent?: AgentUpdateOneRequiredWithoutPropertiesNestedInput
@@ -9119,11 +8965,7 @@ export namespace Prisma {
     bathrooms?: IntFieldUpdateOperationsInput | number
     electricity?: BoolFieldUpdateOperationsInput | boolean
     virtualTours?: NullableJsonNullValueInput | InputJsonValue
-    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    imageUr2?: NullableStringFieldUpdateOperationsInput | string | null
-    imageUr3?: NullableStringFieldUpdateOperationsInput | string | null
-    imageUr4?: NullableStringFieldUpdateOperationsInput | string | null
-    imageUr5?: NullableStringFieldUpdateOperationsInput | string | null
+    images?: NullableJsonNullValueInput | InputJsonValue
     isAvailable?: BoolFieldUpdateOperationsInput | boolean
     postedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     agentId?: StringFieldUpdateOperationsInput | string
@@ -9144,11 +8986,7 @@ export namespace Prisma {
     bathrooms: number
     electricity?: boolean
     virtualTours?: NullableJsonNullValueInput | InputJsonValue
-    imageUrl?: string | null
-    imageUr2?: string | null
-    imageUr3?: string | null
-    imageUr4?: string | null
-    imageUr5?: string | null
+    images?: NullableJsonNullValueInput | InputJsonValue
     isAvailable?: boolean
     postedAt?: Date | string
   }
@@ -9167,11 +9005,7 @@ export namespace Prisma {
     bathrooms?: IntFieldUpdateOperationsInput | number
     electricity?: BoolFieldUpdateOperationsInput | boolean
     virtualTours?: NullableJsonNullValueInput | InputJsonValue
-    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    imageUr2?: NullableStringFieldUpdateOperationsInput | string | null
-    imageUr3?: NullableStringFieldUpdateOperationsInput | string | null
-    imageUr4?: NullableStringFieldUpdateOperationsInput | string | null
-    imageUr5?: NullableStringFieldUpdateOperationsInput | string | null
+    images?: NullableJsonNullValueInput | InputJsonValue
     isAvailable?: BoolFieldUpdateOperationsInput | boolean
     postedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     favourite?: FavouriteUpdateManyWithoutPropertyNestedInput
@@ -9192,11 +9026,7 @@ export namespace Prisma {
     bathrooms?: IntFieldUpdateOperationsInput | number
     electricity?: BoolFieldUpdateOperationsInput | boolean
     virtualTours?: NullableJsonNullValueInput | InputJsonValue
-    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    imageUr2?: NullableStringFieldUpdateOperationsInput | string | null
-    imageUr3?: NullableStringFieldUpdateOperationsInput | string | null
-    imageUr4?: NullableStringFieldUpdateOperationsInput | string | null
-    imageUr5?: NullableStringFieldUpdateOperationsInput | string | null
+    images?: NullableJsonNullValueInput | InputJsonValue
     isAvailable?: BoolFieldUpdateOperationsInput | boolean
     postedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     favourite?: FavouriteUncheckedUpdateManyWithoutPropertyNestedInput
@@ -9217,11 +9047,7 @@ export namespace Prisma {
     bathrooms?: IntFieldUpdateOperationsInput | number
     electricity?: BoolFieldUpdateOperationsInput | boolean
     virtualTours?: NullableJsonNullValueInput | InputJsonValue
-    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    imageUr2?: NullableStringFieldUpdateOperationsInput | string | null
-    imageUr3?: NullableStringFieldUpdateOperationsInput | string | null
-    imageUr4?: NullableStringFieldUpdateOperationsInput | string | null
-    imageUr5?: NullableStringFieldUpdateOperationsInput | string | null
+    images?: NullableJsonNullValueInput | InputJsonValue
     isAvailable?: BoolFieldUpdateOperationsInput | boolean
     postedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -9278,11 +9104,7 @@ export namespace Prisma {
     bathrooms?: IntFieldUpdateOperationsInput | number
     electricity?: BoolFieldUpdateOperationsInput | boolean
     virtualTours?: NullableJsonNullValueInput | InputJsonValue
-    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    imageUr2?: NullableStringFieldUpdateOperationsInput | string | null
-    imageUr3?: NullableStringFieldUpdateOperationsInput | string | null
-    imageUr4?: NullableStringFieldUpdateOperationsInput | string | null
-    imageUr5?: NullableStringFieldUpdateOperationsInput | string | null
+    images?: NullableJsonNullValueInput | InputJsonValue
     isAvailable?: BoolFieldUpdateOperationsInput | boolean
     postedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     agent?: AgentUpdateOneRequiredWithoutPropertiesNestedInput
@@ -9303,11 +9125,7 @@ export namespace Prisma {
     bathrooms?: IntFieldUpdateOperationsInput | number
     electricity?: BoolFieldUpdateOperationsInput | boolean
     virtualTours?: NullableJsonNullValueInput | InputJsonValue
-    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    imageUr2?: NullableStringFieldUpdateOperationsInput | string | null
-    imageUr3?: NullableStringFieldUpdateOperationsInput | string | null
-    imageUr4?: NullableStringFieldUpdateOperationsInput | string | null
-    imageUr5?: NullableStringFieldUpdateOperationsInput | string | null
+    images?: NullableJsonNullValueInput | InputJsonValue
     isAvailable?: BoolFieldUpdateOperationsInput | boolean
     postedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     agentId?: StringFieldUpdateOperationsInput | string
@@ -9328,11 +9146,7 @@ export namespace Prisma {
     bathrooms?: IntFieldUpdateOperationsInput | number
     electricity?: BoolFieldUpdateOperationsInput | boolean
     virtualTours?: NullableJsonNullValueInput | InputJsonValue
-    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    imageUr2?: NullableStringFieldUpdateOperationsInput | string | null
-    imageUr3?: NullableStringFieldUpdateOperationsInput | string | null
-    imageUr4?: NullableStringFieldUpdateOperationsInput | string | null
-    imageUr5?: NullableStringFieldUpdateOperationsInput | string | null
+    images?: NullableJsonNullValueInput | InputJsonValue
     isAvailable?: BoolFieldUpdateOperationsInput | boolean
     postedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     agentId?: StringFieldUpdateOperationsInput | string

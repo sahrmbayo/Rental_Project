@@ -23,7 +23,7 @@ export default function PropertyDetailsView({
   initialFav: boolean;
 }) {
   /* ---------------- image slider helpers ---------------- */
-  const images = [property.imageUrl, property.imageUr2].filter(Boolean);
+  const images = (property.images as { url: string }[]) || [];
   const [currentIndex, setCurrentIndex] = useState(0);
   const prevSlide = () =>
     setCurrentIndex((i) => (i === 0 ? images.length - 1 : i - 1));
@@ -78,7 +78,7 @@ export default function PropertyDetailsView({
           {images.length ? (
             <>
               <Image
-                src={images[currentIndex]}
+                src={images[currentIndex]?.url}
                 alt={`Image ${currentIndex + 1} of ${property.title}`}
                 fill
                 className="object-cover transition-all duration-500"

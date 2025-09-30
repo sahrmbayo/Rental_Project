@@ -10,14 +10,15 @@ import { MapPin, Bed, Bath, Home } from 'lucide-react';
 import WhatsAppShareButton from './WhatsAppShareButton';
 
 const PropertyCard = ({ property }) => (
-  <div className=" group overflow-hidden rounded-xl border bg-white shadow-sm transition-all hover:shadow-lg">
+  <div className="group overflow-hidden rounded-xl border bg-white shadow-sm transition-all hover:shadow-lg">
     <Link href={`/properties/${property.id}`}>
       <div className="relative h-56 w-full">
         <Image
-          src={property.imageUrl || 'https://placehold.co/600x400/E0E7FF/4F46E5?text=PropPulse'}
+          src={property.images?.[0]?.url || 'https://placehold.co/600x400/E0E7FF/4F46E5?text=PropPulse'}
           alt={`Image of ${property.title}`}
           fill
           className="object-cover transition-transform duration-300 group-hover:scale-105"
+          unoptimized
         />
         {property.electricity && (
           <span className="absolute top-2 left-2 rounded bg-green-100 px-2 py-1 text-xs font-medium text-green-800">
@@ -39,48 +40,37 @@ const PropertyCard = ({ property }) => (
           {property.city}
         </p>
 
-        {/* amenities */}
         {property.amenities?.length > 0 && (
           <div className="mt-2 flex flex-wrap items-center gap-2">
             {property.amenities.slice(0, 3).map((a) => (
-              <span
-                key={a.name}
-                className="rounded bg-gray-100 px-2 py-1 text-xs text-gray-700"
-              >
+              <span key={a.name} className="rounded bg-gray-100 px-2 py-1 text-xs text-gray-700">
                 {a.name}
               </span>
             ))}
             {property.amenities.length > 3 && (
-              <span className="text-xs text-gray-500">
-                +{property.amenities.length - 3} more
-              </span>
+              <span className="text-xs text-gray-500">+{property.amenities.length - 3} more</span>
             )}
           </div>
         )}
 
-        <div className="mt-auto"></div>
+        <div className="mt-auto" />
 
-        <div className="mt-4 flex items-center justify-between border-t border-gray-200 pt-4 text-sm text-gray-800 dark:border-gray-600 dark:text-gray-300">
-          {/* Left side: Stats */}
+        <div className="mt-4 flex items-center justify-between border-t border-gray-200 pt-4 text-sm text-gray-800">
           <div className="flex items-center space-x-4">
-            <div className="flex items-center gap-1.5 text-gray-800">
+            <div className="flex items-center gap-1.5">
               <Bed size={16} />
               <span>{property.bedrooms} Beds</span>
             </div>
-            <div className="flex items-center gap-1.5 text-gray-800">
+            <div className="flex items-center gap-1.5">
               <Bath size={16} />
               <span>{property.bathrooms} Baths</span>
             </div>
-            <div className="flex items-center gap-1.5 text-gray-800">
+            <div className="flex items-center gap-1.5">
               <Home size={16} />
               <span>{property.landSize} sqft</span>
             </div>
           </div>
-
-          {/* Right side: WhatsApp */}
-          <div>
-            <WhatsAppShareButton property={property} />
-          </div>
+          <WhatsAppShareButton property={property} />
         </div>
       </div>
     </Link>
@@ -90,20 +80,30 @@ const PropertyCard = ({ property }) => (
 export default function PropertyList({ initialProperties, searchParams }) {
   const [properties, setProperties] = useState(initialProperties);
   const [page, setPage] = useState(2);
-  const [hasMore, setHasMore] = useState(initialProperties.length > 0);
+  const [hasMore, setHasMore] = useState(initialProperties.length === 6);
   const [isLoading, setIsLoading] = useState(false);
   const { ref, inView } = useInView();
 
-  const loadMoreProperties = async () => {
-    setIsLoading(true);
-    const { properties: newProperties } = await fetchProperties({
-      page,
-      ...searchParams,
-    });
+  /* reset on filter change */
+  useEffect(() => {
+    setProperties(initialProperties);
+    setPage(2);
+    setHasMore(initialProperties.length === 6);
+  }, [searchParams, initialProperties]);
 
-    if (newProperties.length > 0) {
-      setProperties((prev) => [...prev, ...newProperties]);
-      setPage((prev) => prev + 1);
+  /* load more + de-duplicate */
+  const loadMoreProperties = async () => {
+    if (isLoading) return;
+    setIsLoading(true);
+    const { properties: newProperties } = await fetchProperties({ page, ...searchParams });
+
+    const existing = new Set(properties.map((p) => p.id));
+    const fresh = newProperties.filter((p) => !existing.has(p.id));
+
+    if (fresh.length) {
+      setProperties((prev) => [...prev, ...fresh]);
+      setPage((p) => p + 1);
+      setHasMore(fresh.length === 6);
     } else {
       setHasMore(false);
     }

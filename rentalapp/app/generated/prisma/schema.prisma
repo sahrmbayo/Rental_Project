@@ -50,11 +50,7 @@ model Property {
   bathrooms    Int
   electricity  Boolean     @default(false) // NEW
   virtualTours Json? // NEW
-  imageUrl     String?
-  imageUr2     String?
-  imageUr3     String?
-  imageUr4     String?
-  imageUr5     String?
+  images       Json? //[{url, publicId}, ...]
   isAvailable  Boolean     @default(true)
   postedAt     DateTime    @default(now())
   agentId      String

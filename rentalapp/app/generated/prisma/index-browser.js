@@ -154,11 +154,7 @@ exports.Prisma.PropertyScalarFieldEnum = {
   bathrooms: 'bathrooms',
   electricity: 'electricity',
   virtualTours: 'virtualTours',
-  imageUrl: 'imageUrl',
-  imageUr2: 'imageUr2',
-  imageUr3: 'imageUr3',
-  imageUr4: 'imageUr4',
-  imageUr5: 'imageUr5',
+  images: 'images',
   isAvailable: 'isAvailable',
   postedAt: 'postedAt',
   agentId: 'agentId'
