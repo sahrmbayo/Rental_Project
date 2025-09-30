@@ -58,7 +58,7 @@ export default async function SavedPage() {
                     className="absolute inset-0 z-10"
                   />
                   <Image
-                    src={property.imageUrl || 'https://placehold.co/800x600'}
+                    src={property.images?.[0]?.url || 'https://placehold.co/800x600'}
                     alt={property.title}
                     fill
                     className="object-cover transition duration-500 group-hover:scale-105"
