@@ -1,11 +1,7 @@
 import Link from 'next/link';
 import { XCircle, ArrowLeft, Home } from 'lucide-react';
 import Header from '../../components/header'; 
-import { PrismaClient } from '../../generated/prisma';
-
-
-
-const prisma = new PrismaClient();
+import { prisma } from '../../lib/prisma';
 
 export default async function CancelledPage({
   searchParams,

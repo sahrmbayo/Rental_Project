@@ -1,9 +1,8 @@
-import { PrismaClient } from '../../generated/prisma';
+import { prisma } from '../../lib/prisma';
 import { NextResponse } from 'next/server';
 import { clerkClient } from '@clerk/clerk-sdk-node';
 import { auth } from '@clerk/nextjs/server';
 
-const prisma = new PrismaClient();
 
 export async function POST(req: Request) {
   try {

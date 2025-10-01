@@ -1,11 +1,10 @@
 // app/dashboard/reserved-properties/actions.ts
 'use server';
 
-import { PrismaClient } from '../../generated/prisma';
 import { revalidatePath } from 'next/cache';
 import { auth } from '@clerk/nextjs/server';
 
-const prisma = new PrismaClient();
+import { prisma } from '../../lib/prisma';
 
 /* ---------------------------------------------------- */
 /* 1.  LIST  (scoped to current agent)                 */

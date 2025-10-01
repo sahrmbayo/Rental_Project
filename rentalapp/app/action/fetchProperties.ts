@@ -1,8 +1,6 @@
 "use server";
 
-import { PrismaClient } from "../generated/prisma";
-
-const prisma = new PrismaClient();
+import { prisma } from "../lib/prisma";
 const PAGE_SIZE = 6;
 
 export async function fetchProperties({

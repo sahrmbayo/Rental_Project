@@ -1,10 +1,10 @@
 // app/admin/AdminDashboard.tsx
-import { PrismaClient } from '../generated/prisma';
+import {prisma} from '../lib/prisma';
 import LatestProperties from './LatestProperties';
 import LatestAgents from './LatestAgent';
 import ReservedProperties from './ReservedCount';
 
-const prisma = new PrismaClient();
+
 
 async function getStats() {
   const [userRows, agents, properties, reservations] = await Promise.all([

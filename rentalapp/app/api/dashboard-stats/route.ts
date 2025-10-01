@@ -3,9 +3,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { clerkClient } from '@clerk/clerk-sdk-node';
-import { PrismaClient } from '../../generated/prisma';
-
-const prisma = new PrismaClient();
+import { prisma } from '../../lib/prisma';
 
 export const revalidate = 60; // Revalidate every 60 seconds
 export const dynamic = 'force-dynamic'; 

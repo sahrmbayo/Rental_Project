@@ -1,9 +1,9 @@
 'use server';
 import { auth } from '@clerk/nextjs/server';
-import { PrismaClient } from '../generated/prisma';
+
 import { revalidatePath } from 'next/cache';
 
-const prisma = new PrismaClient();
+import { prisma } from '../lib/prisma';
 
 export async function toggleFavorite(propertyId: string) {
   const { userId } = await auth();

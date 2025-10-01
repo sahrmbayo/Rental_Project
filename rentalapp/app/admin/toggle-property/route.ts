@@ -1,9 +1,8 @@
 // app/admin/toggle-property/route.ts
 import { NextResponse } from "next/server";
-import { PrismaClient } from "../../generated/prisma";
+import { prisma } from "../../lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 
-const prisma = new PrismaClient();
 const SUPER_ADMIN_ID = process.env.SBM;
 
 export async function POST(req: Request) {

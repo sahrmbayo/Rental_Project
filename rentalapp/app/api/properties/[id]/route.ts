@@ -1,7 +1,7 @@
 // app/api/properties/[id]/route.ts
 
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '../../../generated/prisma';
+import {prisma} from '../../../lib/prisma';
 
 import { v2 as cloudinary } from 'cloudinary';
 
@@ -11,7 +11,7 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const prisma = new PrismaClient();
+
 
 /* -------  GET  ------- */
 export async function GET(

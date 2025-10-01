@@ -1,7 +1,5 @@
 // app/admin/ReservedCount.tsx
-import { PrismaClient } from '../generated/prisma';
-
-const prisma = new PrismaClient();
+import { prisma } from '../lib/prisma';
 
 async function getReservedCount() {
   return prisma.order.count({ where: { status: 'completed' } });
