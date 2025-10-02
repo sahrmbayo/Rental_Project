@@ -8,10 +8,13 @@ import {
   SignUpButton,
   SignedIn,
   SignedOut,
-  UserButton
+  UserButton,
+  useUser
 } from "@clerk/nextjs";
 
 export default function Header() {
+  const {user} = useUser();
+  const role = user?.publicMetadata?.role as string | undefined;
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
@@ -27,7 +30,9 @@ export default function Header() {
         {/* Desktop Navigation */}
         <nav className="hidden items-center justify-center space-x-6 text-sm text-gray-700 md:flex">
           <Link href="/properties" className="hover:text-blue-600">Browse Properties</Link>
-          <Link href="#" className="hover:text-blue-600">For Agents</Link>
+          {role === 'admin' ? (
+            <Link href="/Dashboard" className="hover:text-blue-600">For Agents</Link>
+          ) : null}
           <Link href="#" className="hover:text-blue-600">Cities</Link>
           <Link href="#" className="hover:text-blue-600">Contact</Link>
           <Link href="/saved" className="flex items-center space-x-1 hover:text-blue-600">
@@ -78,7 +83,10 @@ export default function Header() {
           {/* Navigation Links */}
           <nav className="flex flex-col space-y-4 text-lg text-gray-700">
             <Link href="/properties" onClick={() => setIsMenuOpen(false)}>Browse Properties</Link>
-            <Link href="#" onClick={() => setIsMenuOpen(false)}>For Agents</Link>
+            {role === 'admin' ? (
+              <Link href="/Dashboard" onClick={() => setIsMenuOpen(false)}>For Agents</Link>
+            ) : null}
+            <Link href="#" onClick={() => setIsMenuOpen(false)}>Cities</Link>
             <Link href="#" onClick={() => setIsMenuOpen(false)}>Contact</Link>
             <Link href="/saved" className="flex items-center space-x-2" onClick={() => setIsMenuOpen(false)}>
               <Heart className="h-5 w-5" />

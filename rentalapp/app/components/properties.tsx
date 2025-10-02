@@ -1,48 +1,41 @@
-import { PrismaClient, Prisma } from '../generated/prisma';
+// app/Dashboard/properties/page.tsx
+import { prisma } from '../lib/prisma';
+import { Prisma } from '../generated/prisma';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Edit, PlusCircle } from 'lucide-react';
 import { DeletePropertyButton } from '../components/DeletePropertyButton';
 import DashboardLayout from '../Dashboard/DashboardLayout';
 import { SearchInput } from '../components/SearchInput';
+import { auth } from '@clerk/nextjs/server';
 
-// --- Data Fetching (Server-Side) ---
-const prisma = new PrismaClient();
+async function getProperties(agentId: string, searchTerm?: string) {
+  const whereClause: Prisma.PropertyWhereInput = {
+    agentId,
+    ...(searchTerm && {
+      OR: [
+        { title: { contains: searchTerm, mode: 'insensitive' } },
+        { address: { contains: searchTerm, mode: 'insensitive' } },
+      ],
+    }),
+  };
 
-async function getProperties(searchTerm?: string) {
-  const whereClause: Prisma.PropertyWhereInput = searchTerm
-    ? {
-        OR: [
-          {
-            title: {
-              contains: searchTerm,
-              mode: 'insensitive',
-            },
-          },
-          {
-            address: {
-              contains: searchTerm,
-              mode: 'insensitive',
-            },
-          },
-        ],
-      }
-    : {};
-
-  return await prisma.property.findMany({
+  return prisma.property.findMany({
     where: whereClause,
     orderBy: { postedAt: 'desc' },
   });
 }
 
-// --- Main Page Component (Server Component) ---
 export default async function PropertiesListPage({
   searchParams,
 }: {
   searchParams?: { search?: string };
 }) {
+  const { userId } = await auth();
+  if (!userId) throw new Error('Unauthenticated');
+
   const searchTerm = searchParams?.search ?? '';
-  const properties = await getProperties(searchTerm);
+  const properties = await getProperties(userId, searchTerm);
 
   return (
     <DashboardLayout
@@ -52,7 +45,10 @@ export default async function PropertiesListPage({
     >
       <div className="mb-6 flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
         <SearchInput placeholder="Search by title or address..." />
-        <Link href="/Dashboard/add-property" className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-blue-700">
+        <Link
+          href="/Dashboard/add-property"
+          className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-blue-700"
+        >
           <PlusCircle size={18} />
           Add Property
         </Link>
@@ -65,10 +61,18 @@ export default async function PropertiesListPage({
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">Property</th>
-                    <th scope="col" className="hidden px-3 py-3.5 text-left text-sm font-semibold text-gray-900 lg:table-cell">Status</th>
-                    <th scope="col" className="hidden px-3 py-3.5 text-left text-sm font-semibold text-gray-900 sm:table-cell">Price</th>
-                    <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-6"><span className="sr-only">Actions</span></th>
+                    <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">
+                      Property
+                    </th>
+                    <th scope="col" className="hidden px-3 py-3.5 text-left text-sm font-semibold text-gray-900 lg:table-cell">
+                      Status
+                    </th>
+                    <th scope="col" className="hidden px-3 py-3.5 text-left text-sm font-semibold text-gray-900 sm:table-cell">
+                      Price
+                    </th>
+                    <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-6">
+                      <span className="sr-only">Actions</span>
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 bg-white">
@@ -82,6 +86,7 @@ export default async function PropertiesListPage({
                                 className="h-10 w-10 rounded-md object-cover"
                                 src={prop.images?.[0]?.url || 'https://placehold.co/40x40/E0E7FF/4F46E5?text=Img'}
                                 alt="Image"
+                                unoptimized
                                 width={40}
                                 height={40}
                               />
@@ -97,7 +102,9 @@ export default async function PropertiesListPage({
                             Active
                           </span>
                         </td>
-                        <td className="hidden whitespace-nowrap px-3 py-4 text-sm text-gray-500 sm:table-cell">${Number(prop.price).toLocaleString()}</td>
+                        <td className="hidden whitespace-nowrap px-3 py-4 text-sm text-gray-500 sm:table-cell">
+                          ${Number(prop.price).toLocaleString()}
+                        </td>
                         <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
                           <div className="flex items-center justify-end gap-4">
                             <Link href={`/Dashboard/properties/${prop.id}/edit`} className="text-blue-600 hover:text-blue-800" title="Edit Property">

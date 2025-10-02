@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import DashboardLayout from './DashboardLayout'; // Your layout component
 import { Database, TrendingUp, Users, PlusCircle, House  } from 'lucide-react';
 import Link from 'next/link';
+import { PhoneModal } from './phoneMedal';
+import { useUser } from '@clerk/nextjs';
 
 
 // --- Reusable Stat Card Component ---
@@ -37,6 +39,8 @@ const StatCard = ({ icon: Icon, title, value, subtitle, isLoading }) => {
 export default function DashboardPage() {
   const [stats, setStats] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const { user, isLoaded } = useUser();
+  const [needsPhone, setNeedsPhone] = useState(false);
   
 
   useEffect(() => {
@@ -60,12 +64,26 @@ export default function DashboardPage() {
 
     fetchDashboardStats();
   }, []); 
+
+  /* one-time phone check (after Clerk loads) */
+    useEffect(() => {
+      if (!isLoaded || !user) return;
+      (async () => {
+        const res = await fetch(`/api/agent-phone?agentId=${user.id}`);
+        const { phone } = await res.json();
+        setNeedsPhone(!phone);
+      })();
+    }, [isLoaded, user]);
+
+    if (!isLoaded) return null; // or a loading spinner
+
   return (
     <DashboardLayout
       currentPage="dashboard"
       headerTitle="Dashboard"
       headerSubtitle={`Here's what's happening with your properties today. ${stats?.agentName}`}
     >
+      {needsPhone && <PhoneModal agentId={user.id} />}
 
       {/* Action Buttons */}
           <div className="mb-8 flex flex-wrap gap-4">

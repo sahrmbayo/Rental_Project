@@ -13,7 +13,8 @@ export async function POST(req: Request) {
     const agentId = user.id;
     const agentName = user.fullName || user.firstName || '';
     const agentEmail = user.emailAddresses[0]?.emailAddress || '';
-    const agentPhone = user.phoneNumbers[0]?.phoneNumber || '';
+    
+    
 
     const body = await req.json();
 
@@ -24,12 +25,12 @@ export async function POST(req: Request) {
         id: agentId,
         name: agentName,
         email: agentEmail,
-        phone: agentPhone,
+        phone: (await prisma.agent.findUnique({ where: { id: agentId }, select: { phone: true } }))?.phone ?? null,
       },
     });
 
     const property = await prisma.property.create({
-  data: {
+    data: {
     title: body.title,
     description: body.description || '',
     price: Number(body.price),
