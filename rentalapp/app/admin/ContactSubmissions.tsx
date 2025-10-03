@@ -35,19 +35,19 @@ export default function ContactSubmissions() {
   };
 
   const updateStatus = async (id: number, newStatus: string) => {
-    try {
-      await fetch(`/api/contact/submissions/${id}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ status: newStatus }),
-      });
-      fetchSubmissions(); // Refresh the list
-    } catch (error) {
-      console.error('Error updating status:', error);
-    }
-  };
+  try {
+    await fetch(`/api/contact/submissions/${id}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ status: newStatus }),
+    });
+    fetchSubmissions(); // Refresh the list
+  } catch (error) {
+    console.error('Error updating status:', error);
+  }
+};
 
   const getReasonColor = (reason: string) => {
     switch (reason) {

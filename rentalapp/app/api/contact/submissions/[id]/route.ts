@@ -1,13 +1,12 @@
-// app/api/contact/submissions/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '../../../../lib/prisma';
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const { status } = await request.json();
 
     if (!['new', 'in-progress', 'resolved'].includes(status)) {
