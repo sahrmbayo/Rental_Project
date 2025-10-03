@@ -34,7 +34,7 @@ export default function Header() {
             <Link href="/Dashboard" className="hover:text-blue-600">For Agents</Link>
           ) : null}
           <Link href="#" className="hover:text-blue-600">Cities</Link>
-          <Link href="#" className="hover:text-blue-600">Contact</Link>
+          <Link href="/contact" className="hover:text-blue-600">Contact</Link>
           <Link href="/saved" className="flex items-center space-x-1 hover:text-blue-600">
             <Heart className="h-4 w-4" />
             <span>Saved</span>
@@ -87,7 +87,7 @@ export default function Header() {
               <Link href="/Dashboard" onClick={() => setIsMenuOpen(false)}>For Agents</Link>
             ) : null}
             <Link href="#" onClick={() => setIsMenuOpen(false)}>Cities</Link>
-            <Link href="#" onClick={() => setIsMenuOpen(false)}>Contact</Link>
+            <Link href="/contact" onClick={() => setIsMenuOpen(false)}>Contact</Link>
             <Link href="/saved" className="flex items-center space-x-2" onClick={() => setIsMenuOpen(false)}>
               <Heart className="h-5 w-5" />
               <span>Saved</span>

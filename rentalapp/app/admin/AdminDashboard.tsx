@@ -3,8 +3,7 @@ import {prisma} from '../lib/prisma';
 import LatestProperties from './LatestProperties';
 import LatestAgents from './LatestAgent';
 import ReservedProperties from './ReservedCount';
-
-
+import ContactSubmissions from './ContactSubmissions';
 
 async function getStats() {
   const [userRows, agents, properties, reservations] = await Promise.all([
@@ -35,9 +34,20 @@ async function getLatestProperties() {
   });
 }
 
+async function getContactStats() {
+  const [totalContacts, newContacts] = await Promise.all([
+    prisma.contactSubmission.count(),
+    prisma.contactSubmission.count({
+      where: { status: 'new' }
+    })
+  ]);
+  return { totalContacts, newContacts };
+}
+
 export default async function AdminDashboard() {
   const stats = await getStats();
   const latestProps = await getLatestProperties();
+  const contactStats = await getContactStats();
 
   return (
     <main className="min-h-screen bg-gray-50 p-4 md:p-8">
@@ -53,6 +63,14 @@ export default async function AdminDashboard() {
           <KPI label="Total Agents" value={stats.agents} />
           <KPI label="Total Properties" value={stats.properties} />
           <KPI label="Total Reservations" value={stats.reservations} />
+        </div>
+
+        {/* Contact Stats KPI */}
+        <div className="mt-4 grid grid-cols-2 gap-4 md:grid-cols-4">
+          <KPI label="Contact Messages" value={contactStats.totalContacts} />
+          <KPI label="New Messages" value={contactStats.newContacts} highlight={contactStats.newContacts > 0} />
+          <div></div>
+          <div></div>
         </div>
 
         {/* widgets */}
@@ -78,16 +96,21 @@ export default async function AdminDashboard() {
             <ReservedProperties />
           </div>
         </div>
+
+        {/* Contact Submissions Section */}
+        <div className="mt-8">
+          <ContactSubmissions />
+        </div>
       </div>
     </main>
   );
 }
 
-function KPI({ label, value }: { label: string; value: number }) {
+function KPI({ label, value, highlight = false }: { label: string; value: number; highlight?: boolean }) {
   return (
-    <div className="rounded-xl border bg-white px-6 py-4 shadow-sm">
-      <p className="text-sm text-gray-500">{label}</p>
-      <p className="mt-2 text-3xl font-bold text-gray-900">
+    <div className={`rounded-xl border px-6 py-4 shadow-sm ${highlight ? 'bg-red-50 border-red-200' : 'bg-white'}`}>
+      <p className={`text-sm ${highlight ? 'text-red-600' : 'text-gray-500'}`}>{label}</p>
+      <p className={`mt-2 text-3xl font-bold ${highlight ? 'text-red-700' : 'text-gray-900'}`}>
         {value.toLocaleString()}
       </p>
     </div>

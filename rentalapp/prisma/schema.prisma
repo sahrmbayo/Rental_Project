@@ -83,3 +83,16 @@ model Favourite {
 
   @@unique([userId, propertyId])
 }
+
+
+model ContactSubmission {
+  id            Int      @id @default(autoincrement())
+  customerName  String
+  customerEmail String
+  customerPhone String?
+  reasonType    String   // "issue", "question", "feedback"
+  message       String   @db.Text
+  status        String   @default("new") // "new", "in-progress", "resolved"
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}

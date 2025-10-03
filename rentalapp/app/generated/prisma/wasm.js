@@ -172,6 +172,18 @@ exports.Prisma.FavouriteScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.ContactSubmissionScalarFieldEnum = {
+  id: 'id',
+  customerName: 'customerName',
+  customerEmail: 'customerEmail',
+  customerPhone: 'customerPhone',
+  reasonType: 'reasonType',
+  message: 'message',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -204,7 +216,8 @@ exports.Prisma.ModelName = {
   Agent: 'Agent',
   Property: 'Property',
   Amenity: 'Amenity',
-  Favourite: 'Favourite'
+  Favourite: 'Favourite',
+  ContactSubmission: 'ContactSubmission'
 };
 
 /**
