@@ -15,6 +15,7 @@ import {
 export default function Header() {
   const {user} = useUser();
   const role = user?.publicMetadata?.role as string | undefined;
+  
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
@@ -30,11 +31,12 @@ export default function Header() {
         {/* Desktop Navigation */}
         <nav className="hidden items-center justify-center space-x-6 text-sm text-gray-700 md:flex">
           <Link href="/properties" className="hover:text-blue-600">Browse Properties</Link>
+          
           {role === 'admin' ? (
             <Link href="/Dashboard" className="hover:text-blue-600">For Agents</Link>
           ) : null}
           <Link href="#" className="hover:text-blue-600">Cities</Link>
-          <Link href="/contact" className="hover:text-blue-600">Contact</Link>
+          <Link href="/contact" className="hover:text-blue-600">Contact Us</Link>
           <Link href="/saved" className="flex items-center space-x-1 hover:text-blue-600">
             <Heart className="h-4 w-4" />
             <span>Saved</span>

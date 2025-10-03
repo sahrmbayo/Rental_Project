@@ -1,6 +1,6 @@
 // app/admin/toggle-property/route.ts
 import { NextResponse } from "next/server";
-import { prisma } from "../../lib/prisma";
+import { prisma } from "../../../lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 
 const SUPER_ADMIN_ID = process.env.SBM;

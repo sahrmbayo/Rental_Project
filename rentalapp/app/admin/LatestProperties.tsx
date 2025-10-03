@@ -15,7 +15,7 @@ export default function LatestProperties({ initialProps }: { initialProps: Prope
 
   async function toggleAvailability(id: string) {
     try {
-      const res = await fetch("/admin/toggle-property", {
+      const res = await fetch("/api/admin/toggle-property", {
         method: "POST",
         body: JSON.stringify({ id }),
         headers: { "Content-Type": "application/json" },

@@ -3,10 +3,21 @@ import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 import { clerkClient } from '@clerk/clerk-sdk-node';
 import { NextResponse } from 'next/server';
 
+const SUPER_ADMIN_ID = process.env.SBM; // Your Clerk user ID
 
-
-// Define which routes are public and which are for the Dashboard
-const isPublicRoute = createRouteMatcher(['/', '/sign-in(.*)', '/sign‑up(.*)','/properties(.*)','/api/total-props','/api/create-checkout','/api/properties','/checkout(.*)']);
+// Define route patterns
+const isPublicRoute = createRouteMatcher([
+  '/', 
+  '/sign-in(.*)', 
+  '/sign-up(.*)',
+  '/properties(.*)',
+  '/api/total-props',
+  '/api/create-checkout',
+  '/api/properties',
+  '/checkout(.*)',
+  '/contact(.*)',
+  '/api/contact(.*)'
+]);
 
 const isDashboardRoute = createRouteMatcher([
   '/Dashboard(.*)',
@@ -14,36 +25,45 @@ const isDashboardRoute = createRouteMatcher([
   '/api/properties/(.*)',
   '/api/agent(.*)',
   '/api/dashboard-stats',
-  '/api/upload',
+  '/api/upload'
 ]);
+
+const isSuperAdminRoute = createRouteMatcher([
+  '/admin(.*)', // Super admin only
+  '/api/admin(.*)' // Super admin API only
+]);
+
 export default clerkMiddleware(async (auth, req) => {
   const { userId } = await auth();
 
-
-  // 1️⃣ Redirect unauthenticated users away from protected routes
+  // 1️⃣ Redirect unauthenticated users
   if (!userId && !isPublicRoute(req)) {
     const sessionAuth = await auth();
     return sessionAuth.redirectToSignIn();
   }
 
-  // 2️⃣ Handle after-login role logic
-  if (userId) {
-    const user = await clerkClient.users.getUser(userId);
-    const role = user.publicMetadata.role as string | undefined;
-
-    // Admins → Dashboard
-    if (role !== 'admin' && isDashboardRoute(req)) {
+  // 2️⃣ Handle super admin routes (only for you)
+  if (userId && isSuperAdminRoute(req)) {
+    if (userId !== SUPER_ADMIN_ID) {
       return NextResponse.redirect(new URL('/', req.url));
     }
-
+    // You're the super admin, allow access
+    return NextResponse.next();
   }
-  
 
+  // 3️⃣ Handle regular admin dashboard
+  if (userId && isDashboardRoute(req)) {
+    const user = await clerkClient.users.getUser(userId);
+    const role = user.publicMetadata.role as string | undefined;
+    
+    if (role !== 'admin') {
+      return NextResponse.redirect(new URL('/', req.url));
+    }
+  }
 
-  // 3️⃣ Otherwise, allow the request to proceed
+  // 4️⃣ Otherwise, allow the request
   return NextResponse.next();
-}
-);
+});
 
 export const config = {
   matcher: [
