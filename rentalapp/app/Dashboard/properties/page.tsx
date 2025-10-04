@@ -1,12 +1,17 @@
 import { Suspense } from 'react';
 import PropertiesListPage from '../../components/properties';
+import Spinner from '../../components/Spinner';
 
 // A skeleton component for a better loading experience
 function PropertiesLoadingSkeleton() {
   // You can customize this with a more detailed UI skeleton if you like
   return (
-    <div className="text-center p-8 text-gray-500">
+    <div className="flex items-center justify-center flex-col p-8 text-gray-700 text-lg w-full min-h-screen bg-gray-50 rounded-lg">
       <p>Loading properties...</p>
+      <div className='mt-4 w-50 h-50 bg-blend-darkening animate-spin m-auto'>
+        <Spinner size="lg" />
+      </div>
+      
     </div>
   );
 }
@@ -18,7 +23,7 @@ export default function PropertiesPage({
   searchParams?: { search?: string };
 }) {
   return (
-    <div className="container mx-auto p-4">
+    <div>
       {/* Suspense provides a fallback while the async component loads */}
       <Suspense fallback={<PropertiesLoadingSkeleton />}>
         {/* We pass the searchParams down to the component that uses them */}

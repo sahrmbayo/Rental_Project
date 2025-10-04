@@ -255,15 +255,15 @@ export default function PropertyFormPage({ initialData }: PropertyFormProps) {
                       onClick={() => setValue('bedrooms', Math.max(0, Number(watch('bedrooms')) - 1))}
                       className="rounded-full bg-gray-200 p-2 hover:bg-gray-300"
                     >
-                      <Minus className="h-4 w-4" />
+                      <Minus className="h-4 w-4 text-gray-700" />
                     </button>
-                    <span className="w-12 text-center font-semibold text-lg">{watch('bedrooms')}</span>
+                    <span className="w-12 text-center font-semibold text-lg text-gray-700">{watch('bedrooms')}</span>
                     <button
                       type="button"
                       onClick={() => setValue('bedrooms', Number(watch('bedrooms')) + 1)}
                       className="rounded-full bg-gray-200 p-2 hover:bg-gray-300"
                     >
-                      <Plus className="h-4 w-4" />
+                      <Plus className="h-4 w-4 text-gray-700" />
                     </button>
                   </div>
                   {errors.bedrooms && <p className="mt-1 text-sm text-red-600">{errors.bedrooms.message}</p>}

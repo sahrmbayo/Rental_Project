@@ -1,7 +1,11 @@
+'use client';
 import { Building2, Facebook, Instagram, Twitter } from 'lucide-react';
 import Link from 'next/link';
+import {useUser} from "@clerk/nextjs";
 
 export default function Footer() {
+  const { user } = useUser();
+  const role = user?.publicMetadata.role as string | undefined;
   return (
     <footer className="bg-gray-800 text-gray-300">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
@@ -22,9 +26,14 @@ export default function Footer() {
             <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-400">Quick Links</h3>
             <ul className="mt-4 space-y-2">
               <li><Link href="/properties" className="hover:text-white">Browse Properties</Link></li>
-              <li><Link href="/Dashboard" className="hover:text-white">For Agents</Link></li>
+              {role === 'admin' ? (
+                <li><Link href="/admin" className="hover:text-white">For Agents</Link></li>
+              ) : null}
               <li><Link href="#" className="hover:text-white">About Us</Link></li>
-              <li><Link href="/contact" className="hover:text-white">Contact Us</Link></li>
+              {role !== 'admin' ? (
+                <li><Link href="/contact" className="hover:text-white">Contact Us</Link></li>
+              ) : null}
+              
             </ul>
           </div>
 

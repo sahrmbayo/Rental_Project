@@ -42,7 +42,7 @@ export default async function SuccessPage({
   /* --- Send emails --- */
   await Promise.all([
     resend.emails.send({
-      from: 'RentalApp <onboarding@resend.dev>',
+      from: 'Salon Rent <salonerent.com>',
       to: order.email,
       subject: `Payment confirmed – ${property.title}`,
       html: `
@@ -57,7 +57,7 @@ export default async function SuccessPage({
       `,
     }),
     resend.emails.send({
-      from: 'RentalApp <onboarding@resend.dev>',
+      from: 'Salon Rent <salonerent.com>',
       to: property.agent.email,
       subject: `New payment – ${property.title}`,
       html: `

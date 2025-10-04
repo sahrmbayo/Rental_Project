@@ -2,7 +2,7 @@
 export default function Spinner({ size = 'h-5 w-5' }: { size?: string }) {
   return (
     <svg
-      className={`animate-spin text-white ${size}`}
+      className={`animate-spin  text-blue-400 from-15% to-100% ${size}`}
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
       viewBox="0 0 24 24"
