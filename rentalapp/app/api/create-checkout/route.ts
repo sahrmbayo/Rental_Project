@@ -1,7 +1,10 @@
+
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../lib/prisma'
 import { randomUUID } from 'crypto'
 import { clerkClient} from '@clerk/clerk-sdk-node'
+
+import { headers } from 'next/headers'
 import { auth } from '@clerk/nextjs/server'
 
 
@@ -30,11 +33,14 @@ export async function POST(req: NextRequest) {
         status: 'pending',
       },
     })
-
+  
     const createdOrder = (await created).id
 
     // 2. Build safe, absolute redirect URLs
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL!
+     const headersList = headers();
+    const protocol = (await headersList).get("x-forwarded-proto") || "http";
+    const host = (await headersList).get("host");
+    const appUrl = `${protocol}://${host}`;
     const successUrl = `${appUrl}/checkout?orderId=${encodeURIComponent(orderId)}&co=${createdOrder}`
     const cancelUrl  = `${appUrl}/checkout/cancelled?orderId=${encodeURIComponent(orderId)}&co=${createdOrder}`
 

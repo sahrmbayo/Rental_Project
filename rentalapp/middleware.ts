@@ -13,10 +13,11 @@ const isPublicRoute = createRouteMatcher([
   '/properties',
   '/api/total-props',
   '/api/create-checkout',
-  '/api/properties',
+  '/api/properties(.*)',
   '/checkout(.*)',
   '/contact(.*)',
-  '/api/contact(.*)'
+  '/api/contact(.*)',
+  '/checkout(.*)',
 ]);
 
 const isDashboardRoute = createRouteMatcher([
@@ -38,8 +39,8 @@ export default clerkMiddleware(async (auth, req) => {
 
   // 1️⃣ Redirect unauthenticated users
   if (!userId && !isPublicRoute(req)) {
-    const sessionAuth = await auth();
-    return sessionAuth.redirectToSignIn();
+    
+    return NextResponse.redirect(new URL('/sign-in', req.url));
   }
 
   // 2️⃣ Handle super admin routes (only for you)
