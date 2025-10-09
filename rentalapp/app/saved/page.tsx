@@ -6,6 +6,13 @@ import Link from 'next/link';
 import { Heart, MapPin, ArrowLeft, Bed, Bath, Square } from 'lucide-react';
 import { getSavedProperties } from '../action/favourite';
 import RemoveButton from '../components/RemoveButton';
+import { Metadata } from 'next';
+import BackToHomeButton from '../components/BackToHomeButton';
+
+export const metadata: Metadata = {
+  title: 'Saved Properties | Salone Rent',
+  description: 'View your saved properties and manage your favorites.',
+};
 
 export default async function SavedPage() {
   const { userId } = await auth();
@@ -16,25 +23,34 @@ export default async function SavedPage() {
   return (
     <main className="bg-neutral-50 text-neutral-800">
       {/* ---- top bar ---- */}
-      <header className="border-b border-neutral-200 bg-white/80 backdrop-blur">
-        <div className="mx-auto max-w-6xl px-6 py-5">
-          <Link
-            href="/properties"
-            className="inline-flex items-center gap-2 text-sm text-neutral-500 transition hover:text-indigo-600 font-medium"
-          >
-            <ArrowLeft size={14} />
-            Back to properties
-          </Link>
-          <h1 className="mt-3 text-2xl font-semibold tracking-tight text-neutral-900">
-            Saved properties
-          </h1>
-          <p className="mt-1 text-sm text-neutral-500">
-            {favorites.length === 0
-              ? 'Start heart-ing places you love.'
-              : `${favorites.length} propert${favorites.length === 1 ? 'y' : 'ies'}`}
-          </p>
-        </div>
-      </header>
+      <header className="sticky top-0 z-20 border-b border-neutral-200/70 bg-white/80 backdrop-blur-lg">
+  <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between">
+      {/* Left: back button */}
+      <div>
+      <BackToHomeButton variant="properties" />
+      </div>
+
+      {/* Center: page title (always visible) */}
+      <h1 className="order-first sm:order-none text-xl font-semibold tracking-tight text-neutral-900 sm:text-2xl">
+        Saved properties
+      </h1>
+
+      {/* Right: counter OR mobile-only empty CTA */}
+      <p className="text-sm text-neutral-600 sm:hidden text-center">
+        {favorites.length === 0
+          ? "Start heart-ing places you love"
+          : `${favorites.length} propert${favorites.length === 1 ? "y" : "ies"}`}
+      </p>
+
+      {/* Desktop-only counter (never shows “start heart-ing”) */}
+      <p className="hidden text-sm text-neutral-600 sm:block">
+        {favorites.length} propert{favorites.length === 1 ? "y" : "ies"}
+      </p>
+    </div>
+  </div>
+</header>
+
 
       {/* ---- content ---- */}
       <section className="mx-auto max-w-6xl px-6 py-10 min-h-screen">

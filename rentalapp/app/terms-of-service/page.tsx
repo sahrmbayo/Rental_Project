@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Header from '../components/header';
+import BackToHomeButton from '../components/BackToHomeButton';
 
 export const metadata: Metadata = {
   title: 'Terms of Service | Salone Rent',
@@ -174,7 +175,7 @@ export default function TermsOfServicePage() {
               </>
             }
           />
-
+            <BackToHomeButton />
           <div className="mt-12 h-px w-full bg-gradient-to-r from-indigo-500/0 via-slate-200 to-indigo-500/0" />
           <p className="mt-6 text-center text-sm text-slate-500">
             © {new Date().getFullYear()} Salone Rent. All rights reserved.

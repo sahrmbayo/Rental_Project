@@ -35,7 +35,7 @@ export default function Header() {
           {role === 'admin' ? (
             <Link href="/Dashboard" className="hover:text-blue-600">For Agents</Link>
           ) : null}
-          <Link href="#" className="hover:text-blue-600">Cities</Link>
+          <Link href="/about" className="hover:text-blue-600">About Us</Link>
           {role !== 'admin' ? (
             <Link href="/contact" className="hover:text-blue-600">Contact Us</Link>
           ) : null}
@@ -91,10 +91,10 @@ export default function Header() {
             {role === 'admin' ? (
               <Link href="/Dashboard" onClick={() => setIsMenuOpen(false)}>For Agents</Link>
             ) : null}
-            <Link href="#" onClick={() => setIsMenuOpen(false)}>Cities</Link>
+            <Link href="/about" onClick={() => setIsMenuOpen(false)}>About Us</Link>
             <Link href="/contact" onClick={() => setIsMenuOpen(false)}>Contact</Link>
             <Link href="/saved" className="flex items-center space-x-2" onClick={() => setIsMenuOpen(false)}>
-              <Heart className="h-5 w-5" />
+              <Heart className="h-5 w-5 outline-red-700" />
               <span>Saved</span>
             </Link>
           </nav>

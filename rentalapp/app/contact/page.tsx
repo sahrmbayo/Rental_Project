@@ -7,6 +7,13 @@ import {
   ChatBubbleLeftRightIcon 
 } from '@heroicons/react/24/outline';
 import Header from '../components/header';
+import { Metadata } from 'next';
+import BackToHomeButton from '../components/BackToHomeButton';
+
+export const metadata: Metadata = {
+  title: 'Contact Us | Salone Rent',
+  description: 'Get in touch with us for any inquiries or support.',
+};
 
 export default function ContactPage() {
   return (
@@ -186,6 +193,7 @@ export default function ContactPage() {
                   visitors. Please call ahead to schedule an appointment.
                 </p>
               </div>
+              <BackToHomeButton />
             </div>
           </div>
         </div>

@@ -29,7 +29,7 @@ export default function Footer() {
               {role === 'admin' ? (
                 <li><Link href="/admin" className="hover:text-white">For Agents</Link></li>
               ) : null}
-              <li><Link href="#" className="hover:text-white">About Us</Link></li>
+              <li><Link href="/about" className="hover:text-white">About Us</Link></li>
               {role !== 'admin' ? (
                 <li><Link href="/contact" className="hover:text-white">Contact Us</Link></li>
               ) : null}
