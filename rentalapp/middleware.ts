@@ -17,7 +17,7 @@ const isPublicRoute = createRouteMatcher([
   '/checkout(.*)',
   '/contact(.*)',
   '/api/contact(.*)',
-  '/checkout(.*)',
+  '/checkout/cancelled(.*)',
 ]);
 
 const isDashboardRoute = createRouteMatcher([
@@ -36,6 +36,10 @@ const isSuperAdminRoute = createRouteMatcher([
 
 export default clerkMiddleware(async (auth, req) => {
   const { userId } = await auth();
+
+  if (isPublicRoute(req)) {
+    return NextResponse.next();
+  }
 
   // 1️⃣ Redirect unauthenticated users
   if (!userId && !isPublicRoute(req)) {

@@ -41,8 +41,8 @@ export async function POST(req: NextRequest) {
     const protocol = (await headersList).get("x-forwarded-proto") || "http";
     const host = (await headersList).get("host");
     const appUrl = `${protocol}://${host}`;
-    const successUrl = `${appUrl}/checkout?orderId=${encodeURIComponent(orderId)}&co=${createdOrder}`
-    const cancelUrl  = `${appUrl}/checkout/cancelled?orderId=${encodeURIComponent(orderId)}&co=${createdOrder}`
+    const successUrl = `${appUrl}/api/payment/return?status=success&orderId=${encodeURIComponent(orderId)}&co=${createdOrder}`;
+    const cancelUrl  = `${appUrl}/api/payment/return?status=cancel&orderId=${encodeURIComponent(orderId)}&co=${createdOrder}`;
 
     // 3. Create Monime Checkout Session
     const res = await fetch('https://api.monime.io/v1/checkout-sessions', {
@@ -58,8 +58,11 @@ export async function POST(req: NextRequest) {
         successUrl,
         cancelUrl,
         lineItems,
-        metadata,
-        callbackState,
+        metadata: {
+          propertyId: orderId,
+          orderDbId: createdOrder,
+        },
+        callbackState
       }),
     })
 
