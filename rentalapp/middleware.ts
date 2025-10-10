@@ -13,6 +13,7 @@ const isPublicRoute = createRouteMatcher([
   '/properties',
   '/api/total-props',
   '/api/create-checkout',
+  '/api/payment(.*)',
   '/api/properties(.*)',
   '/checkout(.*)',
   '/contact(.*)',
