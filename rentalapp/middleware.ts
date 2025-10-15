@@ -19,6 +19,11 @@ const isPublicRoute = createRouteMatcher([
   '/contact(.*)',
   '/api/contact(.*)',
   '/checkout/cancelled(.*)',
+  '/apply-as-agent(.*)',
+  '/api/agent-applications(.*)',
+  '/about(.*)',
+  '/terms-of-service(.*)',
+  '/privacy-policy(.*)',
 ]);
 
 const isDashboardRoute = createRouteMatcher([
@@ -32,7 +37,8 @@ const isDashboardRoute = createRouteMatcher([
 
 const isSuperAdminRoute = createRouteMatcher([
   '/admin(.*)', // Super admin only
-  '/api/admin(.*)' // Super admin API only
+  '/api/admin(.*)', // Super admin API only
+   '/api/agent-applications/status' 
 ]);
 
 export default clerkMiddleware(async (auth, req) => {

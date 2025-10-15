@@ -4,19 +4,23 @@ import LatestProperties from './LatestProperties';
 import LatestAgents from './LatestAgent';
 import ReservedProperties from './ReservedCount';
 import ContactSubmissions from './ContactSubmissions';
+import AgentApplicationsWidget from './AgentApplication';
+
 
 async function getStats() {
-  const [userRows, agents, properties, reservations] = await Promise.all([
+  const [userRows, agents, properties, reservations, agentApps] = await Promise.all([
     prisma.favourite.groupBy({ by: ['userId'] }), // distinct userIds
     prisma.agent.count(),
     prisma.property.count(),
     prisma.order.count(),
+    prisma.agentApplication.count(),
   ]);
   return {
     users: userRows.length,
     agents,
     properties,
     reservations,
+    agentApps,
   };
 }
 
@@ -69,12 +73,13 @@ export default async function AdminDashboard() {
         <div className="mt-4 grid grid-cols-2 gap-4 md:grid-cols-4">
           <KPI label="Contact Messages" value={contactStats.totalContacts} />
           <KPI label="New Messages" value={contactStats.newContacts} highlight={contactStats.newContacts > 0} />
+            <KPI label="Agent Apps" value={stats.agentApps} />
           <div></div>
           <div></div>
         </div>
 
         {/* widgets */}
-        <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-4">
           <div className="rounded-xl border bg-white p-6 shadow-sm">
             <h2 className="mb-4 text-lg font-semibold text-gray-800">
               Latest Properties
@@ -94,6 +99,11 @@ export default async function AdminDashboard() {
               Reserved Properties
             </h2>
             <ReservedProperties />
+          </div>
+          <div className="rounded-xl border bg-white p-6 shadow-sm">
+            <h2 className="mb-4 text-lg font-semibold text-gray-800">Agent Applications</h2>
+            {/* table comes next */}
+            <AgentApplicationsWidget />
           </div>
         </div>
 

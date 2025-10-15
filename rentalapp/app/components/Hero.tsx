@@ -104,13 +104,13 @@ export default function Hero() {
   return (
     <section className="dark:bg-gray-900 bg-gradient-to-b from-blue-500 to-blue-50 pt-20 pb-20 text-center">
       <div className="container mx-auto max-w-4xl px-4">
-        <h1 className="text-4xl font-bold text-white md:text-5xl mb-4">
-          Home In Sierra Leone
+        <h1 className="text-4xl font-bold text-white md:text-5xl mb-4 ">
+          Find Your Home in Sierra Leone
         </h1>
         <p className="text-base text-white/90 md:text-lg">
-          Browse rental properties across Sierra Leone. Find your perfect space with verified agents.
+          Browse rental properties across Sierra Leone and find your perfect space, securely connected with verified agents.
         </p>
-       
+
       </div>
 
       <div className="container mx-auto mt-10 max-w-5xl px-4">

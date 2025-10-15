@@ -20,7 +20,7 @@ export default async function CancelledPage({
   return (
     <>
       <Header />
-      <main className="flex min-h-[80vh] items-center justify-center bg-gray-50 px-4">
+      <main className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
         <div className="w-full max-w-md rounded-xl border bg-white p-8 text-center shadow-sm">
           <XCircle className="mx-auto h-16 w-16 text-red-500" />
           <h1 className="mt-4 text-2xl font-bold text-gray-900">Payment Cancelled</h1>

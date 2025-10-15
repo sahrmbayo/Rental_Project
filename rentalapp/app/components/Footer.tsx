@@ -27,7 +27,7 @@ export default function Footer() {
             <ul className="mt-4 space-y-2">
               <li><Link href="/properties" className="hover:text-white">Browse Properties</Link></li>
               {role === 'admin' ? (
-                <li><Link href="/admin" className="hover:text-white">For Agents</Link></li>
+                <li><Link href="/Dashboard" className="hover:text-white">For Agents</Link></li>
               ) : null}
               <li><Link href="/about" className="hover:text-white">About Us</Link></li>
               {role !== 'admin' ? (
