@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
 
     // Send email notification to admin
     await resend.emails.send({
-      from: 'Salone Rent <salonerent.com>',
+      from: 'Salone Rent <noreply@salonerent.com>',
       to: 'mbayo262@gmail.com', // Replace with your admin email
       subject: `New Contact Form Submission - ${reasonType}`,
       html: `
@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
 
     // Send confirmation email to customer
     await resend.emails.send({
-      from: 'Salone Rent <salonerent.com>',
+      from: 'Salone Rent <noreply@salonerent.com>',
       to: customerEmail,
       subject: 'We received your message - Thank you!',
       html: `
