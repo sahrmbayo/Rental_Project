@@ -1,7 +1,15 @@
 'use client';
 
 import { useState } from 'react';
-import { Building2, Heart, Menu, X } from 'lucide-react';
+import { Building2, Heart, Menu, X} from 'lucide-react';
+import {
+  HomeIcon,
+  InformationCircleIcon,
+  EnvelopeIcon,
+  HeartIcon,
+  BuildingOfficeIcon, // For "For Agents"
+  XMarkIcon, // For the close button
+} from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import {
   SignInButton,
@@ -50,7 +58,7 @@ export default function Header() {
         <div className="hidden items-center space-x-4 md:flex">
           <SignedOut>
             <SignInButton mode="modal">
-              <button className="rounded-full px-4 py-2 text-sm font-medium text-white hover:bg-gray-100 bg-gradient-to-r from-blue-600 to-pink-500 hover:opacity-90 transition-all shadow-md">
+              <button className="rounded-full px-4 py-2 text-sm border border-blue-600 text-center font-medium text-blue-600 transition-all duration-200 hover:bg-blue-100 hover:shadow-sm">
                 Sign In
               </button>
             </SignInButton>
@@ -87,14 +95,36 @@ export default function Header() {
         <div className="flex flex-col space-y-4 p-6">
           {/* Navigation Links */}
           <nav className="flex flex-col space-y-4 text-lg text-gray-700">
-            <Link href="/properties" onClick={() => setIsMenuOpen(false)}>Browse Properties</Link>
+            <Link href="/properties"
+            className="flex items-center space-x-3 rounded-lg p-3 text-lg font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+            onClick={() => setIsMenuOpen(false)}>
+            <HomeIcon className="h-6 w-6 text-gray-500" />
+            <span>Browse Properties</span>
+            </Link>
+
             {role === 'admin' ? (
-              <Link href="/Dashboard" onClick={() => setIsMenuOpen(false)}>For Agents</Link>
+              <Link href="/Dashboard" 
+              className="flex items-center space-x-3 rounded-lg p-3 text-lg font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+              onClick={() => setIsMenuOpen(false)}>
+               <BuildingOfficeIcon className="h-6 w-6 text-gray-500" />
+              <span>For Agents</span>
+                </Link>
             ) : null}
-            <Link href="/about" onClick={() => setIsMenuOpen(false)}>About Us</Link>
-            <Link href="/contact" onClick={() => setIsMenuOpen(false)}>Contact</Link>
-            <Link href="/saved" className="flex items-center space-x-2" onClick={() => setIsMenuOpen(false)}>
-              <Heart className="h-5 w-5 outline-red-700" />
+
+            <Link href="/about"
+            className="flex items-center space-x-3 rounded-lg p-3 text-lg font-medium text-gray-700 hover:bg-gray-100 transition-colors" 
+            onClick={() => setIsMenuOpen(false)}>
+            <InformationCircleIcon className="h-6 w-6 text-gray-500" />
+            <span>About Us</span>
+            </Link>
+
+            <Link href="/contact" className="flex items-center space-x-3 rounded-lg p-3 text-lg font-medium text-gray-700 hover:bg-gray-100 transition-colors" onClick={() => setIsMenuOpen(false)}>
+              <EnvelopeIcon className="h-6 w-6 text-gray-500" />
+              <span>Contact</span>
+            </Link>
+
+            <Link href="/saved" className="flex items-center space-x-3 rounded-lg p-3 text-lg font-medium text-gray-700 hover:bg-gray-100 transition-colors" onClick={() => setIsMenuOpen(false)}>
+              <Heart className="h-6 w-6 text-gray-500" />
               <span>Saved</span>
             </Link>
           </nav>
@@ -106,14 +136,14 @@ export default function Header() {
           <div className="flex flex-col space-y-4">
             <SignedOut>
               <SignInButton mode="modal">
-                <button className="w-80 rounded-lg bg-gradient-to-r from-blue-600 to-pink-500 py-2 text-center font-medium text-white hover:opacity-90 transition-all shadow-md">
-                  Sign In
-                </button>
+                <button className="w-full rounded-lg border border-pink-600 py-3 text-center font-medium text-pink-600 transition-all duration-200 hover:bg-pink-50 hover:shadow-sm">
+                Sign In
+              </button>
               </SignInButton>
               <SignUpButton mode="modal">
-                <button className="w-full rounded-lg bg-gradient-to-r from-blue-600 to-pink-500 py-2 text-center font-medium text-white hover:opacity-90 transition-all shadow-md">
-                  Sign Up
-                </button>
+                <button className="w-full rounded-lg bg-gradient-to-r from-blue-600 to-pink-500 py-3 text-center font-medium text-white shadow-md transition-all duration-200 hover:shadow-lg hover:opacity-90">
+                Sign Up
+              </button>
               </SignUpButton>
             </SignedOut>
             <SignedIn>

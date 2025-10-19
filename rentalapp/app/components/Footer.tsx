@@ -1,5 +1,6 @@
 'use client';
 import { Building2, Facebook, Instagram, Twitter } from 'lucide-react';
+import { AiFillTikTok } from "react-icons/ai";
 import Link from 'next/link';
 import {useUser} from "@clerk/nextjs";
 
@@ -50,9 +51,9 @@ export default function Footer() {
           <div>
             <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-400">Connect With Us</h3>
             <div className="mt-4 flex space-x-4">
-              <Link href="#" className="text-gray-400 hover:text-white"><Facebook size={20} /></Link>
-              <Link href="#" className="text-gray-400 hover:text-white"><Twitter size={20} /></Link>
-              <Link href="#" className="text-gray-400 hover:text-white"><Instagram size={20} /></Link>
+              <Link href="https://www.facebook.com/share/19RtLwTEvQ/" className="text-gray-400 hover:text-white"><Facebook size={20} /></Link>
+              <Link href="https://vm.tiktok.com/ZMHvjHEBs2GmX-l8fmq/" className="text-gray-400 hover:text-white"><AiFillTikTok size={20} /></Link>
+              <Link href="https://www.instagram.com/salone.rent?igsh=MXh0eWNxNncxbXBtNw==" className="text-gray-400 hover:text-white"><Instagram size={20} /></Link>
             </div>
           </div>
         </div>

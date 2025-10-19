@@ -117,7 +117,7 @@ export default function ContactForm() {
             value={formData.customerPhone}
             onChange={handleChange}
             className="w-full px-4 py-3 text-gray-700  border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-            placeholder="+1 (555) 123-4567"
+            placeholder="+232 75000000"
           />
         </div>
 

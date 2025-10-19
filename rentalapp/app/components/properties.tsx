@@ -103,7 +103,7 @@ export default async function PropertiesListPage({
                           </span>
                         </td>
                         <td className="hidden whitespace-nowrap px-3 py-4 text-sm text-gray-500 sm:table-cell">
-                          ${Number(prop.price).toLocaleString()}
+                          Nle{Number(prop.price).toLocaleString()}
                         </td>
                         <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
                           <div className="flex items-center justify-end gap-4">

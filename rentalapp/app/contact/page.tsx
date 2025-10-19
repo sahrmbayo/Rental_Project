@@ -72,7 +72,7 @@ export default function ContactPage() {
                     <p className="text-sm font-medium text-gray-900">Email</p>
                     <p className="mt-1 text-sm text-gray-600">
                       <a href="mailto:support@yourcompany.com" className="hover:text-blue-600">
-                        sbmbayo02@gmail.com
+                         info@kwilion.com
                       </a>
                     </p>
                     <p className="text-xs text-gray-500 mt-1">We reply within 24 hours</p>

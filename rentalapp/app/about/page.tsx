@@ -86,9 +86,7 @@ export default function AboutPage() {
             content={
               <>
                 <p>
-                  Salone Rent was founded by a small team of passionate developers and real estate
-                  enthusiasts who believe in using technology to solve real-world problems. We are
-                  continuously improving the platform to better serve our users.
+                  Salone Rent was founded by <strong>Kwilion LLC</strong>, a small team of passionate developers who believe in using technology to solve real-world problems. We continuously strive to improve the platform to better serve our users.
                 </p>
               </>
             }
@@ -106,7 +104,7 @@ export default function AboutPage() {
                     href="mailto:info@salonerent.com"
                     className="text-indigo-600 hover:text-indigo-500 hover:underline"
                   >
-                    info@salonerent.com
+                     info@kwilion.com
                   </a>
                   .
                 </p>
