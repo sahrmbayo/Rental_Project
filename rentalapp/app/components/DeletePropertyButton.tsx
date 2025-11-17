@@ -4,6 +4,7 @@
 
 import { useRouter } from 'next/navigation';
 import { Trash2 } from 'lucide-react'; 
+import { toast } from 'react-hot-toast';
 
 export function DeletePropertyButton({ propertyId }: { propertyId: string }) {
   const router = useRouter();
@@ -20,15 +21,15 @@ export function DeletePropertyButton({ propertyId }: { propertyId: string }) {
       });
 
       if (response.ok) {
-        alert('Property deleted!');
+         toast.success('Property deleted ✅');
         router.refresh(); 
       } else {
         const data = await response.json();
-        alert(`Failed to delete: ${data.message}`);
+        toast.error(`Failed to delete: ${data.message}`);
       }
     } catch (error) {
       console.error('Delete action failed:', error);
-      alert('An error occurred. Please try again.');
+      toast.error('An error occurred. Please try again.');
     }
   };
 

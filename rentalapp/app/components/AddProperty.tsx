@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import type { ObjectSchema } from 'yup';
+import { toast } from 'react-hot-toast';
 
 import {
   HousePlus,
@@ -157,7 +158,7 @@ export default function PropertyFormPage({ initialData }: PropertyFormProps) {
         throw new Error(errorData.message || 'Failed to submit property');
       }
 
-      alert(`Property ${isEditMode ? 'updated' : 'created'} successfully ✅`);
+       toast.success(`Property ${isEditMode ? 'updated' : 'created'} successfully ✅`);
       router.push('/Dashboard/properties');
       router.refresh();
     

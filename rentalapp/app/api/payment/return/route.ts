@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
 
   // Optional: verify payment with Monime here if needed
 
-  const basePath = status === 'cancel' ? '/checkout/cancelled' : '/checkout/success';
+  const basePath = status === 'cancel' ? '/checkout/cancelled' : '/checkout';
   const redirectUrl = new URL(basePath, req.nextUrl.origin);
   redirectUrl.searchParams.set('orderId', orderId);
   redirectUrl.searchParams.set('co', co);
