@@ -214,7 +214,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "C:\\Users\\Marion\\Desktop\\Rental_Project\\rentalapp\\app\\generated\\prisma",
+      "value": "/vercel/sandbox/primary/rentalapp/app/generated/prisma",
       "fromEnvVar": null
     },
     "config": {
@@ -223,17 +223,16 @@ const config = {
     "binaryTargets": [
       {
         "fromEnvVar": null,
-        "value": "windows",
+        "value": "rhel-openssl-3.0.x",
         "native": true
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "C:\\Users\\Marion\\Desktop\\Rental_Project\\rentalapp\\prisma\\schema.prisma",
+    "sourceFilePath": "/vercel/sandbox/primary/rentalapp/prisma/schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
-    "rootEnvPath": null,
-    "schemaEnvPath": "../../../.env"
+    "rootEnvPath": null
   },
   "relativePath": "../../../prisma",
   "clientVersion": "6.12.0",
@@ -242,6 +241,7 @@ const config = {
     "db"
   ],
   "activeProvider": "postgresql",
+  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {
