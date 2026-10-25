@@ -15,7 +15,7 @@ export default function NotFound() {
     <Header/>
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
       <div className="max-w-lg w-full bg-white rounded-2xl shadow-lg p-8 text-center">
-        <h1 className="text-6xl font-extrabold text-gray-800">404</h1>
+        <h1 className="text-7xl font-extrabold tracking-tight text-brand-600">4<span className="text-accent-500">0</span>4</h1>
         <h2 className="text-2xl font-semibold text-gray-700 mt-4">
           Page not found
         </h2>
@@ -26,14 +26,14 @@ export default function NotFound() {
         <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
           <Link
             href="/"
-            className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+            className="btn btn-primary btn-lg"
           >
             <Home className="w-4 h-4" />
             Go Home
           </Link>
           <button
             onClick={() => goBack()}
-            className="inline-flex items-center justify-center gap-2 px-5 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition"
+            className="btn btn-outline btn-lg"
           >
             <ArrowLeft className="w-4 h-4" />
             Go Back

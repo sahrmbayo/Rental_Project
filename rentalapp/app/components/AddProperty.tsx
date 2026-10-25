@@ -4,8 +4,6 @@ import { useForm } from 'react-hook-form';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { yupResolver } from '@hookform/resolvers/yup';
-import * as yup from 'yup';
-import type { ObjectSchema } from 'yup';
 import { toast } from 'react-hot-toast';
 
 import {
@@ -16,58 +14,41 @@ import {
   Minus,
   Plus,
   Check,
+  Loader2,
+  X,
 } from 'lucide-react';
-import { Property } from '../generated/prisma'; // Make sure this import path is correct for your project
+import type { Property } from '../generated/prisma';
 import DashboardLayout from '../Dashboard/DashboardLayout';
-// --- Type Definition ---
-type PropertyFormData = {
-  title: string;
-  description?: string;
-  price: number;
-  propertyType: 'apartment' | 'house' | 'single' | 'office' | 'shop' | 'compound';
-  landSize?: number;
-  address: string;
-  area: string;
-  city: string;
-  bedrooms: number;
-  bathrooms: number;
-  electricity: boolean; // NEW
-  virtualTours: { type: '2D' | '3D' | 'video'; url: string; caption?: string }[]; // NEW
-  amenities: string[]; // NEW
+import {
+  AMENITIES,
+  CITIES,
+  IMAGE_SLOTS,
+  PROPERTY_TYPES,
+  propertySchema,
+  type ImageAsset,
+  type PropertyFormData,
+  type VirtualTour,
+} from '../lib/propertySchema';
+import { uploadToCloudinary } from '../lib/uploadClient';
+
+type PropertyFormProps = {
+  initialData?: (Property & { amenities?: { name: string }[] }) | null;
 };
 
-// --- Validation Schema ---
-const propertySchema: ObjectSchema<PropertyFormData> = yup.object({
-  title: yup.string().required('Title is required'),
-  description: yup.string().optional(),
-  price: yup.number().transform(v => (isNaN(v) ? 0 : v)).positive('Price must be positive').required('Price required'),
-  propertyType: yup.string().oneOf(['apartment', 'house', 'single', 'office', 'shop', 'compound']).required('Type required'),
-  landSize: yup.number().transform(v => (isNaN(v) ? 0 : v)).min(0).optional(),
-  address: yup.string().required('Address required'),
-  area: yup.string().required('Area required'),
-  city: yup.string().required('City required'),
-  bedrooms: yup.number().integer().min(0).required('Bedrooms required'),
-  bathrooms: yup.number().integer().min(0).required('Bathrooms required'),
-  // NEW fields — no Yup rules for now
-  electricity: yup.boolean(),
-  virtualTours: yup.array().optional(),
-  amenities: yup.array().of(yup.string()).optional(),
-});
-// --- Main Component ---
-type PropertyFormProps = {
-  initialData?: Property | null;
-};
+function initialSlots(initialData: PropertyFormProps['initialData']): (ImageAsset | null)[] {
+  const existing = (initialData?.images as ImageAsset[] | null) ?? [];
+  const length = Math.max(IMAGE_SLOTS.length, existing.length);
+  return Array.from({ length }, (_, i) => existing[i] ?? null);
+}
 
 export default function PropertyFormPage({ initialData }: PropertyFormProps) {
   const router = useRouter();
   const isEditMode = !!initialData;
- 
-  const [images, setImages] = useState<{ url: string; publicId: string }[]>([]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Image to array
-  const addImage = (url: string, publicId: string) =>
-  setImages(prev => [...prev, { url, publicId }]);
+  const [slots, setSlots] = useState<(ImageAsset | null)[]>(() => initialSlots(initialData));
+  const [uploadingSlot, setUploadingSlot] = useState<number | null>(null);
+  const [uploadingTour, setUploadingTour] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
     register,
@@ -77,158 +58,147 @@ export default function PropertyFormPage({ initialData }: PropertyFormProps) {
     watch,
   } = useForm<PropertyFormData>({
     resolver: yupResolver(propertySchema),
-   defaultValues: isEditMode && initialData
-  ? {
-      title: initialData.title,
-      description: initialData.description ?? '',
-      price: Number(initialData.price),
-      propertyType: initialData.propertyType as PropertyFormData['propertyType'],
-      landSize: initialData.landSize ? Number(initialData.landSize) : undefined,
-      address: initialData.address,
-      city: initialData.city,
-      area: initialData.area,
-      bedrooms: initialData.bedrooms,
-      bathrooms: initialData.bathrooms,
-      electricity: initialData.electricity ?? false,
-      virtualTours: (initialData.virtualTours as PropertyFormData['virtualTours']) ?? [],
-      amenities: (initialData as any)?.amenities?.map((a: any) => a.name) ?? [],
-    }
-  : {
-      propertyType: 'apartment',
-      electricity: false,
-      virtualTours: [],
-      amenities: [],
-      bedrooms: 0,
-      bathrooms: 0,
-    },
+    defaultValues:
+      isEditMode && initialData
+        ? {
+            title: initialData.title,
+            description: initialData.description ?? '',
+            price: Number(initialData.price),
+            propertyType: initialData.propertyType as PropertyFormData['propertyType'],
+            landSize: initialData.landSize ? Number(initialData.landSize) : undefined,
+            address: initialData.address,
+            city: initialData.city,
+            area: initialData.area,
+            bedrooms: initialData.bedrooms,
+            bathrooms: initialData.bathrooms,
+            electricity: initialData.electricity ?? false,
+            virtualTours: (initialData.virtualTours as VirtualTour[] | null) ?? [],
+            amenities: initialData.amenities?.map((a) => a.name) ?? [],
+          }
+        : {
+            propertyType: 'apartment',
+            electricity: false,
+            virtualTours: [],
+            amenities: [],
+            bedrooms: 0,
+            bathrooms: 0,
+          },
   });
 
-  
-  const uploadToCloudinary = async (file: File, onDone: (url: string, publicId: string) => void) => {
-  const reader = new FileReader();
-  reader.readAsDataURL(file);
-  reader.onloadend = async () => {
+  const uploadSlot = async (index: number, file: File) => {
+    setUploadingSlot(index);
     try {
-      const res = await fetch('/api/upload', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ image: reader.result }),
-      });
-      const data = await res.json();   // data = { url, publicId }
-      onDone(data.url, data.publicId); // ← give both back
+      const asset = await uploadToCloudinary(file, 'image');
+      setSlots((prev) => prev.map((s, i) => (i === index ? asset : s)));
     } catch (error) {
       console.error('Upload error:', error);
-      alert('Image upload failed.');
+      toast.error(error instanceof Error ? error.message : 'Image upload failed');
+    } finally {
+      setUploadingSlot(null);
     }
   };
-};
- 
-  const onSubmit = async (data: PropertyFormData) => {
-    setIsSubmitting(true);
 
-    if (!isEditMode && images.length < 5) {
-      alert('Please upload all images for a new property.');
-      setIsSubmitting(false);
+  const clearSlot = (index: number) => setSlots((prev) => prev.map((s, i) => (i === index ? null : s)));
+
+  const uploadTour = async (file: File) => {
+    const isVideo = file.type.startsWith('video/');
+    const is3D = /\.(glb|gltf)$/i.test(file.name);
+    const type: VirtualTour['type'] = isVideo ? 'video' : is3D ? '3D' : '2D';
+
+    setUploadingTour(true);
+    try {
+      const { url } = await uploadToCloudinary(file, isVideo ? 'tour-video' : 'tour');
+      setValue('virtualTours', [...(watch('virtualTours') ?? []), { type, url }]);
+    } catch (error) {
+      console.error('Tour upload error:', error);
+      toast.error(error instanceof Error ? error.message : 'Tour upload failed');
+    } finally {
+      setUploadingTour(false);
+    }
+  };
+
+  const onSubmit = async (data: PropertyFormData) => {
+    const images = slots.filter((s): s is ImageAsset => !!s);
+    const required = isEditMode ? 1 : IMAGE_SLOTS.length;
+    if (images.length < required) {
+      toast.error(isEditMode ? 'A property needs at least one image.' : 'Please upload all 5 images for a new property.');
       return;
     }
 
-    const finalData = {
-      ...data,
-      images,
-      electricity: data.electricity, // NEW
-      virtualTours: watch('virtualTours'), // NEW
-      amenities: watch('amenities'), // NEW
-    };
-
+    setIsSubmitting(true);
     try {
-      const endpoint = isEditMode
-        ? `/api/properties/${initialData?.id}`
-        : '/api/property';
-
-      const method = isEditMode ? 'PATCH' : 'POST';
-
+      const endpoint = isEditMode ? `/api/properties/${initialData?.id}` : '/api/property';
       const res = await fetch(endpoint, {
-        method: method,
+        method: isEditMode ? 'PATCH' : 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(finalData),
+        body: JSON.stringify({ ...data, images }),
       });
 
       if (!res.ok) {
-        const errorData = await res.json();
+        const errorData = await res.json().catch(() => ({}));
         throw new Error(errorData.message || 'Failed to submit property');
       }
 
-       toast.success(`Property ${isEditMode ? 'updated' : 'created'} successfully ✅`);
+      toast.success(`Property ${isEditMode ? 'updated' : 'created'} successfully ✅`);
       router.push('/Dashboard/properties');
       router.refresh();
-    
-
     } catch (error) {
       console.error('Error submitting property:', error);
-      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-      alert(`Something went wrong: ${errorMessage} ❌`);
+      toast.error(error instanceof Error ? error.message : 'An unknown error occurred');
     } finally {
       setIsSubmitting(false);
     }
   };
 
- 
+  const amenities = watch('amenities') ?? [];
+  const tours = watch('virtualTours') ?? [];
+
   return (
     <DashboardLayout
       headerTitle={isEditMode ? 'Edit Property' : 'Add New Property'}
       headerSubtitle={isEditMode ? 'Update the details for your property below.' : 'Fill in the details to list a new property.'}
       currentPage="add-property"
-      >
-    <div className="flex h-screen bg-gray-50 font-sans">
-      
-
-      {/* Main Content */}
-      <main className="flex-1 overflow-y-auto">
-        {/* <div className="p-4 md:p-8"> */}
-         
-          {/* Form */}
+    >
+      <div className="flex h-screen bg-gray-50 font-sans">
+        <main className="flex-1 overflow-y-auto">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
             {/* Section 1: Property Details */}
             <div className="rounded-xl border bg-white p-4 shadow-sm">
               <div className="flex items-center gap-3">
-                <HousePlus className="h-6 w-6 text-blue-600" />
+                <HousePlus className="h-6 w-6 text-brand-600" />
                 <h2 className="text-lg font-semibold text-gray-800">Property Details</h2>
               </div>
               <p className="mt-1 text-sm text-gray-500">Basic information about your property.</p>
               <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2">
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700">Property Title *</label>
-                  <input {...register('title')} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-700" />
+                  <input {...register('title')} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand-500 focus:ring-brand-500 text-gray-700" />
                   {errors.title && <p className="mt-1 text-sm text-red-600">{errors.title.message}</p>}
                 </div>
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700">Description</label>
-                  <textarea {...register('description')} rows={4} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-700" />
+                  <textarea {...register('description')} rows={4} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand-500 focus:ring-brand-500 text-gray-700" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Price *</label>
-                  <input type="number" step="0.01" {...register('price')} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-700" />
+                  <label className="block text-sm font-medium text-gray-700">Price (NLe per year) *</label>
+                  <input type="number" step="1" {...register('price')} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand-500 focus:ring-brand-500 text-gray-700" />
                   {errors.price && <p className="mt-1 text-sm text-red-600">{errors.price.message}</p>}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Property Type *</label>
-                  <select {...register('propertyType')} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-700">
-                    <option value="apartment">Apartment</option>
-                    <option value="house">House</option>
-                    <option value="single">Single Room</option>
-                    <option value="office">Office Space</option>
-                    <option value="shop">Shop</option>
-                    <option value="compound">Compound</option>
+                  <select {...register('propertyType')} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand-500 focus:ring-brand-500 text-gray-700">
+                    {PROPERTY_TYPES.map((t) => (
+                      <option key={t.value} value={t.value}>{t.label}</option>
+                    ))}
                   </select>
                   {errors.propertyType && <p className="mt-1 text-sm text-red-600">{errors.propertyType.message}</p>}
                 </div>
-                {/* Electricity toggle */}
                 <div className="flex items-center gap-3 mt-4">
                   <input
                     id="electricity"
                     type="checkbox"
                     {...register('electricity')}
-                    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    className="h-4 w-4 rounded border-gray-300 text-brand-600 focus:ring-brand-500"
                   />
                   <label htmlFor="electricity" className="text-sm font-medium text-gray-700">
                     Electricity available
@@ -237,22 +207,21 @@ export default function PropertyFormPage({ initialData }: PropertyFormProps) {
               </div>
             </div>
 
-            
             {/* Section 2: Specifications */}
             <div className="rounded-xl border bg-white p-6 shadow-sm">
               <div className="flex items-center gap-3">
-                <Pencil className="h-6 w-6 text-blue-600" />
+                <Pencil className="h-6 w-6 text-brand-600" />
                 <h2 className="text-lg font-semibold text-gray-800">Specifications</h2>
               </div>
               <p className="mt-1 text-sm text-gray-500">Details about the property features.</p>
 
               <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-3">
-                {/* Bedrooms counter */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Bedrooms *</label>
                   <div className="inline-flex items-center gap-3">
                     <button
                       type="button"
+                      aria-label="Fewer bedrooms"
                       onClick={() => setValue('bedrooms', Math.max(0, Number(watch('bedrooms')) - 1))}
                       className="rounded-full bg-gray-200 p-2 hover:bg-gray-300"
                     >
@@ -261,6 +230,7 @@ export default function PropertyFormPage({ initialData }: PropertyFormProps) {
                     <span className="w-12 text-center font-semibold text-lg text-gray-700">{watch('bedrooms')}</span>
                     <button
                       type="button"
+                      aria-label="More bedrooms"
                       onClick={() => setValue('bedrooms', Number(watch('bedrooms')) + 1)}
                       className="rounded-full bg-gray-200 p-2 hover:bg-gray-300"
                     >
@@ -270,17 +240,15 @@ export default function PropertyFormPage({ initialData }: PropertyFormProps) {
                   {errors.bedrooms && <p className="mt-1 text-sm text-red-600">{errors.bedrooms.message}</p>}
                 </div>
 
-                {/* Bathrooms */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Bathrooms *</label>
-                  <input type="number" {...register('bathrooms')} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-700" />
+                  <input type="number" {...register('bathrooms')} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand-500 focus:ring-brand-500 text-gray-700" />
                   {errors.bathrooms && <p className="mt-1 text-sm text-red-600">{errors.bathrooms.message}</p>}
                 </div>
 
-                {/* Land Size */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Land Size (sq ft)</label>
-                  <input type="number" {...register('landSize')} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-700" />
+                  <input type="number" {...register('landSize')} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand-500 focus:ring-brand-500 text-gray-700" />
                   {errors.landSize && <p className="mt-1 text-sm text-red-600">{errors.landSize.message}</p>}
                 </div>
               </div>
@@ -288,181 +256,178 @@ export default function PropertyFormPage({ initialData }: PropertyFormProps) {
 
             {/* Section 3: Location */}
             <div className="rounded-xl border bg-white p-6 shadow-sm">
-                 <div className="flex items-center gap-3">
-                    <MapPin className="h-6 w-6 text-blue-600" />
-                    <h2 className="text-lg font-semibold text-gray-800">Location</h2>
+              <div className="flex items-center gap-3">
+                <MapPin className="h-6 w-6 text-brand-600" />
+                <h2 className="text-lg font-semibold text-gray-800">Location</h2>
+              </div>
+              <p className="mt-1 text-sm text-gray-500">Property address details.</p>
+              <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2">
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700">Street Address *</label>
+                  <input {...register('address')} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand-500 focus:ring-brand-500 text-gray-700" />
+                  {errors.address && <p className="mt-1 text-sm text-red-600">{errors.address.message}</p>}
                 </div>
-                <p className="mt-1 text-sm text-gray-500">Property address details.</p>
-                <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2">
-                    <div className="md:col-span-2">
-                        <label className="block text-sm font-medium text-gray-700">Street Address *</label>
-                        <input {...register('address')} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-700" />
-                        {errors.address && <p className="mt-1 text-sm text-red-600">{errors.address.message}</p>}
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700">City *</label>
-                        <select {...register('city')} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-700">
-                            <option value="">Select a city</option>
-                            <option value="Freetown">Freetown</option>
-                            <option value="Bo">Bo</option>
-                            <option value="Kenema">Kenema</option>
-                            <option value="Makeni">Makeni</option>
-                        </select>
-                        {errors.city && <p className="mt-1 text-sm text-red-600">{errors.city.message}</p>}
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700">Area *</label>
-                        <input {...register('area')} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-700" />
-                        {errors.area && <p className="mt-1 text-sm text-red-600">{errors.area.message}</p>}
-                    </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">City *</label>
+                  <select {...register('city')} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand-500 focus:ring-brand-500 text-gray-700">
+                    <option value="">Select a city</option>
+                    {CITIES.map((c) => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
+                  </select>
+                  {errors.city && <p className="mt-1 text-sm text-red-600">{errors.city.message}</p>}
                 </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Area *</label>
+                  <input {...register('area')} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand-500 focus:ring-brand-500 text-gray-700" />
+                  {errors.area && <p className="mt-1 text-sm text-red-600">{errors.area.message}</p>}
+                </div>
+              </div>
             </div>
 
             {/* Section 4: Images */}
             <div className="rounded-xl border bg-white p-6 shadow-sm">
-                <div className="flex items-center gap-3">
-                    <Camera className="h-6 w-6 text-blue-600" />
-                    <h2 className="text-lg font-semibold text-gray-800">Images</h2>
-                </div>
-                <p className="mt-1 text-sm text-gray-500">Upload all images of your property.</p>
-                <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700">Front View</label>
-                        <input type='file' accept='image/*' onChange={(e) => e.target.files?.[0] && uploadToCloudinary(e.target.files[0], addImage)} className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:rounded-full file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-blue-700 hover:file:bg-blue-100"/>
-                        {images[0] && <img src={images[0].url} alt="Preview 1" className="mt-4 h-32 w-full rounded-md object-cover" />}
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700">Master Bedroom</label>
-                        <input type='file' accept='image/*' onChange={(e) => e.target.files?.[0] && uploadToCloudinary(e.target.files[0], addImage)} className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:rounded-full file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-blue-700 hover:file:bg-blue-100"/>
-                        {images[1] && <img src={images[1].url} alt="Preview 2" className="mt-4 h-32 w-full rounded-md object-cover" />}
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700">Kitchen</label>
-                        <input type='file' accept='image/*' onChange={(e) => e.target.files?.[0] && uploadToCloudinary(e.target.files[0], addImage)} className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:rounded-full file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-blue-700 hover:file:bg-blue-100"/>
-                        {images[2] && <img src={images[2].url} alt="Preview 3" className="mt-4 h-32 w-full rounded-md object-cover" />}
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700">Master Bathroom</label>
-                        <input type='file' accept='image/*' onChange={(e) => e.target.files?.[0] && uploadToCloudinary(e.target.files[0], addImage)} className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:rounded-full file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-blue-700 hover:file:bg-blue-100"/>
-                        {images[3] && <img src={images[3].url} alt="Preview 4" className="mt-4 h-32 w-full rounded-md object-cover" />}
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700">Living Room</label>
-                        <input type='file' accept='image/*' onChange={(e) => e.target.files?.[0] && uploadToCloudinary(e.target.files[0], addImage)} className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:rounded-full file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-blue-700 hover:file:bg-blue-100"/>
-                        {images[4] && <img src={images[4].url} alt="Preview 5" className="mt-4 h-32 w-full rounded-md object-cover" />}
-                    </div>
-                </div>
+              <div className="flex items-center gap-3">
+                <Camera className="h-6 w-6 text-brand-600" />
+                <h2 className="text-lg font-semibold text-gray-800">Images</h2>
+              </div>
+              <p className="mt-1 text-sm text-gray-500">
+                {isEditMode ? 'Replace or remove photos. Existing photos are kept unless you change them.' : 'Upload a photo for each slot.'}
+              </p>
+              <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2">
+                {slots.map((slot, index) => (
+                  <div key={index}>
+                    <label className="block text-sm font-medium text-gray-700">
+                      {IMAGE_SLOTS[index] ?? `Extra photo ${index - IMAGE_SLOTS.length + 1}`}
+                    </label>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      disabled={uploadingSlot !== null}
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) uploadSlot(index, file);
+                        e.target.value = '';
+                      }}
+                      className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:rounded-full file:border-0 file:bg-brand-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-brand-700 hover:file:bg-brand-100 disabled:opacity-50"
+                    />
+                    {uploadingSlot === index && (
+                      <p className="mt-2 flex items-center gap-2 text-sm text-gray-500">
+                        <Loader2 className="h-4 w-4 animate-spin" /> Uploading…
+                      </p>
+                    )}
+                    {slot && (
+                      <div className="relative mt-4">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={slot.url} alt={`Preview ${index + 1}`} className="h-32 w-full rounded-md object-cover" />
+                        <button
+                          type="button"
+                          onClick={() => clearSlot(index)}
+                          aria-label="Remove image"
+                          className="absolute top-1 right-1 rounded-full bg-white/90 p-1 text-red-600 shadow hover:bg-white"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
-            {/* Section 6: Amenities */}
-<div className="rounded-xl border bg-white p-6 shadow-sm">
-  <div className="flex items-center gap-3 mb-4">
-    <Pencil className="h-6 w-6 text-blue-600" />
-    <h2 className="text-lg font-semibold text-gray-800">Amenities</h2>
-  </div>
-  <p className="text-sm text-gray-500 mb-3">Select amenities available in the property.</p>
 
-  <div className="flex flex-wrap gap-2">
-    {['WiFi', 'Parking', 'Air-conditioning', 'Pet-friendly', 'Pool', 'Gym', 'Security', 'Water-supply', 'Electricity'].map((a) => {
-      const active = watch('amenities')?.includes(a);
-      return (
-        <button
-          key={a}
-          type="button"
-          onClick={() =>
-            setValue(
-              'amenities',
-              active
-                ? watch('amenities').filter((x) => x !== a)
-                : [...(watch('amenities') || []), a]
-            )
-          }
-          className={`flex items-center gap-1 rounded-full px-3 py-1.5 text-sm border transition-colors ${
-            active
-              ? 'border-blue-600 bg-blue-50 text-blue-700'
-              : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
-          }`}
-        >
-          {active && <Check className="h-4 w-4" />}
-          {a}
-        </button>
-      );
-    })}
-  </div>
-</div>
-            {/* Section 5: Virtual Tours */}
-<div className="rounded-xl border bg-white p-6 shadow-sm">
-  <div className="flex items-center gap-3 mb-4">
-    <Camera className="h-6 w-6 text-blue-600" />
-    <h2 className="text-lg font-semibold text-gray-800">Virtual Tours</h2>
-  </div>
-  <p className="text-sm text-gray-500 mb-4">Upload 2D, 3D or video walkthroughs.</p>
+            {/* Section 5: Amenities */}
+            <div className="rounded-xl border bg-white p-6 shadow-sm">
+              <div className="flex items-center gap-3 mb-4">
+                <Pencil className="h-6 w-6 text-brand-600" />
+                <h2 className="text-lg font-semibold text-gray-800">Amenities</h2>
+              </div>
+              <p className="text-sm text-gray-500 mb-3">Select amenities available in the property.</p>
 
-  <label className="inline-flex items-center gap-2 cursor-pointer rounded-lg border px-4 py-2 hover:bg-gray-50">
-    <input
-      type="file"
-      accept="image/*,video/*,.glb,.gltf"
-      className="hidden"
-      onChange={async (e) => {
-  const file = e.target.files?.[0];
-  if (!file) return;
+              <div className="flex flex-wrap gap-2">
+                {AMENITIES.map((a) => {
+                  const active = amenities.includes(a);
+                  return (
+                    <button
+                      key={a}
+                      type="button"
+                      onClick={() =>
+                        setValue('amenities', active ? amenities.filter((x) => x !== a) : [...amenities, a])
+                      }
+                      className={`flex items-center gap-1 rounded-full px-3 py-1.5 text-sm border transition-colors ${
+                        active
+                          ? 'border-brand-600 bg-brand-50 text-brand-700'
+                          : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      {active && <Check className="h-4 w-4" />}
+                      {a}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
 
-  // decide type from MIME or extension
-  const isVideo = file.type.startsWith('video/');
-  const is3D   = file.name.endsWith('.glb') || file.name.endsWith('.gltf');
-  const type: '2D' | '3D' | 'video' = isVideo ? 'video' : is3D ? '3D' : '2D';
+            {/* Section 6: Virtual Tours */}
+            <div className="rounded-xl border bg-white p-6 shadow-sm">
+              <div className="flex items-center gap-3 mb-4">
+                <Camera className="h-6 w-6 text-brand-600" />
+                <h2 className="text-lg font-semibold text-gray-800">Virtual Tours</h2>
+              </div>
+              <p className="text-sm text-gray-500 mb-4">Upload 2D, 3D or video walkthroughs.</p>
 
-  const reader = new FileReader();
-  reader.readAsDataURL(file);
-  reader.onloadend = async () => {
-    const res = await fetch('/api/upload-tour', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ file: reader.result, type }),
-    });
-    const data = await res.json();
-    if (data.url) {
-      setValue('virtualTours', [...watch('virtualTours'), { type, url: data.url }]);
-    } else {
-      alert('Upload failed: ' + data.error);
-    }
-  };
-}}
-    />
-    <span className="text-sm text-gray-700">Upload tour</span>
-  </label>
+              <label className={`inline-flex items-center gap-2 rounded-lg border px-4 py-2 hover:bg-gray-50 ${uploadingTour ? 'cursor-wait opacity-60' : 'cursor-pointer'}`}>
+                <input
+                  type="file"
+                  accept="image/*,video/*,.glb,.gltf"
+                  className="hidden"
+                  disabled={uploadingTour}
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) uploadTour(file);
+                    e.target.value = '';
+                  }}
+                />
+                {uploadingTour && <Loader2 className="h-4 w-4 animate-spin" />}
+                <span className="text-sm text-gray-700">{uploadingTour ? 'Uploading…' : 'Upload tour'}</span>
+              </label>
 
-  {watch('virtualTours')?.length > 0 && (
-    <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-4">
-      {watch('virtualTours').map((t, idx) => (
-        <div key={idx} className="relative rounded-lg border p-2">
-          {t.type === 'video' ? (
-            <video src={t.url} controls className="h-32 w-full rounded object-cover" />
-          ) : (
-            <iframe src={t.url} allowFullScreen className="h-32 w-full rounded" />
-          )}
-          <button
-            type="button"
-            onClick={() => setValue('virtualTours', watch('virtualTours').filter((_, i) => i !== idx))}
-            className="absolute top-1 right-1 rounded bg-white/80 px-2 py-0.5 text-xs text-red-600"
-          >
-            Remove
-          </button>
-        </div>
-      ))}
-    </div>
-  )}
-</div>
+              {tours.length > 0 && (
+                <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  {tours.map((t, idx) => (
+                    <div key={idx} className="relative rounded-lg border p-2">
+                      {t.type === 'video' ? (
+                        <video src={t.url} controls className="h-32 w-full rounded object-cover" />
+                      ) : t.type === '2D' ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={t.url} alt="Tour preview" className="h-32 w-full rounded object-cover" />
+                      ) : (
+                        <div className="flex h-32 w-full items-center justify-center rounded bg-gray-100 text-sm text-gray-600">3D model</div>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => setValue('virtualTours', tours.filter((_, i) => i !== idx))}
+                        className="absolute top-1 right-1 rounded bg-white/80 px-2 py-0.5 text-xs text-red-600"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
 
-            {/* Submit Button */}
             <div className="flex justify-end">
-              <button type="submit" disabled={isSubmitting} className="rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-blue-700 disabled:bg-gray-400">
-                {isSubmitting ? 'Saving...' : (isEditMode ? 'Update Property' : 'Create Property')}
+              <button
+                type="submit"
+                disabled={isSubmitting || uploadingSlot !== null || uploadingTour}
+                className="btn btn-primary btn-lg"
+              >
+                {isSubmitting ? 'Saving...' : isEditMode ? 'Update Property' : 'Create Property'}
               </button>
             </div>
           </form>
-        {/* </div> */}
-      </main>
-    </div>
+        </main>
+      </div>
     </DashboardLayout>
   );
 }

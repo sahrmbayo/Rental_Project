@@ -9,7 +9,8 @@ export default function ContactForm() {
     customerEmail: '',
     customerPhone: '',
     reasonType: 'question',
-    message: ''
+    message: '',
+    website: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
@@ -33,8 +34,6 @@ export default function ContactForm() {
         body: JSON.stringify(formData),
       });
 
-      const result = await response.json();
-
       if (response.ok) {
         setSubmitStatus('success');
         setFormData({
@@ -42,7 +41,8 @@ export default function ContactForm() {
           customerEmail: '',
           customerPhone: '',
           reasonType: 'question',
-          message: ''
+          message: '',
+          website: '',
         });
       } else {
         setSubmitStatus('error');
@@ -64,13 +64,24 @@ export default function ContactForm() {
           </svg>
         </div>
         <h3 className="text-xl font-semibold text-gray-900 mb-2">Message Sent Successfully!</h3>
-        <p className="text-gray-600">Thank you for reaching out. We'll get back to you within 24 hours.</p>
+        <p className="text-gray-600">Thank you for reaching out. We&apos;ll get back to you within 24 hours.</p>
       </div>
     );
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Honeypot for bots: hidden from people and screen readers */}
+      <input
+        type="text"
+        name="website"
+        value={formData.website}
+        onChange={handleChange}
+        tabIndex={-1}
+        autoComplete="off"
+        aria-hidden="true"
+        className="hidden"
+      />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <label htmlFor="customerName" className="block text-sm font-medium text-gray-700 mb-2">
@@ -83,7 +94,7 @@ export default function ContactForm() {
             value={formData.customerName}
             onChange={handleChange}
             required
-            className="w-full px-4 py-3 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+            className="w-full px-4 py-3 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all"
             placeholder="Abu Kamara"
           />
         </div>
@@ -99,7 +110,7 @@ export default function ContactForm() {
             value={formData.customerEmail}
             onChange={handleChange}
             required
-            className="w-full px-4 py-3 text-gray-700  border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+            className="w-full px-4 py-3 text-gray-700  border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all"
             placeholder="john@example.com"
           />
         </div>
@@ -116,7 +127,7 @@ export default function ContactForm() {
             name="customerPhone"
             value={formData.customerPhone}
             onChange={handleChange}
-            className="w-full px-4 py-3 text-gray-700  border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+            className="w-full px-4 py-3 text-gray-700  border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all"
             placeholder="+232 75000000"
           />
         </div>
@@ -131,7 +142,7 @@ export default function ContactForm() {
             value={formData.reasonType}
             onChange={handleChange}
             required
-            className="w-full px-4 py-3 text-gray-700  border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+            className="w-full px-4 py-3 text-gray-700  border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all"
           >
             <option value="question">I have a question</option>
             <option value="issue">I need help with an issue</option>
@@ -151,7 +162,7 @@ export default function ContactForm() {
           onChange={handleChange}
           required
           rows={5}
-          className="w-full px-4 text-gray-700  py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+          className="w-full px-4 text-gray-700  py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all resize-none"
           placeholder="Tell us how we can help you..."
         />
       </div>
@@ -164,7 +175,7 @@ export default function ContactForm() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="bg-blue-600 text-white px-8 py-3 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          className="btn btn-primary btn-lg"
         >
           {isSubmitting ? (
             <span className="flex items-center">

@@ -1,34 +1,30 @@
 'use server';
+import { clerkClient } from '@clerk/nextjs/server';
 import { prisma } from '../lib/prisma';
-import { clerkClient } from '@clerk/clerk-sdk-node';
-import { auth } from '@clerk/nextjs/server';
+import { requireAgent } from '../lib/auth';
 
+const PHONE_RE = /^\+?[0-9 ()-]{7,20}$/;
 
+export async function saveAgentPhone({ phone }: { phone: string }) {
+  const agentId = await requireAgent();
 
+  const cleaned = String(phone ?? '').trim();
+  if (!PHONE_RE.test(cleaned)) {
+    return { ok: false as const, error: 'Please enter a valid phone number, e.g. +232 76 000000' };
+  }
 
-export async function saveAgentPhone({
-  agentId,
-  phone,
-}: {
-  agentId: string;
-  phone: string;
-}) {
-  const { userId } = await auth();
-  const user = await clerkClient.users.getUser(userId);
-  const email=user.emailAddresses[0].emailAddress
-  const name=user.firstName+" "+user.lastName
- 
-  // 1.  store in your DB  (upsert so it works even if row doesn’t exist yet)
+  const client = await clerkClient();
+  const user = await client.users.getUser(agentId);
+  const email = user.primaryEmailAddress?.emailAddress || user.emailAddresses[0]?.emailAddress || '';
+  const name = user.fullName || [user.firstName, user.lastName].filter(Boolean).join(' ');
+
   await prisma.agent.upsert({
     where: { id: agentId },
-    update: { phone },
-    create: { id: agentId, phone, name: name, email: email },
+    update: { phone: cleaned },
+    create: { id: agentId, phone: cleaned, name, email },
   });
 
-  // 2.  (optional) mirror to Clerk privateMetadata
-  await clerkClient.users.updateUser(agentId, {
-    privateMetadata: { phone },
-  });
+  await client.users.updateUser(agentId, { privateMetadata: { phone: cleaned } });
 
-  return { ok: true };
+  return { ok: true as const };
 }

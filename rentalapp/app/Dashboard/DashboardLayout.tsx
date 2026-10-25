@@ -13,16 +13,14 @@ import {
   X,
 } from 'lucide-react';
 import { UserButton } from '@clerk/nextjs';
+import Logo from '../components/Logo';
 
 // --- Reusable Sidebar Component Content ---
 // This is defined inside the client component but doesn't use client features itself.
 const SidebarContent = ({ currentPage }: { currentPage: 'dashboard' | 'properties' | 'add-property' | 'reserved-properties' | 'setting' }) => (
   <div className="flex h-full flex-col">
     <div className="mb-10 flex items-center justify-between space-x-2 ">
-      <div className='flex items-center space-x-2'>
-      <Building className="h-8 w-8 text-blue-600" />
-      <span className="text-xl font-bold text-gray-800">SL Rental</span>
-      </div>
+      <Logo />
       <div className='md:hidden '>
         <UserButton />
       </div>
@@ -30,9 +28,9 @@ const SidebarContent = ({ currentPage }: { currentPage: 'dashboard' | 'propertie
     <nav className="flex-grow space-y-2">
       <Link
         href="/Dashboard"
-        className={`flex items-center space-x-3 rounded-lg px-4 py-2.5 ${
+        className={`flex items-center space-x-3 rounded-full px-4 py-2.5 transition-colors ${
           currentPage === 'dashboard'
-            ? 'bg-blue-100 text-blue-700'
+            ? 'bg-brand-600 text-white shadow-sm'
             : 'text-gray-600 hover:bg-gray-100'
         }`}
       >
@@ -41,9 +39,9 @@ const SidebarContent = ({ currentPage }: { currentPage: 'dashboard' | 'propertie
       </Link>
       <Link
         href="/Dashboard/properties"
-        className={`flex items-center space-x-3 rounded-lg px-4 py-2.5 ${
+        className={`flex items-center space-x-3 rounded-full px-4 py-2.5 transition-colors ${
           currentPage === 'properties'
-            ? 'bg-blue-100 text-blue-700'
+            ? 'bg-brand-600 text-white shadow-sm'
             : 'text-gray-600 hover:bg-gray-100'
         }`}
       >
@@ -52,9 +50,9 @@ const SidebarContent = ({ currentPage }: { currentPage: 'dashboard' | 'propertie
       </Link>
       <Link
         href="/Dashboard/add-property"
-        className={`flex items-center space-x-3 rounded-lg px-4 py-2.5 ${
+        className={`flex items-center space-x-3 rounded-full px-4 py-2.5 transition-colors ${
           currentPage === 'add-property'
-            ? 'bg-blue-100 text-blue-700'
+            ? 'bg-brand-600 text-white shadow-sm'
             : 'text-gray-600 hover:bg-gray-100'
         }`}
       >
@@ -64,9 +62,9 @@ const SidebarContent = ({ currentPage }: { currentPage: 'dashboard' | 'propertie
 
       <Link
         href="/Dashboard/reserved-properties"
-        className={`flex items-center space-x-3 rounded-lg px-4 py-2.5 ${
+        className={`flex items-center space-x-3 rounded-full px-4 py-2.5 transition-colors ${
           currentPage === 'reserved-properties'
-            ? 'bg-blue-100 text-blue-700'
+            ? 'bg-brand-600 text-white shadow-sm'
             : 'text-gray-600 hover:bg-gray-100'
         }`}
       >
@@ -75,7 +73,7 @@ const SidebarContent = ({ currentPage }: { currentPage: 'dashboard' | 'propertie
       </Link>
     </nav>
     <div>
-      <Link href="/Dashboard/settings" className="flex items-center space-x-3 rounded-lg px-4 py-2.5 text-gray-600 hover:bg-gray-100">
+      <Link href="/Dashboard/settings" className="flex items-center space-x-3 rounded-full px-4 py-2.5 transition-colors text-gray-600 hover:bg-gray-100">
         <Settings className="h-5 w-5" />
         <span className="font-medium">Settings</span>
         

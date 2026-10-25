@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
+import { toast } from 'react-hot-toast';
 import {
   MapPin,
   Bed,
@@ -14,16 +16,25 @@ import {
 } from 'lucide-react';
 import FavButton from './FavButton';
 import ReadHere from './ReadHere';
+import type { Property } from '../generated/prisma';
+import { PLACEHOLDER_IMAGE } from '../lib/constants';
+import { PROPERTY_TYPES, type ImageAsset, type VirtualTour } from '../lib/propertySchema';
+
+type PropertyDetails = Property & { amenities: { name: string }[] };
 
 export default function PropertyDetailsView({
   property,
   initialFav,
+  reservationFee,
 }: {
-  property: any;
+  property: PropertyDetails;
   initialFav: boolean;
+  reservationFee: number;
 }) {
   /* ---------------- image slider helpers ---------------- */
-  const images = (property.images as { url: string }[]) || [];
+  const images = (property.images as ImageAsset[] | null) ?? [];
+  const tours = (property.virtualTours as VirtualTour[] | null) ?? [];
+  const typeLabel = PROPERTY_TYPES.find((t) => t.value === property.propertyType)?.label ?? property.propertyType;
   const [currentIndex, setCurrentIndex] = useState(0);
   const prevSlide = () =>
     setCurrentIndex((i) => (i === 0 ? images.length - 1 : i - 1));
@@ -35,35 +46,26 @@ export default function PropertyDetailsView({
   const [agreedToTerms, setAgreedToTerms] = useState(false);
 
   const startCheckout = async () => {
-    if (!agreedToTerms) return;          // extra safety
+    if (!agreedToTerms) return;
     setCheckingOut(true);
-    const payload = {
-      name: property.title,
-      orderId: property.id,
-      lineItems: [
-        {
-          type: 'custom',
-          name: property.title,
-          price: { currency: 'SLE', value: 2 * 100 }, // 2.00 SLE
-          quantity: 1,
-        },
-      ],
-      metadata: { cartId: 'cart_123' },
-      callbackState: 'state_cart_123',
-    };
 
     try {
       const res = await fetch('/api/create-checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ propertyId: property.id }),
       });
-      if (!res.ok) throw new Error(await res.text());
-      const { redirectUrl } = await res.json();
-      if (redirectUrl) window.location.href = redirectUrl;
+      if (res.status === 401) {
+        toast.error('Please sign in to reserve this property');
+        window.location.href = `/sign-in?redirect_url=${encodeURIComponent(window.location.pathname)}`;
+        return;
+      }
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.message || 'Checkout failed');
+      if (data.redirectUrl) window.location.href = data.redirectUrl;
     } catch (err) {
       console.error(err);
-      alert('Checkout failed');
+      toast.error(err instanceof Error ? err.message : 'Checkout failed');
     } finally {
       setCheckingOut(false);
     }
@@ -81,17 +83,20 @@ export default function PropertyDetailsView({
                 src={images[currentIndex]?.url}
                 alt={`Image ${currentIndex + 1} of ${property.title}`}
                 fill
+                sizes="(min-width: 1280px) 1216px, 100vw"
                 className="object-cover transition-all duration-500"
                 priority
               />
               <button
                 onClick={prevSlide}
+                aria-label="Previous image"
                 className="absolute top-1/2 left-5 -translate-y-1/2 rounded-full bg-black/30 p-2 text-white hover:bg-black/50"
               >
                 <ChevronLeft size={30} />
               </button>
               <button
                 onClick={nextSlide}
+                aria-label="Next image"
                 className="absolute top-1/2 right-5 -translate-y-1/2 rounded-full bg-black/30 p-2 text-white hover:bg-black/50"
               >
                 <ChevronRight size={30} />
@@ -112,9 +117,10 @@ export default function PropertyDetailsView({
             </>
           ) : (
             <Image
-              src="https://placehold.co/800x600/E0E7FF/4F46E5?text=PropPulse "
-              alt="Placeholder"
+              src={PLACEHOLDER_IMAGE}
+              alt="No image available"
               fill
+              sizes="100vw"
               className="object-cover"
             />
           )}
@@ -141,7 +147,7 @@ export default function PropertyDetailsView({
           </span>
         )}
       </div>
-      <p className="mt-4 text-3xl font-bold text-blue-600 sm:mt-0">
+      <p className="mt-4 text-3xl font-extrabold text-brand-700 sm:mt-0">
         Nle{Number(property.price).toLocaleString()}
         <span className="text-base font-normal text-gray-500">/Yr</span>
       </p>
@@ -153,17 +159,13 @@ export default function PropertyDetailsView({
     </div>
 
     {/* NEW virtual tours */}
-    {property.virtualTours?.length > 0 && (
+    {tours.length > 0 && (
       <div className="mt-8 border-t pt-8">
         <h2 className="text-xl font-semibold text-gray-800">Virtual Tours</h2>
         <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
-          {property.virtualTours.map((t, idx) => (
+          {tours.map((t, idx) => (
             <div key={idx} className="rounded-lg border bg-white p-2">
-              {t.type === 'video' ? (
-                <video src={t.url} controls className="h-48 w-full rounded object-cover" />
-              ) : (
-                <iframe src={t.url} allowFullScreen className="h-48 w-full rounded" />
-              )}
+              <TourPreview tour={t} />
             </div>
           ))}
         </div>
@@ -173,32 +175,35 @@ export default function PropertyDetailsView({
     <div className="mt-8 border-t pt-8">
       <h2 className="text-xl font-semibold text-gray-800">Amenities</h2>
       <div className="mt-4 grid grid-cols-2 gap-4 text-gray-700 sm:grid-cols-3">
-        <div className="flex items-center gap-2"><Bed size={20} className="text-blue-500" /><span>{property.bedrooms} Bedrooms</span></div>
-        <div className="flex items-center gap-2"><Bath size={20} className="text-blue-500" /><span>{property.bathrooms} Bathrooms</span></div>
-        <div className="flex items-center gap-2"><Home size={20} className="text-blue-500" /><span>{property.landSize} sqft</span></div>
-        <div className="flex items-center gap-2"><Building size={20} className="text-blue-500" /><span>Type: {property.propertyType}</span></div>
+        <div className="flex items-center gap-2"><Bed size={20} className="text-brand-500" /><span>{property.bedrooms} Bedrooms</span></div>
+        <div className="flex items-center gap-2"><Bath size={20} className="text-brand-500" /><span>{property.bathrooms} Bathrooms</span></div>
+        <div className="flex items-center gap-2"><Home size={20} className="text-brand-500" /><span>{property.landSize} sqft</span></div>
+        <div className="flex items-center gap-2"><Building size={20} className="text-brand-500" /><span>Type: {typeLabel}</span></div>
       </div>
 
-      {/* NEW full amenity list */}
-      {property.amenities?.length > 0 && (
+      {property.amenities.length > 0 && (
         <div className="mt-4 flex flex-wrap gap-2">
           {property.amenities.map((a) => (
-            <span key={a.name} className="rounded bg-blue-50 px-3 py-1 text-sm text-blue-700">{a.name}</span>
+            <span key={a.name} className="rounded bg-brand-50 px-3 py-1 text-sm text-brand-700">{a.name}</span>
           ))}
         </div>
       )}
     </div>
 
-    {/* (keep your existing terms checkbox & button here) */}
     <div className="mt-8 border-t pt-8">
       <label className="flex items-center gap-3 text-sm text-gray-700">
         <input
           type="checkbox"
-          className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+          className="h-4 w-4 rounded border-gray-300 text-brand-600 focus:ring-brand-500"
           checked={agreedToTerms}
           onChange={(e) => setAgreedToTerms(e.target.checked)}
         />
-        I agree to the terms and conditions
+        <span>
+          I agree to the{' '}
+          <Link href="/terms-of-service" target="_blank" className="text-brand-600 underline">
+            terms and conditions
+          </Link>
+        </span>
       </label>
       {agreedToTerms && (
         <p className="mt-2 text-sm text-green-600">You have agreed to the terms and conditions.</p>
@@ -210,9 +215,9 @@ export default function PropertyDetailsView({
         <button
           onClick={startCheckout}
           disabled={checkingOut || !agreedToTerms}
-          className="flex w-full items-center justify-center gap-2 rounded-md bg-blue-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+          className="btn btn-accent btn-lg w-full"
         >
-          {checkingOut ? 'Processing…' : 'Reserve this property'}
+          {checkingOut ? 'Processing…' : `Reserve this property (NLe ${reservationFee.toLocaleString()})`}
         </button>
       ) : (
         <p className="w-full rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-center text-sm text-amber-800">
@@ -222,11 +227,10 @@ export default function PropertyDetailsView({
     </div>
   </div>
 
-  {/* Right: sticky card (keep your existing ReadHere here) */}
   <div className="lg:col-span-1">
     <div className="sticky top-28 rounded-xl border bg-gray-50 p-6 shadow-sm">
       <div className="flex items-center gap-4">
-        <ReadHere />
+        <ReadHere fee={reservationFee} />
       </div>
     </div>
   </div>
@@ -234,5 +238,27 @@ export default function PropertyDetailsView({
 
       </div>
     </main>
+  );
+}
+
+function TourPreview({ tour }: { tour: VirtualTour }) {
+  if (tour.type === 'video') {
+    return <video src={tour.url} controls className="h-48 w-full rounded object-cover" />;
+  }
+  if (tour.type === '2D') {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img src={tour.url} alt={tour.caption || 'Virtual tour'} className="h-48 w-full rounded object-cover" />
+    );
+  }
+  return (
+    <a
+      href={tour.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="flex h-48 w-full items-center justify-center rounded bg-gray-100 text-sm font-medium text-brand-600 hover:underline"
+    >
+      Open 3D tour
+    </a>
   );
 }

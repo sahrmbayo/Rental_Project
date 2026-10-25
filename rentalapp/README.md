@@ -1,36 +1,55 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Salone Rent
 
-## Getting Started
+Rental listings for Sierra Leone. Tenants browse and save properties, then pay a reservation fee (via Monime) to unlock the agent's contact details. Agents manage listings from `/Dashboard`; the super admin manages everything from `/admin`.
 
-First, run the development server:
+Built with Next.js (App Router), Clerk, Prisma (PostgreSQL), Cloudinary, Monime and Resend.
+
+## Setup
 
 ```bash
+npm install          # also runs `prisma generate`
+npx prisma migrate deploy
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+## Environment variables
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Variable | Purpose |
+| --- | --- |
+| `DATABASE_URL` | PostgreSQL / Prisma Accelerate connection string |
+| `NEXT_PUBLIC_CLERK_FRONTEND_API` | Clerk publishable key |
+| `CLERK_SECRET_KEY` | Clerk secret key |
+| `SBM` | Clerk user ID of the super admin |
+| `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` | Image and tour uploads |
+| `CLOUDINARY_UPLOAD_PRESET` | Optional, defaults to `Property_Image` |
+| `MONIME_ACCESS_TOKEN`, `MONIME_SPACE_ID` | Payments |
+| `RESERVATION_FEE_NLE` | Reservation fee in Leones, defaults to `50` |
+| `RESEND_API_KEY` | Transactional email |
+| `ADMIN_EMAIL` | Where contact-form messages go |
+| `EMAIL_FROM` | Optional sender, defaults to `Salone Rent <noreply@salonerent.com>` |
+| `NEXT_PUBLIC_APP_URL` | Public site URL, used for payment redirects, sitemap and metadata |
 
-## Learn More
+## Roles
 
-To learn more about Next.js, take a look at the following resources:
+- **Agent**: a Clerk user with `publicMetadata.role = "admin"`. Can create, edit and delete only their own properties.
+- **Super admin**: the user whose ID is in `SBM`. Can access `/admin`, contact messages and agent applications.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+For faster role checks, expose metadata in the Clerk session token (Clerk dashboard → Sessions → Customize session token) with `{"metadata": "{{user.public_metadata}}"}`. Without it, the app falls back to a Clerk API call.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Payments
 
-## Deploy on Vercel
+1. `POST /api/create-checkout` creates a pending order and a Monime checkout session. The price comes from `RESERVATION_FEE_NLE` on the server.
+2. Monime redirects to `/api/payment/return`, which forwards to `/checkout` or `/checkout/cancelled`.
+3. `/checkout` asks Monime for the session status. Only a `completed` session marks the order paid, reserves the property and sends the emails, and it only does this once.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Scripts
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Command | What it does |
+| --- | --- |
+| `npm run dev` | Start the dev server |
+| `npm run build` | Production build |
+| `npm run lint` | ESLint |
+| `npm run typecheck` | TypeScript check |
+| `npm test` | Unit tests (Vitest) |

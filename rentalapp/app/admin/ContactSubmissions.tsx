@@ -1,7 +1,8 @@
 // app/admin/ContactSubmissions.tsx
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Fragment } from 'react';
+import { toast } from 'react-hot-toast';
 
 interface ContactSubmission {
   id: number;
@@ -17,6 +18,7 @@ interface ContactSubmission {
 export default function ContactSubmissions() {
   const [submissions, setSubmissions] = useState<ContactSubmission[]>([]);
   const [loading, setLoading] = useState(true);
+  const [expandedId, setExpandedId] = useState<number | null>(null);
 
   useEffect(() => {
     fetchSubmissions();
@@ -25,35 +27,36 @@ export default function ContactSubmissions() {
   const fetchSubmissions = async () => {
     try {
       const response = await fetch('/api/contact/submissions');
-      const data = await response.json();
-      setSubmissions(data);
+      if (!response.ok) throw new Error('Failed to load messages');
+      setSubmissions(await response.json());
     } catch (error) {
       console.error('Error fetching submissions:', error);
+      toast.error('Could not load contact messages');
     } finally {
       setLoading(false);
     }
   };
 
   const updateStatus = async (id: number, newStatus: string) => {
-  try {
-    await fetch(`/api/contact/submissions/${id}`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ status: newStatus }),
-    });
-    fetchSubmissions(); // Refresh the list
-  } catch (error) {
-    console.error('Error updating status:', error);
-  }
-};
+    try {
+      const res = await fetch(`/api/contact/submissions/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      if (!res.ok) throw new Error('Update failed');
+      fetchSubmissions();
+    } catch (error) {
+      console.error('Error updating status:', error);
+      toast.error('Could not update status');
+    }
+  };
 
   const getReasonColor = (reason: string) => {
     switch (reason) {
       case 'issue': return 'bg-red-100 text-red-800';
-      case 'question': return 'bg-blue-100 text-blue-800';
-      case 'feedback': return 'bg-green-100 text-green-800';
+      case 'question': return 'bg-brand-100 text-brand-800';
+      case 'feedback': return 'bg-accent-100 text-accent-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
@@ -88,7 +91,8 @@ export default function ContactSubmissions() {
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {submissions.map((submission) => (
-              <tr key={submission.id} className={submission.status === 'new' ? 'bg-blue-50' : ''}>
+              <Fragment key={submission.id}>
+              <tr className={submission.status === 'new' ? 'bg-brand-50' : ''}>
                 <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                   #{submission.id}
                 </td>
@@ -115,7 +119,7 @@ export default function ContactSubmissions() {
                   <select
                     value={submission.status}
                     onChange={(e) => updateStatus(submission.id, e.target.value)}
-                    className="text-sm border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="text-sm border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-brand-500"
                   >
                     <option value="new">New</option>
                     <option value="in-progress">In Progress</option>
@@ -127,13 +131,28 @@ export default function ContactSubmissions() {
                 </td>
                 <td className="px-4 py-4 whitespace-nowrap text-sm">
                   <button
-                    onClick={() => alert(`Full Message:\n\n${submission.message}\n\nFrom: ${submission.customerName}\nEmail: ${submission.customerEmail}\nPhone: ${submission.customerPhone || 'Not provided'}`)}
-                    className="text-blue-600 hover:text-blue-800 font-medium"
+                    onClick={() => setExpandedId(expandedId === submission.id ? null : submission.id)}
+                    className="text-brand-600 hover:text-brand-800 font-medium"
                   >
-                    View
+                    {expandedId === submission.id ? 'Hide' : 'View'}
                   </button>
                 </td>
               </tr>
+              {expandedId === submission.id && (
+                <tr className="bg-gray-50">
+                  <td colSpan={8} className="px-4 py-4 text-sm text-gray-800">
+                    <p className="whitespace-pre-wrap">{submission.message}</p>
+                    <p className="mt-3 text-xs text-gray-500">
+                      From {submission.customerName} ·{' '}
+                      <a href={`mailto:${submission.customerEmail}`} className="text-brand-600 underline">
+                        {submission.customerEmail}
+                      </a>
+                      {submission.customerPhone ? ` · ${submission.customerPhone}` : ''}
+                    </p>
+                  </td>
+                </tr>
+              )}
+              </Fragment>
             ))}
           </tbody>
         </table>

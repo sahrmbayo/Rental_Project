@@ -17,17 +17,18 @@ function PropertiesLoadingSkeleton() {
 }
 
 // The Page component receives searchParams from Next.js
-export default function PropertiesPage({
+export default async function PropertiesPage({
   searchParams,
 }: {
-  searchParams?: { search?: string };
+  searchParams: Promise<{ search?: string }>;
 }) {
+  const { search } = await searchParams;
   return (
     <div>
       {/* Suspense provides a fallback while the async component loads */}
       <Suspense fallback={<PropertiesLoadingSkeleton />}>
         {/* We pass the searchParams down to the component that uses them */}
-        <PropertiesListPage searchParams={searchParams} />
+        <PropertiesListPage search={search} />
       </Suspense>
     </div>
   );

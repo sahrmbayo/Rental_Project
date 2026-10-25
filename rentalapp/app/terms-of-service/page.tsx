@@ -22,16 +22,16 @@ export default function TermsOfServicePage() {
               </h1>
               <p className="mt-2 text-sm text-slate-500">Last updated: October 09, 2025</p>
             </div>
-            <div className="mt-4 h-1 w-24 rounded-full bg-gradient-to-r from-indigo-500 to-sky-500 sm:mt-0" />
+            <div className="mt-4 h-1 w-24 rounded-full bg-gradient-to-r from-brand-500 to-accent-400 sm:mt-0" />
           </div>
 
           <p className="text-lg leading-relaxed text-slate-700">
-            Welcome to <span className="font-semibold text-indigo-600">Salone Rent</span>. By using
+            Welcome to <span className="font-semibold text-brand-600">Salone Rent</span>. By using
             our website, you agree to the following terms and conditions. Please read them carefully
             before using our platform.
           </p>
 
-          <div className="my-10 h-px w-full bg-gradient-to-r from-indigo-500/0 via-slate-200 to-indigo-500/0" />
+          <div className="my-10 h-px w-full bg-gradient-to-r from-brand-500/0 via-slate-200 to-brand-500/0" />
 
           {/* Sections */}
           <Section
@@ -43,7 +43,7 @@ export default function TermsOfServicePage() {
                 agreed to these Terms of Service and our{' '}
                 <a
                   href="/privacy"
-                  className="text-indigo-600 hover:text-indigo-500 hover:underline"
+                  className="text-brand-600 hover:text-brand-500 hover:underline"
                 >
                   Privacy Policy
                 </a>
@@ -166,7 +166,7 @@ export default function TermsOfServicePage() {
                   For questions about these terms, please email us at{' '}
                   <a
                     href="mailto:support@salonerent.com"
-                    className="text-indigo-600 hover:text-indigo-500 hover:underline"
+                    className="text-brand-600 hover:text-brand-500 hover:underline"
                   >
                     support@salonerent.com
                   </a>
@@ -176,7 +176,7 @@ export default function TermsOfServicePage() {
             }
           />
             <BackToHomeButton />
-          <div className="mt-12 h-px w-full bg-gradient-to-r from-indigo-500/0 via-slate-200 to-indigo-500/0" />
+          <div className="mt-12 h-px w-full bg-gradient-to-r from-brand-500/0 via-slate-200 to-brand-500/0" />
           <p className="mt-6 text-center text-sm text-slate-500">
             © {new Date().getFullYear()} Salone Rent. All rights reserved.
           </p>
@@ -200,7 +200,7 @@ function Section({
   return (
     <section className="mt-10">
       <h2 className="flex items-center text-2xl font-semibold text-slate-800">
-        <span className="mr-3 flex h-8 w-8 items-center justify-center rounded-full bg-indigo-100 text-sm font-bold text-indigo-600">
+        <span className="mr-3 flex h-8 w-8 items-center justify-center rounded-full bg-brand-100 text-sm font-bold text-brand-600">
           {number}
         </span>
         {title}

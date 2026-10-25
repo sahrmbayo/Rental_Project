@@ -1,17 +1,15 @@
-// app/dashboard/reserved-properties/actions.ts
+// app/Dashboard/reserved-properties/action.ts
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { auth } from '@clerk/nextjs/server';
-
 import { prisma } from '../../lib/prisma';
+import { requireAgent } from '../../lib/auth';
 
 /* ---------------------------------------------------- */
 /* 1.  LIST  (scoped to current agent)                 */
 /* ---------------------------------------------------- */
-export  async function getReservedProperties() {
-  const { userId } = await auth();        // ← moved inside
-  if (!userId) throw new Error('Unauthorized');
+export async function getReservedProperties() {
+  const userId = await requireAgent();
 
   return prisma.property.findMany({
     where: { agentId: userId, isAvailable: false },
@@ -23,22 +21,15 @@ export  async function getReservedProperties() {
 /* 2.  MARK AVAILABLE  (agent-only)                    */
 /* ---------------------------------------------------- */
 export async function makeAvailable(propertyId: string) {
-  const { userId } = await auth();
-  if (!userId) throw new Error('Unauthorized');
+  const userId = await requireAgent();
 
-  // verify ownership
-  const property = await prisma.property.findUnique({
-    where: { id: propertyId },
-    select: { agentId: true },
-  });
-  if (!property || property.agentId !== userId) {
-    throw new Error('Not your property');
-  }
-
-  await prisma.property.update({
-    where: { id: propertyId },
+  const { count } = await prisma.property.updateMany({
+    where: { id: propertyId, agentId: userId },
     data: { isAvailable: true },
   });
+  if (count === 0) throw new Error('Not your property');
 
-  revalidatePath('/dashboard/reserved-properties');
+  revalidatePath('/Dashboard/reserved-properties');
+  revalidatePath('/Dashboard/properties');
+  revalidatePath(`/properties/${propertyId}`);
 }

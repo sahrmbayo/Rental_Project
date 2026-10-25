@@ -3,14 +3,16 @@ import { auth } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Heart, MapPin, ArrowLeft, Bed, Bath, Square } from 'lucide-react';
+import { Heart, MapPin, Bed, Bath, Square } from 'lucide-react';
 import { getSavedProperties } from '../action/favourite';
 import RemoveButton from '../components/RemoveButton';
 import { Metadata } from 'next';
 import BackToHomeButton from '../components/BackToHomeButton';
+import { PLACEHOLDER_IMAGE, SITE_NAME } from '../lib/constants';
+import type { ImageAsset } from '../lib/propertySchema';
 
 export const metadata: Metadata = {
-  title: 'Saved Properties | Salone Rent',
+  title: `Saved Properties | ${SITE_NAME}`,
   description: 'View your saved properties and manage your favorites.',
 };
 
@@ -74,9 +76,10 @@ export default async function SavedPage() {
                     className="absolute inset-0 z-10"
                   />
                   <Image
-                    src={property.images?.[0]?.url || 'https://placehold.co/800x600'}
+                    src={(property.images as ImageAsset[] | null)?.[0]?.url || PLACEHOLDER_IMAGE}
                     alt={property.title}
                     fill
+                    sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
                     className="object-cover transition duration-500 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
@@ -92,7 +95,11 @@ export default async function SavedPage() {
                     </p>
                   </div>
 
-                  <p className="text-sm text-neutral-600">{property.description?.slice(0, 80)}…</p>
+                  {property.description && (
+                    <p className="text-sm text-neutral-600">
+                      {property.description.length > 80 ? `${property.description.slice(0, 80)}…` : property.description}
+                    </p>
+                  )}
 
                   {/* icons */}
                   <div className="flex items-center gap-4 text-xs text-neutral-500">

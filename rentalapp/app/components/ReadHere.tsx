@@ -1,5 +1,5 @@
-// components/MustReadBanner.tsx
-export default function ReadHere() {
+// components/ReadHere.tsx
+export default function ReadHere({ fee }: { fee: number }) {
   return (
     <>
       <div className="max-w-3xl mx-auto px-4 py-6 rounded-xl bg-white ring-1 ring-yellow-200 shadow-md hover:shadow-lg transition-shadow duration-300 animate-subtle-pulse">
@@ -10,7 +10,7 @@ export default function ReadHere() {
         <p className="mt-4 text-center text-neutral-700">
           Dear Valued Customer
         </p>
-        <span className="text-neutral-600  text-justify">By reserving this property, you will be granted a three-day priority period to conclude an agreement with our agent. If no agreement is reached within this period, the property will be re-listed and made available to other applicants. Please note that a non-refundable reservation fee of NLe <strong>50</strong>  applies.</span>
+        <span className="text-neutral-600  text-justify">By reserving this property, you will be granted a three-day priority period to conclude an agreement with our agent. If no agreement is reached within this period, the property will be re-listed and made available to other applicants. Please note that a non-refundable reservation fee of NLe <strong>{fee.toLocaleString()}</strong>  applies.</span>
       </div>
 
       <style jsx>{`

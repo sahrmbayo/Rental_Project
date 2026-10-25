@@ -1,40 +1,27 @@
 import { clerkClient } from '@clerk/nextjs/server';
-import { auth } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
-
-const SUPER_ADMIN_ID = process.env.SBM;
+import { errorResponse, requireSuperAdmin } from '../../lib/auth';
 
 export async function POST(req: Request) {
-  const { userId } = await auth();
-
-  // 1. Authenticate the super admin
-  if (!userId || userId !== SUPER_ADMIN_ID) {
-    return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
-  }
-
-  // 2. Get the target user's ID
-  const formData = await req.formData();
-  const clerkUserId = formData.get('id') as string;
-  if (!clerkUserId) {
-    return NextResponse.json({ message: 'ID required' }, { status: 400 });
-  }
-
   try {
-    // 3. Get the user to check their current status
-    const user = await (await clerkClient()).users.getUser(clerkUserId);
-  
-    const currentlyBanned = user.banned;
+    const adminId = await requireSuperAdmin();
 
-    // 4. Use the correct Clerk API methods to ban or unban
-    if (currentlyBanned) {
-      await (await clerkClient()).users.unbanUser(clerkUserId);
-    } else {
-      await (await clerkClient()).users.banUser(clerkUserId);
+    const formData = await req.formData();
+    const clerkUserId = formData.get('id');
+    if (typeof clerkUserId !== 'string' || !clerkUserId) {
+      return NextResponse.json({ message: 'ID required' }, { status: 400 });
+    }
+    if (clerkUserId === adminId) {
+      return NextResponse.json({ message: 'You cannot ban yourself' }, { status: 400 });
     }
 
-    return NextResponse.redirect(new URL('/admin', req.url));
-  } catch (e: any) {
-    console.error(e);
-    return NextResponse.json({ message: e.message }, { status: 500 });
+    const client = await clerkClient();
+    const user = await client.users.getUser(clerkUserId);
+    if (user.banned) await client.users.unbanUser(clerkUserId);
+    else await client.users.banUser(clerkUserId);
+
+    return NextResponse.redirect(new URL('/admin', req.url), 303);
+  } catch (e) {
+    return errorResponse(e);
   }
 }

@@ -1,4 +1,3 @@
-import { MapPin, Bed, Bath, Home } from 'lucide-react';
 import Header from '../components/header'; // Adjust path if needed
 
 // --- Reusable Skeleton Card Component ---

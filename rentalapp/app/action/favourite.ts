@@ -16,10 +16,13 @@ export async function toggleFavorite(propertyId: string) {
   if (existing) {
     await prisma.favourite.delete({ where: { id: existing.id } });
   } else {
+    const property = await prisma.property.findUnique({ where: { id: propertyId }, select: { id: true } });
+    if (!property) throw new Error('Property not found');
     await prisma.favourite.create({ data: { userId, propertyId } });
   }
 
   revalidatePath(`/properties/${propertyId}`);
+  revalidatePath('/saved');
   return { isFav: !existing };
 }
 

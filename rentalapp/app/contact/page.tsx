@@ -9,9 +9,10 @@ import {
 import Header from '../components/header';
 import { Metadata } from 'next';
 import BackToHomeButton from '../components/BackToHomeButton';
+import { SITE_NAME } from '../lib/constants';
 
 export const metadata: Metadata = {
-  title: 'Contact Us | Salone Rent',
+  title: `Contact Us | ${SITE_NAME}`,
   description: 'Get in touch with us for any inquiries or support.',
 };
 
@@ -19,7 +20,7 @@ export default function ContactPage() {
   return (
     <>
     <Header />
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-brand-50">
       {/* Hero Section */}
       <div className="relative bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -28,7 +29,7 @@ export default function ContactPage() {
               Get in Touch
             </h1>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              We're here to help and answer any questions you might have. 
+              We&apos;re here to help and answer any questions you might have. 
               We look forward to hearing from you.
             </p>
           </div>
@@ -50,12 +51,12 @@ export default function ContactPage() {
                 {/* Phone */}
                 <div className="flex items-start">
                   <div className="flex-shrink-0">
-                    <PhoneIcon className="h-6 w-6 text-blue-600" />
+                    <PhoneIcon className="h-6 w-6 text-brand-600" />
                   </div>
                   <div className="ml-4">
                     <p className="text-sm font-medium text-gray-900">Phone</p>
                     <p className="mt-1 text-sm text-gray-600">
-                      <a href="tel:+23275088079" className="hover:text-blue-600">
+                      <a href="tel:+23275088079" className="hover:text-brand-600">
                         +232 75 088 079
                       </a>
                     </p>
@@ -66,12 +67,12 @@ export default function ContactPage() {
                 {/* Email */}
                 <div className="flex items-start">
                   <div className="flex-shrink-0">
-                    <EnvelopeIcon className="h-6 w-6 text-blue-600" />
+                    <EnvelopeIcon className="h-6 w-6 text-brand-600" />
                   </div>
                   <div className="ml-4">
                     <p className="text-sm font-medium text-gray-900">Email</p>
                     <p className="mt-1 text-sm text-gray-600">
-                      <a href="mailto:support@yourcompany.com" className="hover:text-blue-600">
+                      <a href="mailto:support@yourcompany.com" className="hover:text-brand-600">
                          info@kwilion.com
                       </a>
                     </p>
@@ -82,7 +83,7 @@ export default function ContactPage() {
                 {/* Address */}
                 <div className="flex items-start">
                   <div className="flex-shrink-0">
-                    <MapPinIcon className="h-6 w-6 text-blue-600" />
+                    <MapPinIcon className="h-6 w-6 text-brand-600" />
                   </div>
                   <div className="ml-4">
                     <p className="text-sm font-medium text-gray-900">Office</p>
@@ -97,7 +98,7 @@ export default function ContactPage() {
                 {/* Response Time */}
                 <div className="flex items-start">
                   <div className="flex-shrink-0">
-                    <ClockIcon className="h-6 w-6 text-blue-600" />
+                    <ClockIcon className="h-6 w-6 text-brand-600" />
                   </div>
                   <div className="ml-4">
                     <p className="text-sm font-medium text-gray-900">Response Time</p>
@@ -110,14 +111,14 @@ export default function ContactPage() {
               </div>
 
               {/* Quick Help */}
-              <div className="mt-8 p-4 bg-blue-50 rounded-lg">
+              <div className="mt-8 p-4 bg-brand-50 rounded-lg">
                 <div className="flex">
-                  <ChatBubbleLeftRightIcon className="h-5 w-5 text-blue-600 mt-0.5" />
+                  <ChatBubbleLeftRightIcon className="h-5 w-5 text-brand-600 mt-0.5" />
                   <div className="ml-3">
-                    <h3 className="text-sm font-medium text-blue-900">
+                    <h3 className="text-sm font-medium text-brand-900">
                       Need immediate help?
                     </h3>
-                    <p className="text-sm text-blue-700 mt-1">
+                    <p className="text-sm text-brand-700 mt-1">
                       Check our FAQ or start a live chat for instant assistance.
                     </p>
                   </div>
@@ -134,7 +135,7 @@ export default function ContactPage() {
                   Send us a message
                 </h2>
                 <p className="text-gray-600">
-                  Fill out the form below and we'll get back to you as soon as possible.
+                  Fill out the form below and we&apos;ll get back to you as soon as possible.
                 </p>
               </div>
               
@@ -189,7 +190,7 @@ export default function ContactPage() {
                   Can I visit your office?
                 </h3>
                 <p className="text-gray-600">
-                  Absolutely! We're located at city plaza in every city and welcome
+                  Absolutely! We&apos;re located at city plaza in every city and welcome
                   visitors. Please call ahead to schedule an appointment.
                 </p>
               </div>

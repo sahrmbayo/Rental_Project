@@ -1,11 +1,13 @@
-// This is a simple, reusable loading spinner component.
+// Reusable loading spinner. `size` takes Tailwind size (and optionally colour) classes.
 export default function Spinner({ size = 'h-5 w-5' }: { size?: string }) {
+  const hasColour = /\btext-/.test(size);
   return (
     <svg
-      className={`animate-spin  text-blue-400 from-15% to-100% ${size}`}
+      className={`animate-spin ${hasColour ? '' : 'text-brand-500'} ${size}`}
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
       viewBox="0 0 24 24"
+      aria-hidden="true"
     >
       <circle
         className="opacity-25"

@@ -42,7 +42,7 @@ export default async function ReservedPropertiesPage() {
                   <form action={makeAvailable.bind(null, p.id)}>
                     <button
                       type="submit"
-                      className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-white bg-green-600 rounded hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+                      className="btn btn-primary btn-sm"
                     >
                       Mark available
                     </button>

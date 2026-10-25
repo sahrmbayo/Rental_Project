@@ -15,12 +15,13 @@ async function getLatestAgents() {
     },
   });
 
-  return Promise.all(
-    agents.map(async (a) => {
-      const user = await (await clerkClient()).users.getUser(a.id);
-      return { ...a, banned: user.banned ?? false };
-    })
-  );
+  if (agents.length === 0) return [];
+  const { data: users } = await (await clerkClient()).users.getUserList({
+    userId: agents.map((a) => a.id),
+    limit: agents.length,
+  });
+  const banned = new Map(users.map((u) => [u.id, u.banned]));
+  return agents.map((a) => ({ ...a, banned: banned.get(a.id) ?? false }));
 }
 
 export default async function LatestAgents() {

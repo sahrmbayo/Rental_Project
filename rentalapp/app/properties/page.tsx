@@ -1,21 +1,20 @@
+import type { Metadata } from "next";
 import Header from "../components/header";
-import { fetchProperties } from "../action/fetchProperties";
+import { fetchProperties, type PropertySearchParams } from "../action/fetchProperties";
 import PropertyList from "../components/PropertyList";
+import { SITE_NAME } from "../lib/config";
+
+export const metadata: Metadata = {
+  title: `Browse Properties | ${SITE_NAME}`,
+  description: "Browse rental homes, apartments, offices and shops across Sierra Leone.",
+};
 
 type Props = {
-  searchParams?: {
-    city?: string;
-    type?: string;
-    price?: string;
-    bedrooms?: string;
-    electricity?: string;
-    amenities?: string;
-    page?: string;
-  };
+  searchParams: Promise<Omit<PropertySearchParams, "page"> & { page?: string }>;
 };
 
 export default async function PropertiesPage({ searchParams }: Props) {
-  const params = (await searchParams) ?? {};
+  const { page: _page, ...params } = await searchParams;
   // always load page 1 – further pages loaded client-side
   const { properties } = await fetchProperties({ ...params, page: 1 });
 

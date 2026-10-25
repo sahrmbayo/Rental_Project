@@ -1,63 +1,44 @@
-import { prisma } from '../../lib/prisma';
 import { NextResponse } from 'next/server';
-import { clerkClient } from '@clerk/clerk-sdk-node';
-import { auth } from '@clerk/nextjs/server';
-
+import { clerkClient } from '@clerk/nextjs/server';
+import { ValidationError } from 'yup';
+import { prisma } from '../../lib/prisma';
+import { errorResponse, requireAgent } from '../../lib/auth';
+import { IMAGE_SLOTS, parsePropertyBody } from '../../lib/propertySchema';
 
 export async function POST(req: Request) {
   try {
-    const { userId } = await auth();
-   
+    const agentId = await requireAgent();
+    const { amenityNames, ...data } = await parsePropertyBody(await req.json(), {
+      requireImages: IMAGE_SLOTS.length,
+    });
 
-    const user = await clerkClient.users.getUser(userId);
-    const agentId = user.id;
-    const agentName = user.fullName || user.firstName || '';
-    const agentEmail = user.emailAddresses[0]?.emailAddress || '';
-    
-    
-
-    const body = await req.json();
-
-    const agent= await prisma.agent.upsert({
+    const user = await (await clerkClient()).users.getUser(agentId);
+    await prisma.agent.upsert({
       where: { id: agentId },
       update: {},
       create: {
         id: agentId,
-        name: agentName,
-        email: agentEmail,
-        phone: (await prisma.agent.findUnique({ where: { id: agentId }, select: { phone: true } }))?.phone ?? null,
+        name: user.fullName || user.firstName || '',
+        email: user.primaryEmailAddress?.emailAddress || user.emailAddresses[0]?.emailAddress || '',
       },
     });
 
     const property = await prisma.property.create({
-    data: {
-    title: body.title,
-    description: body.description || '',
-    price: Number(body.price),
-    propertyType: body.propertyType,
-    landSize: Number(body.landSize || 0),
-    address: body.address,
-    city: body.city,
-    area: body.area,
-    bedrooms: Number(body.bedrooms),
-    bathrooms: Number(body.bathrooms),
-    electricity: Boolean(body.electricity), // NEW
-    virtualTours: body.virtualTours || [], // NEW
-    images: body.images || [], // NEW
-    agentId,
-    amenities: {
-  connectOrCreate: (body.amenities as string[]).map((name) => ({
-    where: { name },
-    create: { name },
-  })),
-},
-  },
-  include: { amenities: true }, // NEW (optional)
-});
+      data: {
+        ...data,
+        agentId,
+        amenities: {
+          connectOrCreate: amenityNames.map((name) => ({ where: { name }, create: { name } })),
+        },
+      },
+      include: { amenities: true },
+    });
 
     return NextResponse.json({ property });
-  } catch (error: any) {
-    console.error('Error creating property:', error);
-    return NextResponse.json({ error: error.message || 'Failed to create property' }, { status: 500 });
+  } catch (e) {
+    if (e instanceof ValidationError) {
+      return NextResponse.json({ message: e.errors.join(', ') }, { status: 400 });
+    }
+    return errorResponse(e, 'Failed to create property');
   }
 }

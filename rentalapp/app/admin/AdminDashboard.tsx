@@ -12,7 +12,7 @@ async function getStats() {
     prisma.favourite.groupBy({ by: ['userId'] }), // distinct userIds
     prisma.agent.count(),
     prisma.property.count(),
-    prisma.order.count(),
+    prisma.order.count({ where: { status: 'completed' } }),
     prisma.agentApplication.count(),
   ]);
   return {

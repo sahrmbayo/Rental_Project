@@ -1,53 +1,35 @@
 // app/api/dashboard-stats/route.ts
-
 import { NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
-import { clerkClient } from '@clerk/clerk-sdk-node';
+import { clerkClient } from '@clerk/nextjs/server';
 import { prisma } from '../../lib/prisma';
+import { errorResponse, requireAgent } from '../../lib/auth';
 
-export const revalidate = 60; // Revalidate every 60 seconds
-export const dynamic = 'force-dynamic'; 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
-    
-    const { userId } = await auth();
-    const user = await clerkClient.users.getUser(userId);
+    const agentId = await requireAgent();
+    const user = await (await clerkClient()).users.getUser(agentId);
 
-    const agentName = user.fullName || user.firstName || '';
+    const [totalProperties, reservedProperties, recentReservations] = await Promise.all([
+      prisma.property.count({ where: { agentId } }),
+      prisma.property.count({ where: { agentId, isAvailable: false } }),
+      prisma.order.findMany({
+        where: { status: 'completed', property: { agentId } },
+        orderBy: { paidAt: 'desc' },
+        take: 5,
+        select: { id: true, paidAt: true, name: true, property: { select: { id: true, title: true } } },
+      }),
+    ]);
 
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    
-    const totalProperties = await prisma.property.count({
-      where: {
-        agentId: userId,
-      },
-    });
-
-    // You can add more queries here for other stats
-    
-    const reservedProperties = await prisma.property.count({
-      where: {
-        agentId: userId,
-        isAvailable: false,
-      },
-    });
-    const totalRevenue = 0; // Placeholder
-
-    const stats = {
+    return NextResponse.json({
+      agentName: user.fullName || user.firstName || '',
       totalProperties,
       reservedProperties,
-      totalRevenue,
-      agentName,
-    };
-
-    // 3. Return the data as JSON
-    return NextResponse.json(stats);
-
-  } catch (error) {
-    console.error('[DASHBOARD_STATS_GET]', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+      availableProperties: totalProperties - reservedProperties,
+      recentReservations,
+    });
+  } catch (e) {
+    return errorResponse(e, 'Internal Server Error');
   }
 }

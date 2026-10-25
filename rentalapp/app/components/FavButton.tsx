@@ -22,8 +22,8 @@ export default function FavButton({
   return (
     <button
       onClick={handleClick}
-      className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-sm ${
-        isFav ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-600'
+      className={`btn btn-sm ${
+        isFav ? 'bg-accent-50 text-accent-600 ring-1 ring-accent-200' : 'btn-ghost ring-1 ring-gray-200'
       }`}
     >
       <Heart size={16} className={isFav ? 'fill-current' : ''} />

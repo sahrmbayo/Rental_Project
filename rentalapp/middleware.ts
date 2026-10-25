@@ -1,79 +1,78 @@
 // middleware.ts
+// First line of defence only: every API route and server action also checks auth itself.
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
-import { clerkClient } from '@clerk/clerk-sdk-node';
 import { NextResponse } from 'next/server';
-
-const SUPER_ADMIN_ID = process.env.SBM; // Your Clerk user ID
-
-// Define route patterns
-const isPublicRoute = createRouteMatcher([
-  '/', 
-  '/sign-in(.*)', 
-  '/sign-up(.*)',
-  '/properties',
-  '/api/total-props',
-  '/api/create-checkout',
-  '/api/payment(.*)',
-  '/api/properties(.*)',
-  '/checkout(.*)',
-  '/contact(.*)',
-  '/api/contact(.*)',
-  '/checkout/cancelled(.*)',
-  '/apply-as-agent(.*)',
-  '/api/agent-applications(.*)',
-  '/about(.*)',
-  '/terms-of-service(.*)',
-  '/privacy-policy(.*)',
-]);
-
-const isDashboardRoute = createRouteMatcher([
-  '/Dashboard(.*)',
-  '/api/property(.*)',
-  '/api/properties/(.*)',
-  '/api/agent(.*)',
-  '/api/dashboard-stats',
-  '/api/upload'
-]);
+import { getRole, isSuperAdmin } from './app/lib/roles';
 
 const isSuperAdminRoute = createRouteMatcher([
-  '/admin(.*)', // Super admin only
-  '/api/admin(.*)', // Super admin API only
-   '/api/agent-applications/status' 
+  '/admin(.*)',
+  '/api/admin(.*)',
+  '/api/agent-applications/status(.*)',
+  '/api/contact/submissions(.*)',
 ]);
 
+const isAgentRoute = createRouteMatcher([
+  '/Dashboard(.*)',
+  '/api/property',
+  '/api/property/(.*)',
+  '/api/upload(.*)',
+  '/api/agent-phone(.*)',
+  '/api/dashboard-stats(.*)',
+]);
+
+// Public for reading only; writes still need an agent.
+const isPublicReadRoute = createRouteMatcher(['/api/properties(.*)']);
+
+const isPublicRoute = createRouteMatcher([
+  '/',
+  '/sign-in(.*)',
+  '/sign-up(.*)',
+  '/properties(.*)',
+  '/about(.*)',
+  '/contact(.*)',
+  '/apply-as-agent(.*)',
+  '/terms-of-service(.*)',
+  '/privacy-policy(.*)',
+  '/checkout/cancelled(.*)',
+  '/sitemap.xml',
+  '/robots.txt',
+  '/api/total-props',
+  '/api/payment(.*)',
+  '/api/contact',
+  '/api/agent-applications',
+]);
+
+function deny(req: Request, status: 401 | 403) {
+  const url = new URL(req.url);
+  if (url.pathname.startsWith('/api/')) {
+    return NextResponse.json({ message: status === 401 ? 'Unauthorized' : 'Forbidden' }, { status });
+  }
+  return NextResponse.redirect(new URL('/', req.url));
+}
+
 export default clerkMiddleware(async (auth, req) => {
-  const { userId } = await auth();
+  const { userId, sessionClaims, redirectToSignIn } = await auth();
+  const needsSignIn = () =>
+    req.nextUrl.pathname.startsWith('/api/') ? deny(req, 401) : redirectToSignIn({ returnBackUrl: req.url });
 
-  if (isPublicRoute(req)) {
+  if (isSuperAdminRoute(req)) {
+    if (!userId) return needsSignIn();
+    if (!isSuperAdmin(userId)) return deny(req, 403);
     return NextResponse.next();
   }
 
-  // 1️⃣ Redirect unauthenticated users
-  if (!userId && !isPublicRoute(req)) {
-    
-    return NextResponse.redirect(new URL('/sign-in', req.url));
-  }
+  const isWriteToPublicRead = isPublicReadRoute(req) && req.method !== 'GET' && req.method !== 'HEAD';
 
-  // 2️⃣ Handle super admin routes (only for you)
-  if (userId && isSuperAdminRoute(req)) {
-    if (userId !== SUPER_ADMIN_ID) {
-      return NextResponse.redirect(new URL('/', req.url));
-    }
-    // You're the super admin, allow access
+  if (isAgentRoute(req) || isWriteToPublicRead) {
+    if (!userId) return needsSignIn();
+    if (isSuperAdmin(userId) && isWriteToPublicRead) return NextResponse.next();
+    if ((await getRole(userId, sessionClaims)) !== 'admin') return deny(req, 403);
     return NextResponse.next();
   }
 
-  // 3️⃣ Handle regular admin dashboard
-  if (userId && isDashboardRoute(req)) {
-    const user = await clerkClient.users.getUser(userId);
-    const role = user.publicMetadata.role as string | undefined;
-    
-    if (role !== 'admin') {
-      return NextResponse.redirect(new URL('/', req.url));
-    }
-  }
+  if (isPublicRoute(req) || isPublicReadRoute(req)) return NextResponse.next();
 
-  // 4️⃣ Otherwise, allow the request
+  if (!userId) return needsSignIn();
   return NextResponse.next();
 });
 

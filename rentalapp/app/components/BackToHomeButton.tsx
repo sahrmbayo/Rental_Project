@@ -13,7 +13,7 @@ export default function BackToHomeButton({ variant = 'home' }: BackButtonProps) 
     <div className="mt-12 flex justify-center">
       <Link
         href={href}
-        className="rounded-full bg-gradient-to-r from-indigo-600 to-sky-500 px-6 py-2.5 text-sm font-semibold text-white shadow-md transition hover:scale-105 hover:shadow-lg"
+        className="btn btn-outline"
       >
         {label}
       </Link>

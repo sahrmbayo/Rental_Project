@@ -1,6 +1,8 @@
-// app/Dashboard/properties/page.tsx
+// Agent's own property table, rendered by app/Dashboard/properties/page.tsx
 import { prisma } from '../lib/prisma';
-import { Prisma } from '../generated/prisma';
+import type { Prisma } from '../generated/prisma';
+import type { ImageAsset } from '../lib/propertySchema';
+import { PLACEHOLDER_IMAGE } from '../lib/constants';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Edit, PlusCircle } from 'lucide-react';
@@ -26,15 +28,11 @@ async function getProperties(agentId: string, searchTerm?: string) {
   });
 }
 
-export default async function PropertiesListPage({
-  searchParams,
-}: {
-  searchParams?: { search?: string };
-}) {
+export default async function PropertiesListPage({ search }: { search?: string }) {
   const { userId } = await auth();
   if (!userId) throw new Error('Unauthenticated');
 
-  const searchTerm = searchParams?.search ?? '';
+  const searchTerm = search ?? '';
   const properties = await getProperties(userId, searchTerm);
 
   return (
@@ -47,7 +45,7 @@ export default async function PropertiesListPage({
         <SearchInput placeholder="Search by title or address..." />
         <Link
           href="/Dashboard/add-property"
-          className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-blue-700"
+          className="btn btn-primary"
         >
           <PlusCircle size={18} />
           Add Property
@@ -84,9 +82,8 @@ export default async function PropertiesListPage({
                             <div className="h-10 w-10 flex-shrink-0">
                               <Image
                                 className="h-10 w-10 rounded-md object-cover"
-                                src={prop.images?.[0]?.url || 'https://placehold.co/40x40/E0E7FF/4F46E5?text=Img'}
-                                alt="Image"
-                                unoptimized
+                                src={(prop.images as ImageAsset[] | null)?.[0]?.url || PLACEHOLDER_IMAGE}
+                                alt={prop.title}
                                 width={40}
                                 height={40}
                               />
@@ -98,16 +95,22 @@ export default async function PropertiesListPage({
                           </div>
                         </td>
                         <td className="hidden whitespace-nowrap px-3 py-4 text-sm text-gray-500 lg:table-cell">
-                          <span className="inline-flex rounded-full bg-green-100 px-2 text-xs font-semibold leading-5 text-green-800">
-                            Active
-                          </span>
+                          {prop.isAvailable ? (
+                            <span className="inline-flex rounded-full bg-green-100 px-2 text-xs font-semibold leading-5 text-green-800">
+                              Active
+                            </span>
+                          ) : (
+                            <span className="inline-flex rounded-full bg-amber-100 px-2 text-xs font-semibold leading-5 text-amber-800">
+                              Reserved
+                            </span>
+                          )}
                         </td>
                         <td className="hidden whitespace-nowrap px-3 py-4 text-sm text-gray-500 sm:table-cell">
                           Nle{Number(prop.price).toLocaleString()}
                         </td>
                         <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
                           <div className="flex items-center justify-end gap-4">
-                            <Link href={`/Dashboard/properties/${prop.id}/edit`} className="text-blue-600 hover:text-blue-800" title="Edit Property">
+                            <Link href={`/Dashboard/properties/${prop.id}/edit`} className="text-brand-600 hover:text-brand-800" title="Edit Property">
                               <Edit size={18} />
                             </Link>
                             <DeletePropertyButton propertyId={prop.id} />
@@ -118,7 +121,7 @@ export default async function PropertiesListPage({
                   ) : (
                     <tr>
                       <td colSpan={4} className="py-10 text-center text-gray-500">
-                        No properties found for "{searchTerm}".
+                        {searchTerm ? <>No properties found for &quot;{searchTerm}&quot;.</> : 'You have no properties yet.'}
                       </td>
                     </tr>
                   )}

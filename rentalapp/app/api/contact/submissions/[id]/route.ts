@@ -1,32 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '../../../../lib/prisma';
+import { errorResponse, requireSuperAdmin } from '../../../../lib/auth';
 
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    await requireSuperAdmin();
     const { id } = await params;
     const { status } = await request.json();
 
-    if (!['new', 'in-progress', 'resolved'].includes(status)) {
-      return NextResponse.json(
-        { error: 'Invalid status' },
-        { status: 400 }
-      );
+    const numericId = Number(id);
+    if (!Number.isInteger(numericId) || !['new', 'in-progress', 'resolved'].includes(status)) {
+      return NextResponse.json({ message: 'Invalid id or status' }, { status: 400 });
     }
 
     const updatedSubmission = await prisma.contactSubmission.update({
-      where: { id: parseInt(id) },
+      where: { id: numericId },
       data: { status },
     });
 
     return NextResponse.json(updatedSubmission);
-  } catch (error) {
-    console.error('Error updating submission:', error);
-    return NextResponse.json(
-      { error: 'Failed to update submission' },
-      { status: 500 }
-    );
+  } catch (e) {
+    return errorResponse(e, 'Failed to update submission');
   }
 }

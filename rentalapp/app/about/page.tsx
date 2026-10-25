@@ -22,16 +22,16 @@ export default function AboutPage() {
               </h1>
               <p className="mt-2 text-sm text-slate-500">Get to know Salone Rent</p>
             </div>
-            <div className="mt-4 h-1 w-24 rounded-full bg-gradient-to-r from-indigo-500 to-sky-500 sm:mt-0" />
+            <div className="mt-4 h-1 w-24 rounded-full bg-gradient-to-r from-brand-500 to-accent-400 sm:mt-0" />
           </div>
 
           <p className="text-lg leading-relaxed text-slate-700">
-            <span className="font-semibold text-indigo-600">Salone Rent</span> is a modern online
+            <span className="font-semibold text-brand-600">Salone Rent</span> is a modern online
             platform that connects renters and property owners across Sierra Leone. Our goal is to
             make finding or listing a house simple, transparent, and secure for everyone.
           </p>
 
-          <div className="my-10 h-px w-full bg-gradient-to-r from-indigo-500/0 via-slate-200 to-indigo-500/0" />
+          <div className="my-10 h-px w-full bg-gradient-to-r from-brand-500/0 via-slate-200 to-brand-500/0" />
 
           {/* Mission Section */}
           <Section
@@ -102,7 +102,7 @@ export default function AboutPage() {
                   support questions, please contact us at:{' '}
                   <a
                     href="mailto:info@salonerent.com"
-                    className="text-indigo-600 hover:text-indigo-500 hover:underline"
+                    className="text-brand-600 hover:text-brand-500 hover:underline"
                   >
                      info@kwilion.com
                   </a>
@@ -112,7 +112,7 @@ export default function AboutPage() {
             }
           />
             <BackToHomeButton />
-          <div className="mt-12 h-px w-full bg-gradient-to-r from-indigo-500/0 via-slate-200 to-indigo-500/0" />
+          <div className="mt-12 h-px w-full bg-gradient-to-r from-brand-500/0 via-slate-200 to-brand-500/0" />
           <p className="mt-6 text-center text-sm text-slate-500">
             © {new Date().getFullYear()} Salone Rent. All rights reserved.
           </p>

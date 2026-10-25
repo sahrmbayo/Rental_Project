@@ -1,92 +1,74 @@
-
-import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '../../lib/prisma'
-import { randomUUID } from 'crypto'
-import { clerkClient} from '@clerk/clerk-sdk-node'
-
-import { headers } from 'next/headers'
-import { auth } from '@clerk/nextjs/server'
-
-
-
+import { NextRequest, NextResponse } from 'next/server';
+import { clerkClient } from '@clerk/nextjs/server';
+import { prisma } from '../../lib/prisma';
+import { errorResponse, requireUserId } from '../../lib/auth';
+import { createCheckoutSession } from '../../lib/monime';
+import { getAppUrl, RESERVATION_FEE_NLE } from '../../lib/config';
 
 export async function POST(req: NextRequest) {
-  const { userId } = await auth();
-  if (!userId) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-  const user = await clerkClient.users.getUser(userId);
-  const UOid = user.id;
-  const UOemail = user.emailAddresses[0].emailAddress;
-  const UOname = user.firstName + ' ' + user.lastName;
-  const UOphone = user.phoneNumbers[0]?.phoneNumber || '';
-
+  let orderId: string | null = null;
   try {
-    // 1. Parse the body the UI sent
-    const { name, orderId, lineItems, metadata, callbackState } = await req.json()
-    const created =prisma.order.create({
-      data: {
-        userId: UOid,
-        email: UOemail,
-        name: UOname,
-        phone: UOphone,
-        status: 'pending',
-      },
-    })
-  
-    const createdOrder = (await created).id
-
-    // 2. Build safe, absolute redirect URLs
-     const headersList = headers();
-    const protocol = (await headersList).get("x-forwarded-proto") || "http";
-    const host = (await headersList).get("host");
-    const appUrl = `${protocol}://${host}`;
-    const successUrl = `${appUrl}/api/payment/return?status=success&orderId=${encodeURIComponent(orderId)}&co=${createdOrder}`;
-    const cancelUrl  = `${appUrl}/api/payment/return?status=cancel&orderId=${encodeURIComponent(orderId)}&co=${createdOrder}`;
-
-    // 3. Create Monime Checkout Session
-    const res = await fetch('https://api.monime.io/v1/checkout-sessions', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${process.env.MONIME_ACCESS_TOKEN}`,
-        'Monime-Space-Id': process.env.MONIME_SPACE_ID!,
-        'Idempotency-Key': randomUUID(),
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        name,
-        successUrl,
-        cancelUrl,
-        lineItems,
-        metadata: {
-          propertyId: orderId,
-          orderDbId: createdOrder,
-        },
-        callbackState
-      }),
-    })
-
-    if (!res.ok) {
-      const error = await res.text()
-      console.error('Monime error:', error)
-      return NextResponse.json({ error }, { status: 500 })
+    const userId = await requireUserId();
+    const { propertyId } = await req.json();
+    if (typeof propertyId !== 'string' || !propertyId) {
+      return NextResponse.json({ message: 'propertyId required' }, { status: 400 });
     }
 
-    const { result } = await res.json()          // { id, redirectUrl, ... }
-    const checkoutSessionId = result.id
+    const property = await prisma.property.findUnique({
+      where: { id: propertyId },
+      select: { id: true, title: true, isAvailable: true },
+    });
+    if (!property) return NextResponse.json({ message: 'Property not found' }, { status: 404 });
+    if (!property.isAvailable) {
+      return NextResponse.json({ message: 'This property is already reserved' }, { status: 409 });
+    }
 
-    
+    const user = await (await clerkClient()).users.getUser(userId);
+    const email = user.primaryEmailAddress?.emailAddress || user.emailAddresses[0]?.emailAddress;
+    if (!email) return NextResponse.json({ message: 'Your account needs an email address' }, { status: 400 });
 
-    // 4. Persist mapping (prevents 500 if order row is missing)
+    const order = await prisma.order.create({
+      data: {
+        userId,
+        email,
+        name: user.fullName || [user.firstName, user.lastName].filter(Boolean).join(' ') || email,
+        phone: user.primaryPhoneNumber?.phoneNumber || user.phoneNumbers[0]?.phoneNumber || '',
+        status: 'pending',
+        propertyId: property.id,
+      },
+    });
+    orderId = order.id;
+
+    const appUrl = getAppUrl(req.nextUrl.origin);
+    const title = property.title.slice(0, 100);
+
+    const session = await createCheckoutSession(
+      {
+        name: title,
+        reference: order.id,
+        successUrl: `${appUrl}/api/payment/return?status=success&co=${order.id}`,
+        cancelUrl: `${appUrl}/api/payment/return?status=cancel&co=${order.id}`,
+        lineItems: [
+          {
+            type: 'custom',
+            name: title,
+            price: { currency: 'SLE', value: RESERVATION_FEE_NLE * 100 },
+            quantity: 1,
+          },
+        ],
+        metadata: { propertyId: property.id, orderDbId: order.id },
+      },
+      order.id
+    );
+
     await prisma.order.update({
-      where:{id:createdOrder},
-      data:{checkoutSessionId}
-    })
-    // 5. Send redirect URL to UI
-    return NextResponse.json({ redirectUrl: result.redirectUrl })
+      where: { id: order.id },
+      data: { checkoutSessionId: session.id },
+    });
 
-  } catch (err: any) {
-    console.error(err)
-    return NextResponse.json({ error: err.message }, { status: 500 })
+    return NextResponse.json({ redirectUrl: session.redirectUrl });
+  } catch (e) {
+    if (orderId) await prisma.order.deleteMany({ where: { id: orderId, status: 'pending' } }).catch(() => {});
+    return errorResponse(e, 'Could not start checkout');
   }
 }

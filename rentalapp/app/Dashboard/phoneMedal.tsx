@@ -1,9 +1,10 @@
 'use client';
 
 import { useState } from 'react';
+import { toast } from 'react-hot-toast';
 import { saveAgentPhone } from '../action/saveAgentPhone';
 
-export function PhoneModal({ agentId }: { agentId: string }) {
+export function PhoneModal() {
   const [phone, setPhone] = useState('');
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
@@ -14,10 +15,15 @@ export function PhoneModal({ agentId }: { agentId: string }) {
     if (!phone) return;
     setLoading(true);
     try {
-      await saveAgentPhone({ agentId, phone });
-      setDone(true); // hide forever
-    } catch (e: any) {
-      alert(e.message || 'Update failed');
+      const result = await saveAgentPhone({ phone });
+      if (!result.ok) {
+        toast.error(result.error);
+        return;
+      }
+      toast.success('Phone number saved');
+      setDone(true);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'Update failed');
     } finally {
       setLoading(false);
     }
@@ -39,7 +45,7 @@ export function PhoneModal({ agentId }: { agentId: string }) {
           <button
             onClick={save}
             disabled={loading}
-            className="rounded bg-blue-600 px-4 py-2 text-white disabled:opacity-50"
+            className="btn btn-primary"
           >
             {loading ? 'Saving…' : 'Save'}
           </button>
