@@ -54,6 +54,8 @@ export async function PATCH(request: Request, { params }: Ctx) {
         where: { id },
         data: {
           ...data,
+          confirmedAt: new Date(),
+          expiryReminderSentAt: null,
           amenities: {
             connectOrCreate: amenityNames.map((name) => ({ where: { name }, create: { name } })),
           },

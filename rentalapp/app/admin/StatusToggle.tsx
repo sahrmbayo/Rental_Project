@@ -21,8 +21,14 @@ export default function StatusToggle({ id, currentStatus }: { id: string; curren
 
     if (!res?.ok) {
       setStatus(previous);
-      toast.error('Could not update application');
+      const data = await res?.json().catch(() => null);
+      toast.error(data?.message || 'Could not update application');
+      return;
     }
+
+    const { result } = await res.json().catch(() => ({}));
+    if (result === 'promoted') toast.success('Approved – they are now a verified agent');
+    else if (result === 'invited') toast.success('Approved – an invitation email was sent');
   }
 
   return (

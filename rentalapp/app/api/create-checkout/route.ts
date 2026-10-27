@@ -4,6 +4,7 @@ import { prisma } from '../../lib/prisma';
 import { errorResponse, requireUserId } from '../../lib/auth';
 import { createCheckoutSession } from '../../lib/monime';
 import { getAppUrl, RESERVATION_FEE_NLE } from '../../lib/config';
+import { listingExpiryCutoff } from '../../lib/listings';
 
 export async function POST(req: NextRequest) {
   let orderId: string | null = null;
@@ -16,9 +17,12 @@ export async function POST(req: NextRequest) {
 
     const property = await prisma.property.findUnique({
       where: { id: propertyId },
-      select: { id: true, title: true, isAvailable: true },
+      select: { id: true, title: true, isAvailable: true, rentedAt: true, confirmedAt: true },
     });
     if (!property) return NextResponse.json({ message: 'Property not found' }, { status: 404 });
+    if (property.rentedAt || property.confirmedAt < listingExpiryCutoff()) {
+      return NextResponse.json({ message: 'This listing is no longer active' }, { status: 409 });
+    }
     if (!property.isAvailable) {
       return NextResponse.json({ message: 'This property is already reserved' }, { status: 409 });
     }

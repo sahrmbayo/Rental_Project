@@ -1,12 +1,15 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { MapPin, Bed, Bath, Home } from 'lucide-react';
+import { MapPin, Bed, Bath, Home, ShieldCheck } from 'lucide-react';
 import WhatsAppShareButton from './WhatsAppShareButton';
 import type { Property } from '../generated/prisma';
 import type { ImageAsset } from '../lib/propertySchema';
 import { PLACEHOLDER_IMAGE } from '../lib/constants';
 
-export type PropertyCardData = Property & { amenities?: { name: string }[] };
+export type PropertyCardData = Omit<Property, 'address' | 'latitude' | 'longitude'> & {
+  amenities?: { name: string }[];
+  agent?: { isVerified: boolean };
+};
 
 export default function PropertyCard({ property }: { property: PropertyCardData }) {
   const cover = (property.images as ImageAsset[] | null)?.[0]?.url || PLACEHOLDER_IMAGE;
@@ -43,7 +46,12 @@ export default function PropertyCard({ property }: { property: PropertyCardData 
           </h3>
           <p className="mt-1 flex items-center gap-1 text-sm text-gray-500">
             <MapPin size={14} />
-            {property.city}
+            {property.area ? `${property.area}, ` : ''}{property.city}
+            {property.agent?.isVerified && (
+              <span className="ml-auto inline-flex items-center gap-1 text-xs font-semibold text-brand-700">
+                <ShieldCheck size={14} /> Verified agent
+              </span>
+            )}
           </p>
 
           {amenities.length > 0 && (
@@ -74,7 +82,7 @@ export default function PropertyCard({ property }: { property: PropertyCardData 
                 <span>{property.landSize} sqft</span>
               </div>
             </div>
-            <WhatsAppShareButton property={property} />
+            <WhatsAppShareButton property={{ id: property.id, title: property.title, price: property.price }} />
           </div>
         </div>
       </Link>

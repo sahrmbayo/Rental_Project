@@ -14,7 +14,21 @@ export async function getReservedProperties() {
   return prisma.property.findMany({
     where: { agentId: userId, isAvailable: false },
     orderBy: { postedAt: 'desc' },
+    include: {
+      orders: {
+        where: { status: 'completed' },
+        orderBy: { paidAt: 'desc' },
+        take: 1,
+        select: { name: true, email: true, phone: true, paidAt: true, outcome: true },
+      },
+    },
   });
+}
+
+function revalidateListing(propertyId: string) {
+  revalidatePath('/Dashboard/reserved-properties');
+  revalidatePath('/Dashboard/properties');
+  revalidatePath(`/properties/${propertyId}`);
 }
 
 /* ---------------------------------------------------- */
@@ -25,11 +39,34 @@ export async function makeAvailable(propertyId: string) {
 
   const { count } = await prisma.property.updateMany({
     where: { id: propertyId, agentId: userId },
-    data: { isAvailable: true },
+    data: { isAvailable: true, rentedAt: null, confirmedAt: new Date(), expiryReminderSentAt: null },
   });
   if (count === 0) throw new Error('Not your property');
 
-  revalidatePath('/Dashboard/reserved-properties');
-  revalidatePath('/Dashboard/properties');
-  revalidatePath(`/properties/${propertyId}`);
+  await prisma.order.updateMany({
+    where: { propertyId, status: 'completed', outcome: null },
+    data: { outcome: 'relisted', relistedAt: new Date() },
+  });
+
+  revalidateListing(propertyId);
+}
+
+/* ---------------------------------------------------- */
+/* 3.  MARK RENTED  (stops auto re-listing)            */
+/* ---------------------------------------------------- */
+export async function markRented(propertyId: string) {
+  const userId = await requireAgent();
+
+  const { count } = await prisma.property.updateMany({
+    where: { id: propertyId, agentId: userId },
+    data: { isAvailable: false, rentedAt: new Date() },
+  });
+  if (count === 0) throw new Error('Not your property');
+
+  await prisma.order.updateMany({
+    where: { propertyId, status: 'completed', outcome: null },
+    data: { outcome: 'rented' },
+  });
+
+  revalidateListing(propertyId);
 }

@@ -5,6 +5,7 @@ import LatestAgents from './LatestAgent';
 import ReservedProperties from './ReservedCount';
 import ContactSubmissions from './ContactSubmissions';
 import AgentApplicationsWidget from './AgentApplication';
+import Reports from './Reports';
 
 
 async function getStats() {
@@ -105,6 +106,10 @@ export default async function AdminDashboard() {
             {/* table comes next */}
             <AgentApplicationsWidget />
           </div>
+        </div>
+
+        <div className="mt-8">
+          <Reports />
         </div>
 
         {/* Contact Submissions Section */}

@@ -13,23 +13,41 @@ import {
   ChevronLeft,
   ChevronRight,
   Zap,
+  ShieldCheck,
+  Star,
 } from 'lucide-react';
 import FavButton from './FavButton';
 import ReadHere from './ReadHere';
+import ReportListingButton from './ReportListingButton';
+import { AreaMap } from './map';
 import type { Property } from '../generated/prisma';
 import { PLACEHOLDER_IMAGE } from '../lib/constants';
 import { PROPERTY_TYPES, type ImageAsset, type VirtualTour } from '../lib/propertySchema';
 
-type PropertyDetails = Property & { amenities: { name: string }[] };
+export type ListingStatus = 'available' | 'reserved' | 'rented' | 'expired';
+
+type PropertyDetails = Omit<Property, 'address' | 'latitude' | 'longitude'> & { amenities: { name: string }[] };
+
+const STATUS_MESSAGE: Record<Exclude<ListingStatus, 'available'>, string> = {
+  reserved: 'This property has been reserved. It will be re-listed if no agreement is reached.',
+  rented: 'This property has been rented out.',
+  expired: 'This listing is no longer active.',
+};
 
 export default function PropertyDetailsView({
   property,
   initialFav,
   reservationFee,
+  status,
+  approxLocation,
+  agent,
 }: {
   property: PropertyDetails;
   initialFav: boolean;
   reservationFee: number;
+  status: ListingStatus;
+  approxLocation: { lat: number; lng: number } | null;
+  agent: { isVerified: boolean; rating: number | null; reviewCount: number };
 }) {
   /* ---------------- image slider helpers ---------------- */
   const images = (property.images as ImageAsset[] | null) ?? [];
@@ -137,15 +155,28 @@ export default function PropertyDetailsView({
         </div>
         <p className="mt-2 flex items-center gap-2 text-lg text-gray-500">
           <MapPin size={20} />
-          {property.city}
+          {property.area ? `${property.area}, ` : ''}{property.city}
         </p>
-        {/* NEW electricity badge */}
-        {property.electricity && (
-          <span className="mt-2 inline-flex items-center gap-2 rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-800">
-            <Zap size={16} />
-            Electricity Available
-          </span>
-        )}
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          {property.electricity && (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-50 px-3 py-1 text-sm font-medium text-brand-800">
+              <Zap size={14} />
+              Electricity
+            </span>
+          )}
+          {agent.isVerified && (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-600 px-3 py-1 text-sm font-medium text-white">
+              <ShieldCheck size={14} />
+              Verified agent
+            </span>
+          )}
+          {agent.reviewCount > 0 && agent.rating != null && (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-accent-50 px-3 py-1 text-sm font-medium text-accent-800">
+              <Star size={14} className="fill-accent-400 text-accent-400" />
+              {agent.rating.toFixed(1)} agent rating ({agent.reviewCount})
+            </span>
+          )}
+        </div>
       </div>
       <p className="mt-4 text-3xl font-extrabold text-brand-700 sm:mt-0">
         Nle{Number(property.price).toLocaleString()}
@@ -190,6 +221,16 @@ export default function PropertyDetailsView({
       )}
     </div>
 
+    {approxLocation && (
+      <div className="mt-8 border-t pt-8">
+        <h2 className="text-xl font-semibold text-gray-800">Location</h2>
+        <p className="mt-1 text-sm text-gray-500">Approximate area. The exact address is shared after you reserve.</p>
+        <div className="mt-4 h-72 overflow-hidden rounded-2xl border border-gray-200">
+          <AreaMap lat={approxLocation.lat} lng={approxLocation.lng} />
+        </div>
+      </div>
+    )}
+
     <div className="mt-8 border-t pt-8">
       <label className="flex items-center gap-3 text-sm text-gray-700">
         <input
@@ -211,7 +252,7 @@ export default function PropertyDetailsView({
     </div>
 
     <div className="mt-6">
-      {property.isAvailable ? (
+      {status === 'available' ? (
         <button
           onClick={startCheckout}
           disabled={checkingOut || !agreedToTerms}
@@ -220,10 +261,14 @@ export default function PropertyDetailsView({
           {checkingOut ? 'Processing…' : `Reserve this property (NLe ${reservationFee.toLocaleString()})`}
         </button>
       ) : (
-        <p className="w-full rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-center text-sm text-amber-800">
-          This property has been reserved. The agent will re-activate it soon.
+        <p className="w-full rounded-2xl border border-accent-200 bg-accent-50 px-4 py-3 text-center text-sm text-accent-800">
+          {STATUS_MESSAGE[status]}
         </p>
       )}
+    </div>
+
+    <div className="mt-4 flex justify-end">
+      <ReportListingButton propertyId={property.id} />
     </div>
   </div>
 

@@ -4,6 +4,7 @@ import { ValidationError } from 'yup';
 import { prisma } from '../../lib/prisma';
 import { errorResponse, requireAgent } from '../../lib/auth';
 import { IMAGE_SLOTS, parsePropertyBody } from '../../lib/propertySchema';
+import { hasApprovedApplication } from '../../lib/agents';
 
 export async function POST(req: Request) {
   try {
@@ -13,15 +14,18 @@ export async function POST(req: Request) {
     });
 
     const user = await (await clerkClient()).users.getUser(agentId);
-    await prisma.agent.upsert({
-      where: { id: agentId },
-      update: {},
-      create: {
-        id: agentId,
-        name: user.fullName || user.firstName || '',
-        email: user.primaryEmailAddress?.emailAddress || user.emailAddresses[0]?.emailAddress || '',
-      },
-    });
+    const email = user.primaryEmailAddress?.emailAddress || user.emailAddresses[0]?.emailAddress || '';
+    const existingAgent = await prisma.agent.findUnique({ where: { id: agentId }, select: { id: true } });
+    if (!existingAgent) {
+      await prisma.agent.create({
+        data: {
+          id: agentId,
+          name: user.fullName || user.firstName || '',
+          email,
+          isVerified: await hasApprovedApplication(email),
+        },
+      });
+    }
 
     const property = await prisma.property.create({
       data: {

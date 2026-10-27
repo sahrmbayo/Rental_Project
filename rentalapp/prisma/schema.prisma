@@ -23,21 +23,87 @@ model Order {
   phone             String
   propertyId        String?
   property          Property? @relation(fields: [propertyId], references: [id], onDelete: SetNull)
+  // Reservation lifecycle after payment
+  outcome              String? // "rented" | "relisted"
+  relistReminderSentAt DateTime?
+  relistedAt           DateTime?
+  review               AgentReview?
+  issues               ReservationIssue[]
 
   @@index([userId])
   @@index([propertyId])
+  @@index([status, paidAt])
   @@map("orders")
 }
 
 model Agent {
-  id          String     @id @default(cuid())
+  id          String        @id @default(cuid())
   name        String
-  email       String     @unique
+  email       String        @unique
   phone       String?
-  isSuspended Boolean    @default(false)
+  isSuspended Boolean       @default(false)
+  isVerified  Boolean       @default(false)
   properties  Property[]
+  reviews     AgentReview[]
 
   @@map("agents")
+}
+
+model AgentReview {
+  id        String   @id @default(cuid())
+  agentId   String
+  agent     Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  orderId   String   @unique
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  userId    String
+  rating    Int // 1-5
+  comment   String?
+  createdAt DateTime @default(now())
+
+  @@index([agentId])
+  @@map("agent_reviews")
+}
+
+model ReservationIssue {
+  id        String   @id @default(cuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  userId    String
+  reason    String // "no-response" | "unavailable" | "misleading" | "other"
+  message   String   @db.Text
+  status    String   @default("open") // "open" | "in-progress" | "resolved"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@map("reservation_issues")
+}
+
+model ListingReport {
+  id         String   @id @default(cuid())
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  userId     String?
+  reason     String // "scam" | "unavailable" | "wrong-info" | "duplicate" | "other"
+  message    String?  @db.Text
+  status     String   @default("open") // "open" | "in-progress" | "resolved"
+  createdAt  DateTime @default(now())
+
+  @@index([status])
+  @@map("listing_reports")
+}
+
+model SavedSearch {
+  id             String   @id @default(cuid())
+  userId         String
+  email          String
+  label          String
+  params         Json
+  createdAt      DateTime @default(now())
+  lastNotifiedAt DateTime @default(now())
+
+  @@index([userId])
+  @@map("saved_searches")
 }
 
 model Property {
@@ -57,14 +123,23 @@ model Property {
   images        Json?  //[{url, publicId}, ...]
   isAvailable  Boolean     @default(true)
   postedAt     DateTime    @default(now())
+  latitude     Float?
+  longitude    Float?
+  viewCount    Int         @default(0)
+  // Listings must be re-confirmed by the agent periodically or they stop showing publicly
+  confirmedAt          DateTime  @default(now())
+  expiryReminderSentAt DateTime?
+  rentedAt             DateTime?
   agentId      String
   agent        Agent       @relation(fields: [agentId], references: [id])
   favourite    Favourite[]
   amenities    Amenity[]
   orders       Order[]
+  reports      ListingReport[]
 
   @@index([agentId])
   @@index([postedAt])
+  @@index([confirmedAt])
   @@map("properties")
 }
 

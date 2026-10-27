@@ -1,12 +1,14 @@
 import type { MetadataRoute } from 'next';
 import { prisma } from './lib/prisma';
 import { getAppUrl } from './lib/config';
+import { publicListingWhere } from './lib/listings';
 
 export const revalidate = 3600;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = getAppUrl();
   const properties = await prisma.property.findMany({
+    where: publicListingWhere(),
     select: { id: true, postedAt: true },
     orderBy: { postedAt: 'desc' },
     take: 5000,

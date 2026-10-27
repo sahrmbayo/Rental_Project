@@ -9,6 +9,7 @@ import {
   InformationCircleIcon,
   EnvelopeIcon,
   BuildingOfficeIcon,
+  ClipboardDocumentListIcon,
 } from '@heroicons/react/24/outline';
 import {
   SignInButton,
@@ -29,6 +30,7 @@ export default function Header() {
   const links = [
     { href: '/properties', label: 'Browse Properties', icon: HomeIcon, show: true },
     { href: '/Dashboard', label: 'For Agents', icon: BuildingOfficeIcon, show: role === 'admin' },
+    { href: '/reservations', label: 'Reservations', icon: ClipboardDocumentListIcon, show: !!user },
     { href: '/about', label: 'About Us', icon: InformationCircleIcon, show: true },
     { href: '/contact', label: 'Contact Us', icon: EnvelopeIcon, show: role !== 'admin' },
   ].filter((l) => l.show);

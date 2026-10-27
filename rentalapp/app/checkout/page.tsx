@@ -129,6 +129,9 @@ export default async function CheckoutSuccessPage({
               </a>
             </div>
             <div>
+              <span className="font-semibold">Address:</span> {property.address}, {property.area}, {property.city}
+            </div>
+            <div>
               <span className="font-semibold">Agent Phone:</span>{' '}
               {agent.phone ? (
                 <a href={`tel:${agent.phone}`} className="text-brand-600 underline">
@@ -154,12 +157,14 @@ export default async function CheckoutSuccessPage({
           </div>
         </div>
 
-        <Link
-          href="/properties"
-          className="btn btn-primary btn-lg"
-        >
-          Continue Viewing Properties
-        </Link>
+        <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
+          <Link href="/reservations" className="btn btn-primary btn-lg">
+            My reservations
+          </Link>
+          <Link href="/properties" className="btn btn-outline btn-lg">
+            Continue browsing
+          </Link>
+        </div>
       </div>
     </main>
   );

@@ -11,9 +11,11 @@ export async function GET() {
     const agentId = await requireAgent();
     const user = await (await clerkClient()).users.getUser(agentId);
 
-    const [totalProperties, reservedProperties, recentReservations] = await Promise.all([
+    const [totalProperties, reservedProperties, views, saves, recentReservations] = await Promise.all([
       prisma.property.count({ where: { agentId } }),
       prisma.property.count({ where: { agentId, isAvailable: false } }),
+      prisma.property.aggregate({ where: { agentId }, _sum: { viewCount: true } }),
+      prisma.favourite.count({ where: { property: { agentId } } }),
       prisma.order.findMany({
         where: { status: 'completed', property: { agentId } },
         orderBy: { paidAt: 'desc' },
@@ -27,6 +29,8 @@ export async function GET() {
       totalProperties,
       reservedProperties,
       availableProperties: totalProperties - reservedProperties,
+      totalViews: views._sum.viewCount ?? 0,
+      totalSaves: saves,
       recentReservations,
     });
   } catch (e) {

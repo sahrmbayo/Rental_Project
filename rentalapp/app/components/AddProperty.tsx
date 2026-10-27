@@ -16,6 +16,8 @@ import {
   Check,
   Loader2,
   X,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 import type { Property } from '../generated/prisma';
 import DashboardLayout from '../Dashboard/DashboardLayout';
@@ -30,9 +32,15 @@ import {
   type VirtualTour,
 } from '../lib/propertySchema';
 import { uploadToCloudinary } from '../lib/uploadClient';
+import { compressImage } from '../lib/compressImage';
+import { CITY_CENTERS, PickerMap } from './map';
+
+type SourceProperty = Property & { amenities?: { name: string }[] };
 
 type PropertyFormProps = {
-  initialData?: (Property & { amenities?: { name: string }[] }) | null;
+  initialData?: SourceProperty | null;
+  /** Prefills a new listing from an existing one ("Duplicate"); photos are not copied. */
+  template?: SourceProperty | null;
 };
 
 function initialSlots(initialData: PropertyFormProps['initialData']): (ImageAsset | null)[] {
@@ -41,9 +49,10 @@ function initialSlots(initialData: PropertyFormProps['initialData']): (ImageAsse
   return Array.from({ length }, (_, i) => existing[i] ?? null);
 }
 
-export default function PropertyFormPage({ initialData }: PropertyFormProps) {
+export default function PropertyFormPage({ initialData, template }: PropertyFormProps) {
   const router = useRouter();
   const isEditMode = !!initialData;
+  const source = initialData ?? template;
 
   const [slots, setSlots] = useState<(ImageAsset | null)[]>(() => initialSlots(initialData));
   const [uploadingSlot, setUploadingSlot] = useState<number | null>(null);
@@ -59,21 +68,23 @@ export default function PropertyFormPage({ initialData }: PropertyFormProps) {
   } = useForm<PropertyFormData>({
     resolver: yupResolver(propertySchema),
     defaultValues:
-      isEditMode && initialData
+      source
         ? {
-            title: initialData.title,
-            description: initialData.description ?? '',
-            price: Number(initialData.price),
-            propertyType: initialData.propertyType as PropertyFormData['propertyType'],
-            landSize: initialData.landSize ? Number(initialData.landSize) : undefined,
-            address: initialData.address,
-            city: initialData.city,
-            area: initialData.area,
-            bedrooms: initialData.bedrooms,
-            bathrooms: initialData.bathrooms,
-            electricity: initialData.electricity ?? false,
-            virtualTours: (initialData.virtualTours as VirtualTour[] | null) ?? [],
-            amenities: initialData.amenities?.map((a) => a.name) ?? [],
+            title: template && !initialData ? `${source.title} (copy)` : source.title,
+            description: source.description ?? '',
+            price: Number(source.price),
+            propertyType: source.propertyType as PropertyFormData['propertyType'],
+            landSize: source.landSize ? Number(source.landSize) : undefined,
+            address: source.address,
+            city: source.city,
+            area: source.area,
+            bedrooms: source.bedrooms,
+            bathrooms: source.bathrooms,
+            electricity: source.electricity ?? false,
+            virtualTours: initialData ? ((source.virtualTours as VirtualTour[] | null) ?? []) : [],
+            amenities: source.amenities?.map((a) => a.name) ?? [],
+            latitude: source.latitude,
+            longitude: source.longitude,
           }
         : {
             propertyType: 'apartment',
@@ -88,7 +99,7 @@ export default function PropertyFormPage({ initialData }: PropertyFormProps) {
   const uploadSlot = async (index: number, file: File) => {
     setUploadingSlot(index);
     try {
-      const asset = await uploadToCloudinary(file, 'image');
+      const asset = await uploadToCloudinary(await compressImage(file), 'image');
       setSlots((prev) => prev.map((s, i) => (i === index ? asset : s)));
     } catch (error) {
       console.error('Upload error:', error);
@@ -99,6 +110,15 @@ export default function PropertyFormPage({ initialData }: PropertyFormProps) {
   };
 
   const clearSlot = (index: number) => setSlots((prev) => prev.map((s, i) => (i === index ? null : s)));
+
+  const moveSlot = (index: number, direction: -1 | 1) =>
+    setSlots((prev) => {
+      const target = index + direction;
+      if (target < 0 || target >= prev.length) return prev;
+      const next = [...prev];
+      [next[index], next[target]] = [next[target], next[index]];
+      return next;
+    });
 
   const uploadTour = async (file: File) => {
     const isVideo = file.type.startsWith('video/');
@@ -152,11 +172,20 @@ export default function PropertyFormPage({ initialData }: PropertyFormProps) {
 
   const amenities = watch('amenities') ?? [];
   const tours = watch('virtualTours') ?? [];
+  const lat = watch('latitude');
+  const lng = watch('longitude');
+  const location = lat != null && lng != null ? { lat, lng } : null;
 
   return (
     <DashboardLayout
-      headerTitle={isEditMode ? 'Edit Property' : 'Add New Property'}
-      headerSubtitle={isEditMode ? 'Update the details for your property below.' : 'Fill in the details to list a new property.'}
+      headerTitle={isEditMode ? 'Edit Property' : template ? 'Duplicate Property' : 'Add New Property'}
+      headerSubtitle={
+        isEditMode
+          ? 'Update the details for your property below. Saving also confirms the listing is still available.'
+          : template
+            ? 'Details are copied from your other listing. Add photos for this one.'
+            : 'Fill in the details to list a new property.'
+      }
       currentPage="add-property"
     >
       <div className="flex h-screen bg-gray-50 font-sans">
@@ -282,6 +311,39 @@ export default function PropertyFormPage({ initialData }: PropertyFormProps) {
                   <input {...register('area')} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand-500 focus:ring-brand-500 text-gray-700" />
                   {errors.area && <p className="mt-1 text-sm text-red-600">{errors.area.message}</p>}
                 </div>
+                <div className="md:col-span-2">
+                  <div className="flex items-center justify-between">
+                    <label className="block text-sm font-medium text-gray-700">Pin on map (optional)</label>
+                    {location && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setValue('latitude', null);
+                          setValue('longitude', null);
+                        }}
+                        className="btn btn-ghost btn-sm"
+                      >
+                        Clear pin
+                      </button>
+                    )}
+                  </div>
+                  <p className="mt-1 text-xs text-gray-500">
+                    Tap the property&apos;s location. Tenants only see the approximate area until they reserve.
+                  </p>
+                  <div className="mt-2 h-72 overflow-hidden rounded-2xl border border-gray-200">
+                    <PickerMap
+                      value={location}
+                      fallbackCenter={CITY_CENTERS[watch('city')] ?? CITY_CENTERS.Freetown}
+                      onPick={(lat, lng) => {
+                        setValue('latitude', Number(lat.toFixed(6)));
+                        setValue('longitude', Number(lng.toFixed(6)));
+                      }}
+                    />
+                  </div>
+                  {(errors.latitude || errors.longitude) && (
+                    <p className="mt-1 text-sm text-red-600">{errors.latitude?.message || errors.longitude?.message}</p>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -292,7 +354,9 @@ export default function PropertyFormPage({ initialData }: PropertyFormProps) {
                 <h2 className="text-lg font-semibold text-gray-800">Images</h2>
               </div>
               <p className="mt-1 text-sm text-gray-500">
-                {isEditMode ? 'Replace or remove photos. Existing photos are kept unless you change them.' : 'Upload a photo for each slot.'}
+                {isEditMode
+                  ? 'Replace, remove or reorder photos. The first photo is the cover.'
+                  : 'Upload a photo for each slot. Use the arrows to choose which photo is the cover.'}
               </p>
               <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2">
                 {slots.map((slot, index) => (
@@ -320,6 +384,9 @@ export default function PropertyFormPage({ initialData }: PropertyFormProps) {
                       <div className="relative mt-4">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={slot.url} alt={`Preview ${index + 1}`} className="h-32 w-full rounded-md object-cover" />
+                        {index === 0 && (
+                          <span className="absolute top-1 left-1 rounded-full bg-accent-500 px-2 py-0.5 text-xs font-semibold text-white">Cover</span>
+                        )}
                         <button
                           type="button"
                           onClick={() => clearSlot(index)}
@@ -328,6 +395,26 @@ export default function PropertyFormPage({ initialData }: PropertyFormProps) {
                         >
                           <X className="h-4 w-4" />
                         </button>
+                        <div className="absolute bottom-1 right-1 flex gap-1">
+                          <button
+                            type="button"
+                            onClick={() => moveSlot(index, -1)}
+                            disabled={index === 0}
+                            aria-label="Move photo earlier"
+                            className="rounded-full bg-white/90 p-1 text-gray-700 shadow hover:bg-white disabled:opacity-40"
+                          >
+                            <ChevronLeft className="h-4 w-4" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => moveSlot(index, 1)}
+                            disabled={index === slots.length - 1}
+                            aria-label="Move photo later"
+                            className="rounded-full bg-white/90 p-1 text-gray-700 shadow hover:bg-white disabled:opacity-40"
+                          >
+                            <ChevronRight className="h-4 w-4" />
+                          </button>
+                        </div>
                       </div>
                     )}
                   </div>

@@ -3,8 +3,9 @@ import { auth } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Heart, MapPin, Bed, Bath, Square } from 'lucide-react';
+import { Heart, MapPin, Bed, Bath, Square, BellRing } from 'lucide-react';
 import { getSavedProperties } from '../action/favourite';
+import { deleteSavedSearch, getSavedSearches } from '../action/savedSearches';
 import RemoveButton from '../components/RemoveButton';
 import { Metadata } from 'next';
 import BackToHomeButton from '../components/BackToHomeButton';
@@ -20,7 +21,7 @@ export default async function SavedPage() {
   const { userId } = await auth();
   if (!userId) redirect('/sign-in');
 
-  const favorites = await getSavedProperties();
+  const [favorites, searches] = await Promise.all([getSavedProperties(), getSavedSearches()]);
 
   return (
     <main className="bg-neutral-50 text-neutral-800">
@@ -56,6 +57,33 @@ export default async function SavedPage() {
 
       {/* ---- content ---- */}
       <section className="mx-auto max-w-6xl px-6 py-10 min-h-screen">
+        <div className="mb-10 rounded-2xl border border-neutral-200 bg-white p-6">
+          <div className="flex items-center gap-2">
+            <BellRing size={18} className="text-brand-600" />
+            <h2 className="text-lg font-semibold text-neutral-900">Search alerts</h2>
+          </div>
+          {searches.length === 0 ? (
+            <p className="mt-2 text-sm text-neutral-600">
+              Filter properties on the <Link href="/properties" className="text-brand-700 underline">browse page</Link> and
+              tap &ldquo;Email me new matches&rdquo; to get alerts.
+            </p>
+          ) : (
+            <ul className="mt-4 divide-y divide-neutral-100">
+              {searches.map((s) => {
+                const qs = new URLSearchParams(s.params as Record<string, string>).toString();
+                return (
+                  <li key={s.id} className="flex items-center justify-between gap-4 py-3 text-sm">
+                    <Link href={`/properties?${qs}`} className="font-medium text-neutral-800 hover:text-brand-700">{s.label}</Link>
+                    <form action={deleteSavedSearch.bind(null, s.id)}>
+                      <button type="submit" className="btn btn-ghost btn-sm text-red-600 hover:bg-red-50">Remove</button>
+                    </form>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </div>
+
         {favorites.length === 0 ? (
           <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-neutral-300 bg-white py-24">
             <Heart size={40} className="text-neutral-300" />

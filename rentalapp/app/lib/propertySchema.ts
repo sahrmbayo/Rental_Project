@@ -43,7 +43,12 @@ export type PropertyFormData = {
   electricity: boolean;
   virtualTours: VirtualTour[];
   amenities: string[];
+  latitude?: number | null;
+  longitude?: number | null;
 };
+
+/** Rough bounding box of Sierra Leone, to catch pins dropped in the wrong country. */
+export const SL_BOUNDS = { minLat: 6.85, maxLat: 10.05, minLng: -13.4, maxLng: -10.2 };
 
 const toNumber = (v: unknown) => (typeof v === 'number' && isNaN(v) ? undefined : v);
 
@@ -79,6 +84,20 @@ export const propertySchema = yup.object({
     .max(10)
     .default([]),
   amenities: yup.array(yup.string().oneOf([...AMENITIES]).required()).default([]),
+  latitude: yup
+    .number()
+    .transform(toNumber)
+    .nullable()
+    .min(SL_BOUNDS.minLat, 'Location must be in Sierra Leone')
+    .max(SL_BOUNDS.maxLat, 'Location must be in Sierra Leone')
+    .optional(),
+  longitude: yup
+    .number()
+    .transform(toNumber)
+    .nullable()
+    .min(SL_BOUNDS.minLng, 'Location must be in Sierra Leone')
+    .max(SL_BOUNDS.maxLng, 'Location must be in Sierra Leone')
+    .optional(),
 }) as unknown as yup.ObjectSchema<PropertyFormData>;
 
 export const imagesSchema = yup
@@ -109,5 +128,7 @@ export async function parsePropertyBody(body: unknown, { requireImages }: { requ
     virtualTours: data.virtualTours,
     images,
     amenityNames: data.amenities,
+    latitude: data.latitude != null && data.longitude != null ? data.latitude : null,
+    longitude: data.latitude != null && data.longitude != null ? data.longitude : null,
   };
 }

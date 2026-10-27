@@ -1,58 +1,53 @@
 "use server";
 
 import { prisma } from "../lib/prisma";
-import type { Prisma } from "../generated/prisma";
+import {
+  approximateLocation,
+  buildPropertyOrderBy,
+  buildPropertyWhere,
+  pickSearchParams,
+  type PropertySearchParams,
+} from "../lib/listings";
 
 const PAGE_SIZE = 6;
 
-export type PropertySearchParams = {
-  page?: number | string;
-  city?: string;
-  type?: string;
-  price?: string;
-  bedrooms?: string;
-  electricity?: string; // "true" if checked
-  amenities?: string;
-};
+export type { PropertySearchParams };
 
-export async function fetchProperties({
-  page = 1,
-  city,
-  type,
-  price,
-  bedrooms,
-  electricity,
-  amenities,
-}: PropertySearchParams) {
-  const where: Prisma.PropertyWhereInput = {};
+const cardInclude = {
+  amenities: { select: { name: true } },
+  agent: { select: { isVerified: true } },
+} as const;
 
-  if (typeof city === "string" && city) where.city = { equals: city, mode: "insensitive" };
-  if (typeof type === "string" && type) where.propertyType = { equals: type, mode: "insensitive" };
-  if (typeof price === "string" && price.endsWith("+") && Number.isFinite(Number(price.slice(0, -1)))) {
-    where.price = { gte: Number(price.slice(0, -1)) };
-  } else if (price && Number.isFinite(Number(price))) {
-    where.price = { lte: Number(price) };
-  }
-  if (bedrooms && Number.isInteger(Number(bedrooms))) where.bedrooms = Number(bedrooms);
-  if (electricity === "true") where.electricity = true;
+export async function fetchProperties(input: PropertySearchParams & { page?: number | string }) {
+  const params = pickSearchParams(input);
+  const where = buildPropertyWhere(params);
+  const pageNumber = Math.max(1, Math.floor(Number(input.page)) || 1);
 
-  if (typeof amenities === "string" && amenities) {
-    const wanted = amenities.split(",").map((a) => a.trim()).filter(Boolean).slice(0, 20);
-    if (wanted.length) where.amenities = { some: { name: { in: wanted } } };
-  }
-
-  const pageNumber = Math.max(1, Math.floor(Number(page)) || 1);
-
-  const [properties, totalCount] = await Promise.all([
+  const [rows, totalCount] = await Promise.all([
     prisma.property.findMany({
       where,
-      orderBy: { postedAt: "desc" },
+      orderBy: buildPropertyOrderBy(params.sort),
       take: PAGE_SIZE,
       skip: (pageNumber - 1) * PAGE_SIZE,
-      include: { amenities: true },
+      include: cardInclude,
     }),
     prisma.property.count({ where }),
   ]);
 
+  // Exact address and coordinates are only revealed after payment.
+  const properties = rows.map(({ address: _address, latitude: _lat, longitude: _lng, ...p }) => p);
+
   return { properties, totalCount, pageSize: PAGE_SIZE };
+}
+
+/** Approximate pins for the map view (up to 300 matching listings). */
+export async function fetchMapPins(input: PropertySearchParams) {
+  const params = pickSearchParams(input);
+  const rows = await prisma.property.findMany({
+    where: { AND: [buildPropertyWhere(params), { latitude: { not: null } }, { longitude: { not: null } }] },
+    orderBy: buildPropertyOrderBy(params.sort),
+    take: 300,
+    select: { id: true, title: true, price: true, city: true, isAvailable: true, latitude: true, longitude: true },
+  });
+  return rows.map(({ latitude, longitude, ...p }) => ({ ...p, ...approximateLocation(p.id, latitude!, longitude!) }));
 }

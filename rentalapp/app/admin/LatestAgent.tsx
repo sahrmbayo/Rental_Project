@@ -1,5 +1,6 @@
 // app/admin/LatestAgents.tsx
 import { clerkClient } from '@clerk/nextjs/server';
+import { ShieldCheck } from 'lucide-react';
 import { prisma } from '../lib/prisma';
 
 async function getLatestAgents() {
@@ -11,7 +12,7 @@ async function getLatestAgents() {
       name: true,
       email: true,
       phone: true,
-      
+      isVerified: true,
     },
   });
 
@@ -32,10 +33,23 @@ export default async function LatestAgents() {
       {agents.map((a) => (
         <li key={a.id} className="flex items-center justify-between py-3">
           <div>
-            <p className="font-medium text-gray-900">{a.name}</p>
+            <p className="flex items-center gap-1 font-medium text-gray-900">
+              {a.name}
+              {a.isVerified && <ShieldCheck size={14} className="text-brand-600" aria-label="Verified" />}
+            </p>
             <p className="text-sm text-gray-500">{a.email}</p>
           </div>
           <div className="flex gap-2">
+            <form action="/api/admin/toggle-verified" method="POST">
+              <input type="hidden" name="id" value={a.id} />
+              <button
+                className={`rounded-full px-3 py-1 text-xs font-medium ${
+                  a.isVerified ? 'bg-gray-100 text-gray-700' : 'bg-brand-50 text-brand-700'
+                }`}
+              >
+                {a.isVerified ? 'Unverify' : 'Verify'}
+              </button>
+            </form>
            <form action="/admin/toggle-agent" method="POST">
               <input type="hidden" name="id" value={a.id} />
               <button

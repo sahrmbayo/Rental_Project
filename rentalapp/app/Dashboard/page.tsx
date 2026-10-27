@@ -3,7 +3,7 @@
 import { useState, useEffect, type ComponentType } from 'react';
 import Link from 'next/link';
 import { useUser } from '@clerk/nextjs';
-import { Database, CheckCircle2, PlusCircle, House } from 'lucide-react';
+import { Database, CheckCircle2, PlusCircle, House, Eye, Heart } from 'lucide-react';
 import DashboardLayout from './DashboardLayout';
 import { PhoneModal } from './phoneMedal';
 
@@ -12,6 +12,8 @@ type DashboardStats = {
   totalProperties: number;
   reservedProperties: number;
   availableProperties: number;
+  totalViews: number;
+  totalSaves: number;
   recentReservations: {
     id: string;
     paidAt: string | null;
@@ -115,10 +117,12 @@ export default function DashboardPage() {
         </p>
       )}
 
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
         <StatCard title="Total Properties" value={stats?.totalProperties ?? '–'} icon={Database} subtitle="Your listings" isLoading={isLoading} />
         <StatCard title="Available" value={stats?.availableProperties ?? '–'} icon={CheckCircle2} subtitle="Open for reservation" isLoading={isLoading} />
         <StatCard title="Reserved" value={stats?.reservedProperties ?? '–'} icon={House} subtitle="Awaiting agreement" isLoading={isLoading} />
+        <StatCard title="Views" value={stats?.totalViews?.toLocaleString() ?? '–'} icon={Eye} subtitle="Listing page views" isLoading={isLoading} />
+        <StatCard title="Saves" value={stats?.totalSaves ?? '–'} icon={Heart} subtitle="Tenants who saved" isLoading={isLoading} />
       </div>
 
       <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-2">

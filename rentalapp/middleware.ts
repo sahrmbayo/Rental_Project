@@ -40,6 +40,9 @@ const isPublicRoute = createRouteMatcher([
   '/api/payment(.*)',
   '/api/contact',
   '/api/agent-applications',
+  // Authenticated by their own secrets, not by Clerk:
+  '/api/webhooks(.*)',
+  '/api/cron(.*)',
 ]);
 
 function deny(req: Request, status: 401 | 403) {

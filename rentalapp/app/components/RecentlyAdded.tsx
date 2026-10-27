@@ -2,12 +2,14 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { prisma } from '../lib/prisma';
 import PropertyCard from './PropertyCard';
+import { publicListingWhere } from '../lib/listings';
 
 async function getRecentProperties() {
   return prisma.property.findMany({
+    where: publicListingWhere(),
     orderBy: { postedAt: 'desc' },
     take: 6,
-    include: { amenities: { select: { name: true } } },
+    include: { amenities: { select: { name: true } }, agent: { select: { isVerified: true } } },
   });
 }
 
